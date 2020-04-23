@@ -1,0 +1,16 @@
+PODS:
+  - PopupView (0.0.1)
+
+DEPENDENCIES:
+  - PopupView (from `../`)
+
+EXTERNAL SOURCES:
+  PopupView:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  PopupView: 13780eb170f8f1a371befddb3cae5aa6882e9ad4
+
+PODFILE CHECKSUM: 0e36c7dcc999822a135ddd7aa346af68fb4c9025
+
+COCOAPODS: 1.8.4

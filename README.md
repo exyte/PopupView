@@ -25,7 +25,7 @@ ___
 # Usage
 1. Put all your body code into a ZStack
 2. Add a binding bool to control popup presentation state
-3. Add `.popup` modifier to it
+3. Add `.popup` modifier to your ZStack
 ```swift
 @State var showingPopup = false
 
@@ -33,7 +33,7 @@ struct ContentView: View {
     var body: some View {
         ZStack {
 		  // your view
-		}.popup(presented: $showingTopPopup, type: .slideFromTop, autohideIn: 2) {
+		}.popup(presented: $showingTopPopup, type: .popup, autohideIn: 2) {
             HStack {
                 Text("The popup")
             }
@@ -44,12 +44,13 @@ struct ContentView: View {
     }
 }
 ```
-4. Available customizations
-`popupType` - bottom toast, top toast ot popup
-`animation` - optional: custom animation for popup sliding onto screen
-`autohideIn` - optional: time after which popup should disappear  
-`onTap` - optional: block to execute on tap, defaults to dismissal  
-`view` - view you want to display on your popup
+4. Available customizations   
+
+`popupType` - toast, float or popup  
+`animation` - optional: custom animation for popup sliding onto screen  
+`autohideIn` - optional: time after which popup should disappear    
+`onTap` - optional: block to execute on tap, defaults to dismissal    
+`view` - required: view you want to display on your popup  
 
 ## Examples
 
