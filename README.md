@@ -3,7 +3,7 @@
 
 <p><h1 align="left">Popup View</h1></p>
 
-<p><h4>iOS library for a walkthrough or onboarding flow with tap actions written with SwiftUI</h4></p>
+<p><h4>Toasts and popups library written with SwiftUI</h4></p>
 
 ___
 
@@ -33,7 +33,8 @@ struct ContentView: View {
     var body: some View {
         ZStack {
 		  // your view
-		}.popup(presented: $showingTopPopup, type: .popup, autohideIn: 2) {
+		}
+		.popup(presented: $showingTopPopup, type: .popup, autohideIn: 2) {
             HStack {
                 Text("The popup")
             }
@@ -44,13 +45,16 @@ struct ContentView: View {
     }
 }
 ```
-4. Available customizations   
 
-`popupType` - toast, float or popup  
-`animation` - optional: custom animation for popup sliding onto screen  
-`autohideIn` - optional: time after which popup should disappear    
-`onTap` - optional: block to execute on tap, defaults to dismissal    
-`view` - required: view you want to display on your popup  
+### Required parameters 
+`presented` - binding to determine if the popup should be seen on screen or hidden
+`view` - view you want to display on your popup  
+
+### Available customizations - optional parameters    
+`type` - toast, float or popup (top or bottom)  
+`animation` - custom animation for popup sliding onto screen  
+`autohideIn` - time after which popup should disappear    
+`onTap` - block to execute on tap, defaults to dismissal    
 
 ## Examples
 

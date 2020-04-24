@@ -194,7 +194,7 @@ struct ContentView : View {
                         .foregroundColor(.black)
                         .fontWeight(.bold)
 
-                    Text("Our hand picked organic fresh tasty coffee from southern slopes of Australia is bound to lighten you mood.")
+                    Text("Our hand picked organic fresh tasty coffee from southern slopes of Australia is bound to lighten your mood.")
                         .font(.system(size: 14))
                         .foregroundColor(.black)
                 }
