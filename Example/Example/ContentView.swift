@@ -63,7 +63,7 @@ struct ContentView : View {
         }
         .edgesIgnoringSafeArea(.all)
             
-        .popup(presented: $showingPopup, type: .`default`, position: .top, closeOnTap: true) {
+        .popup(presented: $showingPopup, type: .`default`) {
             VStack(spacing: 10) {
                 Image("okay")
                     .resizable()
@@ -97,9 +97,6 @@ struct ContentView : View {
             .background(self.popupColor)
             .cornerRadius(10.0)
             .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.13), radius: 10.0)
-            .onTapGesture {
-                self.showingTopToast = true
-            }
         }
 
         .popup(presented: $showingTopToast, type: .toast, position: .top) {
