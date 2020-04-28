@@ -34,7 +34,7 @@ struct ContentView: View {
         ZStack {
 		  // your view
 		}
-		.popup(presented: $showingTopPopup, type: .popup, autohideIn: 2) {
+		.popup(presented: $showingTopPopup, autohideIn: 2) {
             HStack {
                 Text("The popup")
             }
@@ -47,14 +47,14 @@ struct ContentView: View {
 ```
 
 ### Required parameters 
-`presented` - binding to determine if the popup should be seen on screen or hidden
+`presented` - binding to determine if the popup should be seen on screen or hidden     
 `view` - view you want to display on your popup  
 
 ### Available customizations - optional parameters    
-`type` - toast, float or popup (top or bottom)  
+`type` - toast, float or default   
+`position` - top or bottom (for default case it just determines animation direction)  
 `animation` - custom animation for popup sliding onto screen  
 `autohideIn` - time after which popup should disappear    
-`onTap` - block to execute on tap, defaults to dismissal    
 
 ## Examples
 

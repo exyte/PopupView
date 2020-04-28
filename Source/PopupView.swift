@@ -8,32 +8,49 @@
 
 import SwiftUI
 
-class DispatchWorkHolder {
-    var work: DispatchWorkItem?
+extension View {
+
+    public func popup<PopupContent: View>(
+        presented: Binding<Bool>,
+        type: Popup<PopupContent>.PopupType = .`default`,
+        position: Popup<PopupContent>.Position = .bottom,
+        animation: Animation = Animation.easeOut(duration: 0.3),
+        autohideIn: Double? = nil,
+        closeOnTap: Bool = true,
+        view: @escaping () -> PopupContent) -> some View {
+        self.modifier(
+            Popup(
+                presented: presented,
+                type: type,
+                position: position,
+                animation: animation,
+                autohideIn: autohideIn,
+                closeOnTap: closeOnTap,
+                view: view)
+        )
+    }
 }
 
 public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     public enum PopupType {
-        case popup
-        case bottomToast
-        case topToast
-        case bottomFloater(verticalPadding: CGFloat = 20)
-        case topFloater(verticalPadding: CGFloat = 20)
 
-        func isPositioned(at position: Position) -> Bool {
+        case `default`
+        case toast
+        case floater(verticalPadding: CGFloat = 20)
+
+        func shouldBeCentered() -> Bool {
             switch self {
-            case .bottomToast, .bottomFloater:
-                return position == .bottom
-            case .topToast, .topFloater:
-                return position == .top
+            case .`default`:
+                return true
             default:
                 return false
             }
         }
     }
 
-    enum Position {
+    public enum Position {
+
         case top
         case bottom
     }
@@ -43,15 +60,16 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     /// Tells if the sheet should be presented or not
     @Binding var presented: Bool
 
-    var popupType: PopupType
+    var type: PopupType
+    var position: Position
 
     var animation: Animation
 
     /// If nil - niver hides on its own
     var autohideIn: Double?
 
-    /// Call on popup tap - default is dismissal
-    var onTap: (()->())?
+    /// Should close on tap - default is `true`
+    var closeOnTap: Bool
 
     var view: () -> PopupContent
 
@@ -71,23 +89,27 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// The offset when the popup is displayed
     private var displayedOffset: CGFloat {
-        switch popupType {
-        case .popup:
+        switch type {
+        case .`default`:
             return 0
-        case .bottomToast:
-            return presenterContentRect.height - sheetContentRect.height + safeAreaInset.bottom
-        case .topToast:
-            return sheetContentRect.height - presenterContentRect.height - safeAreaInset.top
-        case .bottomFloater(let verticalPadding):
-            return presenterContentRect.height - sheetContentRect.height - verticalPadding
-        case .topFloater(let verticalPadding):
-            return sheetContentRect.height - presenterContentRect.height + verticalPadding
+        case .toast:
+            if position == .bottom {
+                return presenterContentRect.height - sheetContentRect.height + safeAreaInset.bottom
+            } else {
+                return sheetContentRect.height - presenterContentRect.height - safeAreaInset.top
+            }
+        case .floater(let verticalPadding):
+            if position == .bottom {
+                return presenterContentRect.height - sheetContentRect.height - verticalPadding
+            } else {
+                return sheetContentRect.height - presenterContentRect.height + verticalPadding
+            }
         }
     }
 
     /// The offset when the popup is hidden
     private var hiddenOffset: CGFloat {
-        if popupType.isPositioned(at: .top) {
+        if position == .top {
             return -UIScreen.main.bounds.height - 5
         } else {
             return UIScreen.main.bounds.height + 5
@@ -138,19 +160,17 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         return ZStack {
             Group {
                 VStack {
-                    if popupType.isPositioned(at: .top) {
+                    if type.shouldBeCentered() || position == .top {
                         Spacer()
                     }
 
                     VStack {
                         self.view()
-                            .onTapGesture {
-                                if let onTap = self.onTap {
-                                    onTap()
-                                } else {
+                            .simultaneousGesture(TapGesture().onEnded {
+                                if self.closeOnTap {
                                     self.presented = false
                                 }
-                            }
+                            })
                             .background(
                                 GeometryReader { proxy -> AnyView in
                                     let rect = proxy.frame(in: .global)
@@ -165,7 +185,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                         )
                     }
 
-                    if popupType.isPositioned(at: .bottom) {
+                    if type.shouldBeCentered() || position == .bottom {
                         Spacer()
                     }
                 }
@@ -177,23 +197,6 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     }
 }
 
-extension View {
-
-    public func popup<PopupContent: View>(
-        presented: Binding<Bool>,
-        type: Popup<PopupContent>.PopupType = .bottomToast,
-        animation: Animation = Animation.easeOut(duration: 0.3),
-        autohideIn: Double? = nil,
-        onTap: (()->())? = nil,
-        view: @escaping () -> PopupContent) -> some View {
-        self.modifier(
-            Popup(
-                presented: presented,
-                popupType: type,
-                animation: animation,
-                autohideIn: autohideIn,
-                onTap: onTap,
-                view: view)
-        )
-    }
+class DispatchWorkHolder {
+    var work: DispatchWorkItem?
 }

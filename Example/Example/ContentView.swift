@@ -63,7 +63,7 @@ struct ContentView : View {
         }
         .edgesIgnoringSafeArea(.all)
             
-        .popup(presented: $showingPopup, type: .popup, onTap: {}) {
+        .popup(presented: $showingPopup, type: .`default`, position: .top, closeOnTap: true) {
             VStack(spacing: 10) {
                 Image("okay")
                     .resizable()
@@ -97,9 +97,12 @@ struct ContentView : View {
             .background(self.popupColor)
             .cornerRadius(10.0)
             .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.13), radius: 10.0)
+            .onTapGesture {
+                self.showingTopToast = true
+            }
         }
 
-        .popup(presented: $showingTopToast, type: .topToast) {
+        .popup(presented: $showingTopToast, type: .toast, position: .top) {
             VStack {
                 Spacer(minLength: 20)
                 HStack() {
@@ -131,7 +134,7 @@ struct ContentView : View {
             .background(self.topToastColor)
         }
 
-        .popup(presented: $showingBottomToast, type: .bottomToast) {
+        .popup(presented: $showingBottomToast, type: .toast, position: .bottom) {
             VStack {
                 HStack() {
                     Image("grapes")
@@ -157,7 +160,7 @@ struct ContentView : View {
             .background(self.bottomToastColor)
         }
 
-        .popup(presented: $showingTopFloater, type: .topFloater(), animation: Animation.spring(), autohideIn: 2) {
+        .popup(presented: $showingTopFloater, type: .floater(), position: .top, animation: Animation.spring(), autohideIn: 2) {
             HStack(spacing: 10) {
                 Image("transaction_coffee")
                     .resizable()
@@ -181,7 +184,7 @@ struct ContentView : View {
             .cornerRadius(30.0)
         }
 
-        .popup(presented: $showingBottomFloater, type: .bottomFloater(), animation: Animation.spring(), autohideIn: 5) {
+        .popup(presented: $showingBottomFloater, type: .floater(), position: .bottom, animation: Animation.spring(), autohideIn: 5) {
             HStack(spacing: 15) {
                 Image("shop_coffee")
                     .resizable()
