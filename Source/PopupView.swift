@@ -11,7 +11,7 @@ import SwiftUI
 extension View {
 
     public func popup<PopupContent: View>(
-        presented: Binding<Bool>,
+        isPresented: Binding<Bool>,
         type: Popup<PopupContent>.PopupType = .`default`,
         position: Popup<PopupContent>.Position = .bottom,
         animation: Animation = Animation.easeOut(duration: 0.3),
@@ -20,7 +20,7 @@ extension View {
         view: @escaping () -> PopupContent) -> some View {
         self.modifier(
             Popup(
-                presented: presented,
+                isPresented: isPresented,
                 type: type,
                 position: position,
                 animation: animation,
@@ -58,7 +58,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     // MARK: - Public Properties
 
     /// Tells if the sheet should be presented or not
-    @Binding var presented: Bool
+    @Binding var isPresented: Bool
 
     var type: PopupType
     var position: Position
@@ -118,7 +118,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// The current offset, based on the **presented** property
     private var currentOffset: CGFloat {
-        return presented ? displayedOffset : hiddenOffset
+        return isPresented ? displayedOffset : hiddenOffset
     }
 
     // MARK: - Content Builders
@@ -150,9 +150,9 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         if let autohideIn = autohideIn {
             dispatchWorkHolder.work?.cancel()
             dispatchWorkHolder.work = DispatchWorkItem(block: {
-                self.presented = false
+                self.isPresented = false
             })
-            if presented, let work = dispatchWorkHolder.work {
+            if isPresented, let work = dispatchWorkHolder.work {
                 DispatchQueue.main.asyncAfter(deadline: .now() + autohideIn, execute: work)
             }
         }
@@ -168,7 +168,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                         self.view()
                             .simultaneousGesture(TapGesture().onEnded {
                                 if self.closeOnTap {
-                                    self.presented = false
+                                    self.isPresented = false
                                 }
                             })
                             .background(
