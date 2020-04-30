@@ -17,10 +17,10 @@ ___
 </br></br>
 
 [![Twitter](https://img.shields.io/badge/Twitter-@exyteHQ-blue.svg?style=flat)](http://twitter.com/exyteHQ)
-[![Version](https://img.shields.io/cocoapods/v/PopupView.svg?style=flat)](http://cocoapods.org/pods/PopupView)
+[![Version](https://img.shields.io/cocoapods/v/PopupView.svg?style=flat)](http://cocoapods.org/pods/ExytePopupView)
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-0473B3.svg?style=flat)](https://github.com/Carthage/Carthage)
-[![License](https://img.shields.io/cocoapods/l/PopupView.svg?style=flat)](http://cocoapods.org/pods/PopupView)
-[![Platform](https://img.shields.io/cocoapods/p/PopupView.svg?style=flat)](http://cocoapods.org/pods/PopupView)
+[![License](https://img.shields.io/cocoapods/l/PopupView.svg?style=flat)](http://cocoapods.org/pods/ExytePopupView)
+[![Platform](https://img.shields.io/cocoapods/p/PopupView.svg?style=flat)](http://cocoapods.org/pods/ExytePopupView)
 
 # Usage
 1. Put all your body code into a ZStack
@@ -32,9 +32,9 @@ ___
 struct ContentView: View {
     var body: some View {
         ZStack {
-		  // your view
-		}
-		.popup(presented: $showingTopPopup, autohideIn: 2) {
+            // your view
+        }
+        .popup(presented: $showingTopPopup, autohideIn: 2) {
             HStack {
                 Text("The popup")
             }
