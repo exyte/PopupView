@@ -1,0 +1,12 @@
+language: swift
+osx_image: xcode11.4
+
+branches:
+    only:
+    - master
+
+script:
+- set -o pipefail && xcodebuild -project PopupView.xcodeproj -scheme 'PopupView' -sdk iphonesimulator13.2 ONLY_ACTIVE_ARCH=NO -destination 'platform=iOS Simulator,OS=13.3,name=iPhone 11 Pro' | xcpretty;
+
+notifications:
+    slack: exyte:rbHEfGcQnX1drc0KNL0HVudX

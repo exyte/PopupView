@@ -7,7 +7,7 @@
 #
 
 Pod::Spec.new do |s|
-  s.name             = "PopupView"
+  s.name             = "ExytePopupView"
   s.version          = "0.0.1"
   s.summary          = "SwiftUI library for toasts and popups"
 
@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = "13.0"
   s.requires_arc = true
-  s.swift_version = "5.0"
+  s.swift_version = "5.2"
 
   s.source_files = [
      'Source/*.swift'

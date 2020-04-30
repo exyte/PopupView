@@ -1,5 +1,5 @@
-<img src="https://github.com/exyte/PopupView/blob/master/header.png">
-<img align="right" src="https://raw.githubusercontent.com/exyte/PopupView/master/demo.gif" width="480" />
+<img src="https://github.com/exyte/PopupView/blob/master/Assets/header.png">
+<img align="right" src="https://raw.githubusercontent.com/exyte/PopupView/master/Assets/demo.gif" width="480" />
 
 <p><h1 align="left">Popup View</h1></p>
 
@@ -72,7 +72,7 @@ To try PopupView examples:
 To install `PopupView`, simply add the following line to your Podfile:
 
 ```ruby
-pod 'PopupView'
+pod 'ExytePopupView'
 ```
 
 ### [Carthage](http://github.com/Carthage/Carthage)
