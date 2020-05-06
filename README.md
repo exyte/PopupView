@@ -83,7 +83,7 @@ To integrate `PopupView` into your Xcode project using Carthage, specify it in y
 github "Exyte/PopupView"
 ```
 
-### Swift Package Manager
+### [Swift Package Manager](https://swift.org/package-manager/)
 
 ```swift
 dependencies: [
