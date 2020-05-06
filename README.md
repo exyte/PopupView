@@ -79,8 +79,16 @@ pod 'ExytePopupView'
 
 To integrate `PopupView` into your Xcode project using Carthage, specify it in your `Cartfile`
 
-```ruby
+```ogdl
 github "Exyte/PopupView"
+```
+
+### Swift Package Manager
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/exyte/PopupView.git", from: "0.0.1")
+]
 ```
 
 ### Manually
@@ -90,8 +98,4 @@ Drop [PopupView.swift](https://github.com/exyte/PopupView/blob/master/Source/Pop
 ## Requirements
 
 * iOS 13+
-* Xcode 11+
-
-## Acknowledgements
-
-Many thanks to [Cuberto team](https://dribbble.com/shots/6654320-Animated-Onboarding-Screens) for the design idea and inspiration. 
+* Xcode 11+ 
