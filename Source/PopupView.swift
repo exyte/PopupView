@@ -37,7 +37,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
         case `default`
         case toast
-        case floater(verticalPadding: CGFloat = 20)
+        case floater(verticalPadding: CGFloat = 50)
 
         func shouldBeCentered() -> Bool {
             switch self {
@@ -78,31 +78,31 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     // MARK: - Private Properties
 
-    /// The rect containing the content
+    /// The rect of the hosting controller
     @State private var presenterContentRect: CGRect = .zero
 
-    /// The rect containing the content
+    /// The rect of popup content
     @State private var sheetContentRect: CGRect = .zero
 
-    /// The rect containing the content
+    /// Screen safe area insets
     @State private var safeAreaInset = EdgeInsets()
 
     /// The offset when the popup is displayed
     private var displayedOffset: CGFloat {
         switch type {
         case .`default`:
-            return 0
+            return  -presenterContentRect.midY + screenHeight/2
         case .toast:
             if position == .bottom {
-                return presenterContentRect.height - sheetContentRect.height + safeAreaInset.bottom
+                return screenHeight - presenterContentRect.midY - sheetContentRect.height/2
             } else {
-                return sheetContentRect.height - presenterContentRect.height - safeAreaInset.top
+                return -presenterContentRect.midY + sheetContentRect.height/2
             }
         case .floater(let verticalPadding):
             if position == .bottom {
-                return presenterContentRect.height - sheetContentRect.height - verticalPadding
+                return screenHeight - presenterContentRect.midY - sheetContentRect.height/2 - verticalPadding
             } else {
-                return sheetContentRect.height - presenterContentRect.height + verticalPadding
+                return -presenterContentRect.midY + sheetContentRect.height/2 + verticalPadding
             }
         }
     }
@@ -110,9 +110,15 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     /// The offset when the popup is hidden
     private var hiddenOffset: CGFloat {
         if position == .top {
-            return -UIScreen.main.bounds.height - 5
+            if presenterContentRect.isEmpty {
+                return -1000
+            }
+            return -presenterContentRect.midY - sheetContentRect.height/2 - 5
         } else {
-            return UIScreen.main.bounds.height + 5
+            if presenterContentRect.isEmpty {
+                return 1000
+            }
+            return screenHeight - presenterContentRect.midY + sheetContentRect.height/2 + 5
         }
     }
 
@@ -121,10 +127,13 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         return isPresented ? displayedOffset : hiddenOffset
     }
 
+    private var screenHeight: CGFloat {
+        UIScreen.main.bounds.height
+    }
+
     // MARK: - Content Builders
 
     public func body(content: Content) -> some View {
-        ZStack {
             content
                 .background(
                     GeometryReader { proxy -> AnyView in
@@ -138,9 +147,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                         }
                         return AnyView(EmptyView())
                     }
-            )
-            sheet()
-        }
+            ).overlay(sheet())
     }
 
     /// This is the builder for the sheet content
@@ -160,10 +167,6 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         return ZStack {
             Group {
                 VStack {
-                    if type.shouldBeCentered() || position == .top {
-                        Spacer()
-                    }
-
                     VStack {
                         self.view()
                             .simultaneousGesture(TapGesture().onEnded {
@@ -183,10 +186,6 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                                     return AnyView(EmptyView())
                                 }
                         )
-                    }
-
-                    if type.shouldBeCentered() || position == .bottom {
-                        Spacer()
                     }
                 }
                 .frame(width: UIScreen.main.bounds.width)

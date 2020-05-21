@@ -63,7 +63,7 @@ struct ContentView : View {
         }
         .edgesIgnoringSafeArea(.all)
             
-        .popup(isPresented: $showingPopup, type: .`default`) {
+        .popup(isPresented: $showingPopup, type: .`default`, closeOnTap: false) {
             VStack(spacing: 10) {
                 Image("okay")
                     .resizable()
@@ -164,7 +164,7 @@ struct ContentView : View {
                     .aspectRatio(contentMode: ContentMode.fill)
                     .frame(width: 20, height: 20)
                 VStack(spacing: 8) {
-                    Text("Coffee temprature")
+                    Text("Coffee temperature")
                         .font(.system(size: 12))
                         .foregroundColor(.white)
 
@@ -190,7 +190,7 @@ struct ContentView : View {
                     .cornerRadius(10.0)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Ever though of taking a break?")
+                    Text("Ever thought of taking a break?")
                         .foregroundColor(.black)
                         .fontWeight(.bold)
 
