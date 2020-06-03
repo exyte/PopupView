@@ -17,6 +17,7 @@ extension View {
         animation: Animation = Animation.easeOut(duration: 0.3),
         autohideIn: Double? = nil,
         closeOnTap: Bool = true,
+        closeOnTapOutside: Bool = false,
         view: @escaping () -> PopupContent) -> some View {
         self.modifier(
             Popup(
@@ -26,6 +27,7 @@ extension View {
                 animation: animation,
                 autohideIn: autohideIn,
                 closeOnTap: closeOnTap,
+                closeOnTapOutside: closeOnTapOutside,
                 view: view)
         )
     }
@@ -70,6 +72,9 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// Should close on tap - default is `true`
     var closeOnTap: Bool
+
+    /// Should close on tap outside - default is `true`
+    var closeOnTapOutside: Bool
 
     var view: () -> PopupContent
 
@@ -135,6 +140,11 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     public func body(content: Content) -> some View {
             content
+                .simultaneousGesture(TapGesture().onEnded {
+                    if self.closeOnTapOutside {
+                        self.isPresented = false
+                    }
+                })
                 .background(
                     GeometryReader { proxy -> AnyView in
                         let rect = proxy.frame(in: .global)
