@@ -89,9 +89,6 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     /// The rect of popup content
     @State private var sheetContentRect: CGRect = .zero
 
-    /// Screen safe area insets
-    @State private var safeAreaInset = EdgeInsets()
-
     /// The offset when the popup is displayed
     private var displayedOffset: CGFloat {
         switch type {
@@ -139,25 +136,19 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     // MARK: - Content Builders
 
     public func body(content: Content) -> some View {
-            content
-                .simultaneousGesture(TapGesture().onEnded {
-                    if self.closeOnTapOutside {
-                        self.isPresented = false
-                    }
-                })
-                .background(
-                    GeometryReader { proxy -> AnyView in
-                        let rect = proxy.frame(in: .global)
-                        // This avoids an infinite layout loop
-                        if rect.integral != self.presenterContentRect.integral {
-                            DispatchQueue.main.async {
-                                self.presenterContentRect = rect
-                                self.safeAreaInset = proxy.safeAreaInsets
-                            }
+        content
+            .background(
+                GeometryReader { proxy -> AnyView in
+                    let rect = proxy.frame(in: .global)
+                    // This avoids an infinite layout loop
+                    if rect.integral != self.presenterContentRect.integral {
+                        DispatchQueue.main.async {
+                            self.presenterContentRect = rect
                         }
-                        return AnyView(EmptyView())
                     }
-            ).overlay(sheet())
+                    return AnyView(EmptyView())
+                }
+        )
     }
 
     /// This is the builder for the sheet content
