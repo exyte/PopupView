@@ -137,11 +137,6 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     public func body(content: Content) -> some View {
         content
-            .simultaneousGesture(TapGesture().onEnded {
-                if self.closeOnTapOutside {
-                    self.isPresented = false
-                }
-            })
             .background(
                 GeometryReader { proxy -> AnyView in
                     let rect = proxy.frame(in: .global)
