@@ -31,6 +31,14 @@ extension View {
                 view: view)
         )
     }
+
+    func applyIf<T: View>(_ condition: @autoclosure () -> Bool, apply: (Self) -> T) -> AnyView {
+        if condition() {
+            return AnyView(apply(self))
+        } else {
+            return AnyView(self)
+        }
+    }
 }
 
 public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
@@ -137,11 +145,12 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     public func body(content: Content) -> some View {
         content
-            .simultaneousGesture(TapGesture().onEnded {
-                if self.closeOnTapOutside {
-                    self.isPresented = false
-                }
-            })
+            .applyIf(closeOnTapOutside) {
+                $0.simultaneousGesture(
+                    TapGesture().onEnded {
+                        self.isPresented = false
+                    })
+            }
             .background(
                 GeometryReader { proxy -> AnyView in
                     let rect = proxy.frame(in: .global)
@@ -153,7 +162,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                     }
                     return AnyView(EmptyView())
                 }
-        ).overlay(sheet())
+            ).overlay(sheet())
     }
 
     /// This is the builder for the sheet content
@@ -191,7 +200,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                                     }
                                     return AnyView(EmptyView())
                                 }
-                        )
+                            )
                     }
                 }
                 .frame(width: UIScreen.main.bounds.width)
