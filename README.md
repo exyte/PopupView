@@ -34,7 +34,7 @@ struct ContentView: View {
         ZStack {
             // your view
         }
-        .popup(presented: $showingPopup, autohideIn: 2) {
+        .popup(isPresented: $showingPopup, autohideIn: 2) {
             HStack {
                 Text("The popup")
             }
