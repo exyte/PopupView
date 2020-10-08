@@ -32,13 +32,15 @@ extension View {
         )
     }
 
-    func applyIf<T: View>(_ condition: @autoclosure () -> Bool, apply: (Self) -> T) -> AnyView {
-        if condition() {
-            return AnyView(apply(self))
+    @ViewBuilder
+    func applyIf<T: View>(_ condition: Bool, apply: (Self) -> T) -> some View {
+        if condition {
+            apply(self)
         } else {
-            return AnyView(self)
+            self
         }
     }
+
 }
 
 public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
