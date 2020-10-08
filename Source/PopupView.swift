@@ -186,6 +186,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                         self.view()
                             .simultaneousGesture(TapGesture().onEnded {
                                 if self.closeOnTap {
+                                    self.dispatchWorkHolder.work?.cancel()
                                     self.isPresented = false
                                 }
                             })
