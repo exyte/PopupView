@@ -41,6 +41,14 @@ struct ContentView : View {
     @State var showingTopFloater = false
     @State var showingBottomFloater = false
 
+    private var screenSize: CGSize {
+        #if os(iOS) || os(tvOS)
+        return UIScreen.main.bounds.size
+        #else
+        return NSScreen.main?.frame.size ?? .zero
+        #endif
+    }
+
     var body: some View {
 
         let hideAll = {
@@ -62,7 +70,7 @@ struct ContentView : View {
             }
         }
         .edgesIgnoringSafeArea(.all)
-            
+
         .popup(isPresented: $showingPopup, type: .`default`, closeOnTap: false) {
             createPopup()
         }
@@ -122,61 +130,64 @@ struct ContentView : View {
     }
 
     func createTopToast() -> some View {
-        VStack {
-            Spacer(minLength: 20)
-            HStack() {
-                Image("shop_NA")
-                    .resizable()
-                    .aspectRatio(contentMode: ContentMode.fill)
-                    .frame(width: 50, height: 50)
-                    .cornerRadius(25)
+        GeometryReader { proxy -> AnyView in
+            AnyView(VStack {
+                Spacer(minLength: 20)
+                HStack() {
+                    Image("shop_NA")
+                        .resizable()
+                        .aspectRatio(contentMode: ContentMode.fill)
+                        .frame(width: 50, height: 50)
+                        .cornerRadius(25)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack {
-                        Text("Nik")
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack {
+                            Text("Nik")
+                                .foregroundColor(.white)
+                                .fontWeight(.bold)
+                            Spacer()
+                            Text("11:30")
+                                .font(.system(size: 12))
+                                .foregroundColor(Color(red: 0.9, green: 0.9, blue: 0.9))
+                        }
+
+                        Text("How about a dinner in an hour? We could discuss that one urgent issue we should be discussing.")
+                            .lineLimit(2)
+                            .font(.system(size: 14))
                             .foregroundColor(.white)
-                            .fontWeight(.bold)
-                        Spacer()
-                        Text("11:30")
-                            .font(.system(size: 12))
-                            .foregroundColor(Color(red: 0.9, green: 0.9, blue: 0.9))
                     }
-
-                    Text("How about a dinner in an hour? We could discuss that one urgent issue we should be discussing.")
-                        .lineLimit(2)
-                        .font(.system(size: 14))
-                        .foregroundColor(.white)
-                }
-            }.padding(15)
+                }.padding(15)
+            }
+            .frame(width: proxy.size.width, height: 110)
+            .background(self.topToastColor))
         }
-        .frame(width: UIScreen.main.bounds.width, height: 110)
-        .background(self.topToastColor)
     }
 
     func createBottomToast() -> some View {
-        VStack {
-            HStack() {
-                Image("grapes")
-                    .resizable()
-                    .aspectRatio(contentMode: ContentMode.fill)
-                    .frame(width: 50, height: 50)
+           VStack() {
+                HStack() {
+                    Image("grapes")
+                        .resizable()
+                        .aspectRatio(contentMode: ContentMode.fill)
+                        .frame(width: 50, height: 50)
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Grapes! Grapes! Grapes!")
-                        .foregroundColor(.black)
-                        .fontWeight(.bold)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Grapes! Grapes! Grapes!")
+                            .foregroundColor(.black)
+                            .fontWeight(.bold)
 
-                    Text("Step right up! Buy some grapes now - that's a brilliant investment and you know it!")
-                        .lineLimit(2)
-                        .font(.system(size: 14))
-                        .foregroundColor(.black)
+                        Text("Step right up! Buy some grapes now - that's a brilliant investment and you know it!")
+                            .lineLimit(2)
+                            .font(.system(size: 14))
+                            .foregroundColor(.black)
+                    }
                 }
+                Spacer(minLength: 10)
             }
-            Spacer(minLength: 10)
-        }
-        .padding(15)
-        .frame(width: UIScreen.main.bounds.width, height: 100)
-        .background(self.bottomToastColor)
+            .padding(15)
+            .frame(width: screenSize.width, height: 100)
+            .background(self.bottomToastColor)
+
     }
 
     func createTopFloater() -> some View {
