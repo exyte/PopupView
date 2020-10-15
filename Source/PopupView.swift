@@ -175,6 +175,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     public func body(content: Content) -> some View {
         content
             .addTapIfNotTV(if: closeOnTapOutside) {
+                self.dispatchWorkHolder.work?.cancel()
                 self.isPresented = false
             }
             .background(
@@ -211,6 +212,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                     VStack {
                         self.view()
                             .addTapIfNotTV(if: closeOnTap) {
+                                self.dispatchWorkHolder.work?.cancel()
                                 self.isPresented = false
                             }
                             .background(
