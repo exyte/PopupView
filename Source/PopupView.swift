@@ -61,7 +61,26 @@ extension View {
 }
 
 public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
-
+    
+    init(isPresented: Binding<Bool>,
+         type: PopupType,
+         position: Position,
+         animation: Animation,
+         autohideIn: Double?,
+         closeOnTap: Bool,
+         closeOnTapOutside: Bool,
+         view: @escaping () -> PopupContent) {
+        self._isPresented = isPresented
+        self.type = type
+        self.position = position
+        self.animation = animation
+        self.autohideIn = autohideIn
+        self.closeOnTap = closeOnTap
+        self.closeOnTapOutside = closeOnTapOutside
+        self.view = view
+        self.isPresentedRef = ClassReference(self.$isPresented)
+    }
+    
     public enum PopupType {
 
         case `default`
@@ -109,6 +128,9 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     var dispatchWorkHolder = DispatchWorkHolder()
 
     // MARK: - Private Properties
+    
+    /// Class reference for capturing a weak reference later in dispatch work holder.
+    private var isPresentedRef: ClassReference<Binding<Bool>>?
 
     /// The rect of the hosting controller
     @State private var presenterContentRect: CGRect = .zero
@@ -198,8 +220,11 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         // if needed, dispatch autohide and cancel previous one
         if let autohideIn = autohideIn {
             dispatchWorkHolder.work?.cancel()
-            dispatchWorkHolder.work = DispatchWorkItem(block: {
-                self.isPresented = false
+            
+            // Weak reference to avoid the work item capturing the struct,
+            // which would create a retain cycle with the work holder itself.
+            dispatchWorkHolder.work = DispatchWorkItem(block: { [weak isPresentedRef] in
+                isPresentedRef?.value.wrappedValue = false
             })
             if isPresented, let work = dispatchWorkHolder.work {
                 DispatchQueue.main.asyncAfter(deadline: .now() + autohideIn, execute: work)
@@ -239,4 +264,12 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
 class DispatchWorkHolder {
     var work: DispatchWorkItem?
+}
+
+private final class ClassReference<T> {
+  var value: T
+
+  init(_ value: T) {
+    self.value = value
+  }
 }
