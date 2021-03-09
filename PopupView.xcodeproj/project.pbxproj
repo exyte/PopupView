@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		5B44757324519921007EE209 /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B44757024519921007EE209 /* PopupView.swift */; };
 		5B44757424519921007EE209 /* PopupView.h in Headers */ = {isa = PBXBuildFile; fileRef = 5B44757124519921007EE209 /* PopupView.h */; };
-		5B44757524519921007EE209 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5B44757224519921007EE209 /* Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -126,7 +125,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5B44757524519921007EE209 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

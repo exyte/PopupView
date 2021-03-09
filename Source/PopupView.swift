@@ -18,6 +18,7 @@ extension View {
         autohideIn: Double? = nil,
         closeOnTap: Bool = true,
         closeOnTapOutside: Bool = false,
+        dismissCallback: @escaping () -> () = {},
         view: @escaping () -> PopupContent) -> some View {
         self.modifier(
             Popup(
@@ -28,6 +29,7 @@ extension View {
                 autohideIn: autohideIn,
                 closeOnTap: closeOnTap,
                 closeOnTapOutside: closeOnTapOutside,
+                dismissCallback: dismissCallback,
                 view: view)
         )
     }
@@ -69,6 +71,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
          autohideIn: Double?,
          closeOnTap: Bool,
          closeOnTapOutside: Bool,
+         dismissCallback: @escaping () -> (),
          view: @escaping () -> PopupContent) {
         self._isPresented = isPresented
         self.type = type
@@ -77,6 +80,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         self.autohideIn = autohideIn
         self.closeOnTap = closeOnTap
         self.closeOnTapOutside = closeOnTapOutside
+        self.dismissCallback = dismissCallback
         self.view = view
         self.isPresentedRef = ClassReference(self.$isPresented)
     }
@@ -121,6 +125,9 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// Should close on tap outside - default is `true`
     var closeOnTapOutside: Bool
+
+    /// is called on any close action
+    var dismissCallback: () -> ()
 
     var view: () -> PopupContent
 
@@ -199,6 +206,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
             .addTapIfNotTV(if: closeOnTapOutside) {
                 self.dispatchWorkHolder.work?.cancel()
                 self.isPresented = false
+                self.dismissCallback()
             }
             .background(
                 GeometryReader { proxy -> AnyView in
@@ -225,6 +233,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
             // which would create a retain cycle with the work holder itself.
             dispatchWorkHolder.work = DispatchWorkItem(block: { [weak isPresentedRef] in
                 isPresentedRef?.value.wrappedValue = false
+                dismissCallback()
             })
             if isPresented, let work = dispatchWorkHolder.work {
                 DispatchQueue.main.asyncAfter(deadline: .now() + autohideIn, execute: work)
@@ -239,6 +248,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                             .addTapIfNotTV(if: closeOnTap) {
                                 self.dispatchWorkHolder.work?.cancel()
                                 self.isPresented = false
+                                self.dismissCallback()
                             }
                             .background(
                                 GeometryReader { proxy -> AnyView in
