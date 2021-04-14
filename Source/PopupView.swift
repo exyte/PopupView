@@ -14,6 +14,7 @@ extension View {
         isPresented: Binding<Bool>,
         type: Popup<PopupContent>.PopupType = .`default`,
         position: Popup<PopupContent>.Position = .bottom,
+        offset: CGFloat? = nil,
         animation: Animation = Animation.easeOut(duration: 0.3),
         autohideIn: Double? = nil,
         closeOnTap: Bool = true,
@@ -25,6 +26,7 @@ extension View {
                 isPresented: isPresented,
                 type: type,
                 position: position,
+                offset: offset,
                 animation: animation,
                 autohideIn: autohideIn,
                 closeOnTap: closeOnTap,
@@ -76,6 +78,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         self._isPresented = isPresented
         self.type = type
         self.position = position
+        self.offset = offset ?? 0
         self.animation = animation
         self.autohideIn = autohideIn
         self.closeOnTap = closeOnTap
@@ -115,6 +118,8 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     var type: PopupType
     var position: Position
 
+    var offset: CGFloat
+
     var animation: Animation
 
     /// If nil - niver hides on its own
@@ -149,18 +154,19 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     private var displayedOffset: CGFloat {
         switch type {
         case .`default`:
-            return  -presenterContentRect.midY + screenHeight/2
+            return  -presenterContentRect.midY + screenHeight / 2 + offset
         case .toast:
             if position == .bottom {
-                return screenHeight - presenterContentRect.midY - sheetContentRect.height/2
+                return screenHeight - presenterContentRect.midY -
+                sheetContentRect.height/2 + offset
             } else {
-                return -presenterContentRect.midY + sheetContentRect.height/2
+                return -presenterContentRect.midY + sheetContentRect.height/2 + offset
             }
         case .floater(let verticalPadding):
             if position == .bottom {
-                return screenHeight - presenterContentRect.midY - sheetContentRect.height/2 - verticalPadding
+                return screenHeight - presenterContentRect.midY - sheetContentRect.height/2 - verticalPadding + offset
             } else {
-                return -presenterContentRect.midY + sheetContentRect.height/2 + verticalPadding
+                return -presenterContentRect.midY + sheetContentRect.height/2 + verticalPadding + offset
             }
         }
     }
