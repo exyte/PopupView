@@ -130,37 +130,37 @@ struct ContentView : View {
     }
 
     func createTopToast() -> some View {
-        GeometryReader { proxy -> AnyView in
-            AnyView(VStack {
-                Spacer(minLength: 20)
-                HStack() {
-                    Image("shop_NA")
-                        .resizable()
-                        .aspectRatio(contentMode: ContentMode.fill)
-                        .frame(width: 50, height: 50)
-                        .cornerRadius(25)
+        VStack {
+            Spacer(minLength: 20)
+            HStack() {
+                Image("shop_NA")
+                    .resizable()
+                    .aspectRatio(contentMode: ContentMode.fill)
+                    .frame(width: 50, height: 50)
+                    .cornerRadius(25)
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack {
-                            Text("Nik")
-                                .foregroundColor(.white)
-                                .fontWeight(.bold)
-                            Spacer()
-                            Text("11:30")
-                                .font(.system(size: 12))
-                                .foregroundColor(Color(red: 0.9, green: 0.9, blue: 0.9))
-                        }
-
-                        Text("How about a dinner in an hour? We could discuss that one urgent issue we should be discussing.")
-                            .lineLimit(2)
-                            .font(.system(size: 14))
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack {
+                        Text("Nik")
                             .foregroundColor(.white)
+                            .fontWeight(.bold)
+                        Spacer()
+                        Text("11:30")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color(red: 0.9, green: 0.9, blue: 0.9))
                     }
-                }.padding(15)
+
+                    Text("How about a dinner in an hour? We could discuss that one urgent issue we should be discussing.")
+                        .lineLimit(2)
+                        .font(.system(size: 14))
+                        .foregroundColor(.white)
+                }
             }
-            .frame(width: proxy.size.width, height: 110)
-            .background(self.topToastColor))
+            .padding(15)
         }
+        .frame(maxWidth: .infinity)
+        .frame(height: 110)
+        .background(self.topToastColor)
     }
 
     func createBottomToast() -> some View {
@@ -187,7 +187,6 @@ struct ContentView : View {
             .padding(15)
             .frame(width: screenSize.width, height: 100)
             .background(self.bottomToastColor)
-
     }
 
     func createTopFloater() -> some View {

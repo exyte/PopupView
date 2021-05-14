@@ -16,6 +16,7 @@ extension View {
         position: Popup<PopupContent>.Position = .bottom,
         animation: Animation = Animation.easeOut(duration: 0.3),
         autohideIn: Double? = nil,
+        dragToDismiss: Bool = true,
         closeOnTap: Bool = true,
         closeOnTapOutside: Bool = false,
         dismissCallback: @escaping () -> () = {},
@@ -27,6 +28,7 @@ extension View {
                 position: position,
                 animation: animation,
                 autohideIn: autohideIn,
+                dragToDismiss: dragToDismiss,
                 closeOnTap: closeOnTap,
                 closeOnTapOutside: closeOnTapOutside,
                 dismissCallback: dismissCallback,
@@ -44,7 +46,7 @@ extension View {
     }
 
     @ViewBuilder
-    func addTapIfNotTV(if condition: Bool, onTap: @escaping ()->()) -> some View {
+    fileprivate func addTapIfNotTV(if condition: Bool, onTap: @escaping ()->()) -> some View {
         #if os(tvOS)
         self
         #else
@@ -59,7 +61,6 @@ extension View {
         }
         #endif
     }
-
 }
 
 public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
@@ -69,6 +70,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
          position: Position,
          animation: Animation,
          autohideIn: Double?,
+         dragToDismiss: Bool,
          closeOnTap: Bool,
          closeOnTapOutside: Bool,
          dismissCallback: @escaping () -> (),
@@ -78,6 +80,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         self.position = position
         self.animation = animation
         self.autohideIn = autohideIn
+        self.dragToDismiss = dragToDismiss
         self.closeOnTap = closeOnTap
         self.closeOnTapOutside = closeOnTapOutside
         self.dismissCallback = dismissCallback
@@ -102,9 +105,31 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     }
 
     public enum Position {
-
         case top
         case bottom
+    }
+
+    private enum DragState {
+        case inactive
+        case dragging(translation: CGSize)
+
+        var translation: CGSize {
+            switch self {
+            case .inactive:
+                return .zero
+            case .dragging(let translation):
+                return translation
+            }
+        }
+
+        var isDragging: Bool {
+            switch self {
+            case .inactive:
+                return false
+            case .dragging:
+                return true
+            }
+        }
     }
 
     // MARK: - Public Properties
@@ -122,6 +147,9 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// Should close on tap - default is `true`
     var closeOnTap: Bool
+
+    /// Should allow dismiss by dragging
+    var dragToDismiss: Bool
 
     /// Should close on tap outside - default is `true`
     var closeOnTapOutside: Bool
@@ -144,6 +172,12 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// The rect of popup content
     @State private var sheetContentRect: CGRect = .zero
+
+    /// Drag to dismiss gesture state
+    @GestureState private var dragState = DragState.inactive
+
+    /// Last position for drag gesture
+    @State private var lastDragPosition: CGFloat = 0
 
     /// The offset when the popup is displayed
     private var displayedOffset: CGFloat {
@@ -240,7 +274,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
             }
         }
 
-        return ZStack {
+        let sheet = ZStack {
             Group {
                 VStack {
                     VStack {
@@ -269,7 +303,42 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                 .animation(animation)
             }
         }
+
+        #if !os(tvOS)
+        let drag = DragGesture()
+            .updating($dragState) { drag, state, _ in
+                state = .dragging(translation: drag.translation)
+            }
+            .onEnded(onDragEnded)
+
+        return sheet
+            .offset(y: dragOffset())
+            .simultaneousGesture(drag)
+        #else
+        return sheet
+        #endif
     }
+
+    #if !os(tvOS)
+    func dragOffset() -> CGFloat {
+        if (position == .bottom && dragState.translation.height > 0) ||
+           (position == .top && dragState.translation.height < 0) {
+            return dragState.translation.height
+        }
+        return lastDragPosition
+    }
+
+    private func onDragEnded(drag: DragGesture.Value) {
+        if abs(drag.translation.height) > sheetContentRect.height / 3 {
+            lastDragPosition = drag.translation.height
+            withAnimation {
+                isPresented = false
+                lastDragPosition = 0
+            }
+            dismissCallback()
+        }
+    }
+    #endif
 }
 
 class DispatchWorkHolder {
