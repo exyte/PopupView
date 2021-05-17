@@ -40,7 +40,10 @@ struct ContentView : View {
     @State var showingBottomToast = false
     @State var showingTopFloater = false
     @State var showingBottomFloater = false
+    @State var showingTopTextEditorFloater = false
 
+    @State var text: String = ""
+    
     private var screenSize: CGSize {
         #if os(iOS) || os(tvOS)
         return UIScreen.main.bounds.size
@@ -67,6 +70,7 @@ struct ContentView : View {
                 ExampleButton(showing: $showingBottomToast, title: "Bottom toast", hideAll: hideAll)
                 ExampleButton(showing: $showingTopFloater, title: "Top floater", hideAll: hideAll)
                 ExampleButton(showing: $showingBottomFloater, title: "Bottom floater", hideAll: hideAll)
+                ExampleButton(showing: $showingTopTextEditorFloater, title: "Text Editor in top floater", hideAll: hideAll)
             }
         }
         .edgesIgnoringSafeArea(.all)
@@ -89,6 +93,17 @@ struct ContentView : View {
 
         .popup(isPresented: $showingBottomFloater, type: .floater(), position: .bottom, animation: Animation.spring(), autohideIn: 5) {
             createBottomFloater()
+        }
+        .popup(
+            isPresented: $showingTopTextEditorFloater,
+            type: .floater(verticalPadding: 200),
+            position: .top,
+            animation: Animation.spring(),
+            autohideIn: 400,
+            dragToDismiss: true,
+            closeOnTap: false,
+            closeOnTapOutside: false) {
+            createTopTextEditorFloater()
         }
 
     }
@@ -128,6 +143,7 @@ struct ContentView : View {
         .cornerRadius(10.0)
         .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.13), radius: 10.0)
     }
+    
 
     func createTopToast() -> some View {
         VStack {
@@ -212,7 +228,7 @@ struct ContentView : View {
         .background(self.topFloatColor)
         .cornerRadius(30.0)
     }
-
+   
     func createBottomFloater() -> some View {
         HStack(spacing: 15) {
             Image("shop_coffee")
@@ -236,7 +252,19 @@ struct ContentView : View {
         .background(self.bottomFloatColor)
         .cornerRadius(20.0)
     }
-
+    
+    func createTopTextEditorFloater() -> some View {
+        HStack(spacing: 10) {
+            TextEditor(text: $text)
+                .lineSpacing(5)
+                .disableAutocorrection(true)
+                .onChange(of: text) { _ in }
+                
+        }
+        .frame(width: .infinity, height: 200)
+        .background(self.topFloatColor)
+        .cornerRadius(6.0)
+    }
 }
 
 extension Color {
