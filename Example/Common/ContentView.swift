@@ -261,7 +261,7 @@ struct ContentView : View {
                 .onChange(of: text) { _ in }
                 
         }
-        .frame(width: .infinity, height: 200)
+        .frame(width: UIScreen.main.bounds.width - 100, height: 200)
         .background(self.topFloatColor)
         .cornerRadius(6.0)
     }
