@@ -329,7 +329,9 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     }
 
     private func onDragEnded(drag: DragGesture.Value) {
-        if abs(drag.translation.height) > sheetContentRect.height / 3 {
+        let reference = sheetContentRect.height / 3
+        if (position == .bottom && drag.translation.height > reference) ||
+            (position == .top && drag.translation.height < -reference) {
             lastDragPosition = drag.translation.height
             withAnimation {
                 isPresented = false
