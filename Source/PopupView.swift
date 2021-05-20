@@ -19,6 +19,7 @@ extension View {
         dragToDismiss: Bool = true,
         closeOnTap: Bool = true,
         closeOnTapOutside: Bool = false,
+        backgroundOverlayColor: Color? = nil,
         dismissCallback: @escaping () -> () = {},
         view: @escaping () -> PopupContent) -> some View {
         self.modifier(
@@ -31,6 +32,7 @@ extension View {
                 dragToDismiss: dragToDismiss,
                 closeOnTap: closeOnTap,
                 closeOnTapOutside: closeOnTapOutside,
+                backgroundOverlayColor: backgroundOverlayColor,
                 dismissCallback: dismissCallback,
                 view: view)
         )
@@ -63,6 +65,26 @@ extension View {
     }
 }
 
+public struct BackgroundOverlay: ViewModifier {
+    var isPresented: Bool
+    
+    let color: Color?
+    let animation: Animation
+
+    public func body(content: Content) -> some View {
+        ZStack {
+            content
+            if isPresented {
+                color.flatMap {
+                    $0.edgesIgnoringSafeArea(.all).transition(.opacity)
+                        .zIndex(1) // https://stackoverflow.com/a/58512696/6252099
+                }
+            }
+        }
+        .animation(animation)
+    }
+}
+
 public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     
     init(isPresented: Binding<Bool>,
@@ -73,6 +95,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
          dragToDismiss: Bool,
          closeOnTap: Bool,
          closeOnTapOutside: Bool,
+         backgroundOverlayColor: Color?,
          dismissCallback: @escaping () -> (),
          view: @escaping () -> PopupContent) {
         self._isPresented = isPresented
@@ -83,6 +106,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         self.dragToDismiss = dragToDismiss
         self.closeOnTap = closeOnTap
         self.closeOnTapOutside = closeOnTapOutside
+        self.backgroundOverlayColor = backgroundOverlayColor
         self.dismissCallback = dismissCallback
         self.view = view
         self.isPresentedRef = ClassReference(self.$isPresented)
@@ -153,6 +177,9 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// Should close on tap outside - default is `true`
     var closeOnTapOutside: Bool
+    
+    /// Should show background overlay of color - default is `nil`
+    var backgroundOverlayColor: Color?
 
     /// is called on any close action
     var dismissCallback: () -> ()
@@ -253,7 +280,11 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                     }
                     return AnyView(EmptyView())
                 }
-            ).overlay(sheet())
+            )
+            .modifier(
+                BackgroundOverlay(isPresented: isPresented, color: backgroundOverlayColor, animation: animation)
+            )
+            .overlay(sheet())
     }
 
     /// This is the builder for the sheet content

@@ -71,7 +71,7 @@ struct ContentView : View {
         }
         .edgesIgnoringSafeArea(.all)
 
-        .popup(isPresented: $showingPopup, type: .`default`, closeOnTap: false) {
+        .popup(isPresented: $showingPopup, type: .`default`, closeOnTap: false, backgroundOverlayColor: Color.black.opacity(0.5)) {
             createPopup()
         }
 
