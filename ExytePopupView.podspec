@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "ExytePopupView"
-  s.version          = "0.0.14"
+  s.version          = "1.0.0"
   s.summary          = "SwiftUI library for toasts and popups"
 
   s.homepage         = 'https://github.com/exyte/PopupView.git'
