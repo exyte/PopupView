@@ -27,9 +27,10 @@ ___
 2. Add a binding bool to control popup presentation state
 3. Add `.popup` modifier to your ZStack
 ```swift
-@State var showingPopup = false
-
 struct ContentView: View {
+
+    @State var showingPopup = false
+
     var body: some View {
         ZStack {
             // your view
@@ -47,14 +48,28 @@ struct ContentView: View {
 ```
 
 ### Required parameters 
-`presented` - binding to determine if the popup should be seen on screen or hidden     
+`isPresented` - binding to determine if the popup should be seen on screen or hidden     
 `view` - view you want to display on your popup  
 
-### Available customizations - optional parameters    
+### Available customizations - optional parameters  
 `type` - toast, float or default   
 `position` - top or bottom (for default case it just determines animation direction)  
 `animation` - custom animation for popup sliding onto screen  
 `autohideIn` - time after which popup should disappear    
+`dragToDismiss` - true by default: enable/disable drag to dismiss (upwards for .top popup types, downwards for .bottom and default type)
+`closeOnTap` - true by default: enable/disable closing on tap on popup
+`closeOnTapOutside` - false by default: enable/disable closing on tap on outside of popup
+`dismissCallback` - custom callback to call once the popup is dismissed
+
+<img align="right" src="https://raw.githubusercontent.com/exyte/PopupView/master/Assets/drag.gif" width="480" />
+
+### Draggable card
+With latest addition of `dragToDismiss`, you can use bottom toast to add this popular component to your app (see example project for implementation)
+```swift
+.popup(isPresented: $show, type: .toast, position: .bottom) {
+    // your content
+}
+```
 
 ## Examples
 
@@ -87,7 +102,7 @@ github "Exyte/PopupView"
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/exyte/PopupView.git", from: "0.0.1")
+    .package(url: "https://github.com/exyte/PopupView.git", from: "1.0.0")
 ]
 ```
 

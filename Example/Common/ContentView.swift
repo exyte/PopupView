@@ -34,12 +34,15 @@ struct ContentView : View {
     let bottomToastColor = Color(hex: "98c1d9")
     let topFloatColor = Color(hex: "293241")
     let bottomFloatColor = Color(hex: "ee6c4d")
+    let cardColor = Color(hex: "3d5a80")
 
     @State var showingPopup = false
     @State var showingTopToast = false
     @State var showingBottomToast = false
     @State var showingTopFloater = false
     @State var showingBottomFloater = false
+    @State var showingDraggableCard = false
+    @State var showingScrollableDraggableCard = false
 
     private var screenSize: CGSize {
         #if os(iOS) || os(tvOS)
@@ -57,6 +60,8 @@ struct ContentView : View {
             self.showingBottomToast = false
             self.showingTopFloater = false
             self.showingBottomFloater = false
+            self.showingDraggableCard = false
+            self.showingScrollableDraggableCard = false
         }
 
         return ZStack {
@@ -67,6 +72,8 @@ struct ContentView : View {
                 ExampleButton(showing: $showingBottomToast, title: "Bottom toast", hideAll: hideAll)
                 ExampleButton(showing: $showingTopFloater, title: "Top floater", hideAll: hideAll)
                 ExampleButton(showing: $showingBottomFloater, title: "Bottom floater", hideAll: hideAll)
+                ExampleButton(showing: $showingDraggableCard, title: "Draggable card", hideAll: hideAll)
+                ExampleButton(showing: $showingScrollableDraggableCard, title: "Draggable scrollable card", hideAll: hideAll)
             }
         }
         .edgesIgnoringSafeArea(.all)
@@ -89,6 +96,14 @@ struct ContentView : View {
 
         .popup(isPresented: $showingBottomFloater, type: .floater(), position: .bottom, animation: Animation.spring(), autohideIn: 5) {
             createBottomFloater()
+        }
+
+        .popup(isPresented: $showingDraggableCard, type: .toast, position: .bottom) {
+            createDraggableCard()
+        }
+
+        .popup(isPresented: $showingScrollableDraggableCard, type: .toast, position: .bottom) {
+            createScrollableDraggableCard()
         }
 
     }
@@ -237,18 +252,75 @@ struct ContentView : View {
         .cornerRadius(20.0)
     }
 
+    func createDraggableCard() -> some View {
+        DraggableCardView(bgColor: cardColor) {
+            VStack(spacing: 10) {
+                Text("Weasels")
+                    .foregroundColor(.white)
+                    .fontWeight(.bold)
+
+                Text(Constants.shortText)
+                    .font(.system(size: 14))
+                    .foregroundColor(.white)
+            }
+            .padding(.horizontal, 20)
+        }
+    }
+
+    func createScrollableDraggableCard() -> some View {
+        DraggableCardView(topPadding: 300, fixedHeight: true, bgColor: cardColor) {
+            ScrollView {
+                VStack(spacing: 10) {
+                    Text("Mongoose")
+                        .foregroundColor(.white)
+                        .fontWeight(.bold)
+
+                    Text(Constants.longText)
+                        .font(.system(size: 14))
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal, 20)
+            }
+        }
+    }
+
 }
 
-extension Color {
-    init(hex: String) {
-        let scanner = Scanner(string: hex)
-        var rgbValue: UInt64 = 0
-        scanner.scanHexInt64(&rgbValue)
+struct DraggableCardView<Content: View>: View {
 
-        let r = (rgbValue & 0xff0000) >> 16
-        let g = (rgbValue & 0xff00) >> 8
-        let b = rgbValue & 0xff
+    let content: Content
+    let topPadding: CGFloat
+    let fixedHeight: Bool
+    let bgColor: Color
 
-        self.init(red: Double(r) / 0xff, green: Double(g) / 0xff, blue: Double(b) / 0xff)
+    init(topPadding: CGFloat = 100, fixedHeight: Bool = false, bgColor: Color = .white, @ViewBuilder content: () -> Content) {
+        self.content = content()
+        self.topPadding = topPadding
+        self.fixedHeight = fixedHeight
+        self.bgColor = bgColor
+    }
+
+    var body: some View {
+        ZStack {
+            bgColor.cornerRadius(40, corners: [.topLeft, .topRight])
+            VStack {
+                Color.white
+                    .frame(width: 72, height: 6)
+                    .clipShape(Capsule())
+                    .padding(.top, 15)
+                    .padding(.bottom, 10)
+
+                content
+                    .padding(.bottom, 30)
+                    .applyIf(fixedHeight) {
+                        $0.frame(height: UIScreen.main.bounds.height - topPadding)
+                    }
+                    .applyIf(!fixedHeight) {
+                        $0.frame(maxHeight: UIScreen.main.bounds.height - topPadding)
+                    }
+            }
+        }
+        .fixedSize(horizontal: false, vertical: true)
     }
 }
+
