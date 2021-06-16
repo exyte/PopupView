@@ -36,12 +36,10 @@ struct ContentView: View {
             // your view
         }
         .popup(isPresented: $showingPopup, autohideIn: 2) {
-            HStack {
-                Text("The popup")
-            }
-            .frame(width: 200, height: 60)
-            .background(Color(red: 0.85, green: 0.8, blue: 0.95))
-            .cornerRadius(30.0)
+            Text("The popup")
+                .frame(width: 200, height: 60)
+                .background(Color(red: 0.85, green: 0.8, blue: 0.95))
+                .cornerRadius(30.0)
         }
     }
 }
@@ -56,10 +54,10 @@ struct ContentView: View {
 `position` - top or bottom (for default case it just determines animation direction)  
 `animation` - custom animation for popup sliding onto screen  
 `autohideIn` - time after which popup should disappear    
-`dragToDismiss` - true by default: enable/disable drag to dismiss (upwards for .top popup types, downwards for .bottom and default type)
-`closeOnTap` - true by default: enable/disable closing on tap on popup
-`closeOnTapOutside` - false by default: enable/disable closing on tap on outside of popup
-`dismissCallback` - custom callback to call once the popup is dismissed
+`dragToDismiss` - true by default: enable/disable drag to dismiss (upwards for .top popup types, downwards for .bottom and default type)    
+`closeOnTap` - true by default: enable/disable closing on tap on popup     
+`closeOnTapOutside` - false by default: enable/disable closing on tap on outside of popup     
+`dismissCallback` - custom callback to call once the popup is dismissed      
 
 <img align="right" src="https://raw.githubusercontent.com/exyte/PopupView/master/Assets/drag.gif" width="480" />
 
