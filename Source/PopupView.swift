@@ -265,9 +265,11 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
             
             // Weak reference to avoid the work item capturing the struct,
             // which would create a retain cycle with the work holder itself.
+			
+			let block = dismissCallback
             dispatchWorkHolder.work = DispatchWorkItem(block: { [weak isPresentedRef] in
                 isPresentedRef?.value.wrappedValue = false
-                dismissCallback()
+				block()
             })
             if isPresented, let work = dispatchWorkHolder.work {
                 DispatchQueue.main.asyncAfter(deadline: .now() + autohideIn, execute: work)
