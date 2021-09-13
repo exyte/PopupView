@@ -236,24 +236,30 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     // MARK: - Content Builders
 
     public func body(content: Content) -> some View {
-        content
-            .addTapIfNotTV(if: closeOnTapOutside) {
-                self.dispatchWorkHolder.work?.cancel()
-                self.isPresented = false
-                self.dismissCallback()
-            }
-            .background(
-                GeometryReader { proxy -> AnyView in
-                    let rect = proxy.frame(in: .global)
-                    // This avoids an infinite layout loop
-                    if rect.integral != self.presenterContentRect.integral {
-                        DispatchQueue.main.async {
-                            self.presenterContentRect = rect
+        ZStack {
+            content
+                .background(
+                    GeometryReader { proxy -> AnyView in
+                        let rect = proxy.frame(in: .global)
+                        // This avoids an infinite layout loop
+                        if rect.integral != self.presenterContentRect.integral {
+                            DispatchQueue.main.async {
+                                self.presenterContentRect = rect
+                            }
                         }
+                        return AnyView(EmptyView())
                     }
-                    return AnyView(EmptyView())
-                }
-            ).overlay(sheet())
+                )
+            
+            if isPresented && closeOnTapOutside {
+                Color.clear.edgesIgnoringSafeArea(.all)
+                    .contentShape(Rectangle())
+                    .addTapIfNotTV(if: closeOnTapOutside) {
+                        dismiss()
+                    }
+            }
+        }
+        .overlay(sheet())
     }
 
     /// This is the builder for the sheet content
@@ -277,33 +283,25 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         }
 
         let sheet = ZStack {
-            Group {
-                VStack {
-                    VStack {
-                        self.view()
-                            .addTapIfNotTV(if: closeOnTap) {
-                                self.dispatchWorkHolder.work?.cancel()
-                                self.isPresented = false
-                                self.dismissCallback()
-                            }
-                            .background(
-                                GeometryReader { proxy -> AnyView in
-                                    let rect = proxy.frame(in: .global)
-                                    // This avoids an infinite layout loop
-                                    if rect.integral != self.sheetContentRect.integral {
-                                        DispatchQueue.main.async {
-                                            self.sheetContentRect = rect
-                                        }
-                                    }
-                                    return AnyView(EmptyView())
-                                }
-                            )
-                    }
+            self.view()
+                .addTapIfNotTV(if: closeOnTap) {
+                    dismiss()
                 }
+                .background(
+                    GeometryReader { proxy -> AnyView in
+                        let rect = proxy.frame(in: .global)
+                        // This avoids an infinite layout loop
+                        if rect.integral != self.sheetContentRect.integral {
+                            DispatchQueue.main.async {
+                                self.sheetContentRect = rect
+                            }
+                        }
+                        return AnyView(EmptyView())
+                    }
+                )
                 .frame(width: screenSize.width)
                 .offset(x: 0, y: currentOffset)
                 .animation(animation)
-            }
         }
 
         #if !os(tvOS)
@@ -341,10 +339,17 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                 isPresented = false
                 lastDragPosition = 0
             }
+            dispatchWorkHolder.work?.cancel()
             dismissCallback()
         }
     }
     #endif
+    
+    private func dismiss() {
+        dispatchWorkHolder.work?.cancel()
+        isPresented = false
+        dismissCallback()
+    }
 }
 
 class DispatchWorkHolder {
