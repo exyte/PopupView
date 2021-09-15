@@ -57,6 +57,7 @@ struct ContentView: View {
 `dragToDismiss` - true by default: enable/disable drag to dismiss (upwards for .top popup types, downwards for .bottom and default type)    
 `closeOnTap` - true by default: enable/disable closing on tap on popup     
 `closeOnTapOutside` - false by default: enable/disable closing on tap on outside of popup     
+`backgroundColor` - Color.clear by default: change background color of outside area     
 `dismissCallback` - custom callback to call once the popup is dismissed      
 
 <img align="right" src="https://raw.githubusercontent.com/exyte/PopupView/master/Assets/drag.gif" width="480" />
