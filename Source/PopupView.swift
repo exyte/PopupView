@@ -9,7 +9,7 @@
 import SwiftUI
 
 extension View {
-    
+
     public func popup<PopupContent: View>(
         isPresented: Binding<Bool>,
         type: Popup<PopupContent>.PopupType = .`default`,
@@ -158,7 +158,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     /// Should close on tap outside - default is `true`
     var closeOnTapOutside: Bool
     
-    /// Bacground color for outside area - default is `Color.clear`
+    /// Background color for outside area - default is `Color.clear`
     var backgroundColor: Color
 
     /// is called on any close action
@@ -226,8 +226,8 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         return isPresented ? displayedOffset : hiddenOffset
     }
     
-    /// The current backround opacity, based on the **presented** property
-    private var currentOpacityBackground: Double {
+    /// The current background opacity, based on the **presented** property
+    private var currentBackgroundOpacity: Double {
         return isPresented ? 1.0 : 0.0
     }
 
@@ -271,7 +271,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                     dismiss()
                 }
                 .edgesIgnoringSafeArea(.all)
-                .opacity(currentOpacityBackground)
+                .opacity(currentBackgroundOpacity)
                 .animation(animation)
         }
         .overlay(sheet())
