@@ -9,7 +9,7 @@
 import SwiftUI
 
 extension View {
-
+    
     public func popup<PopupContent: View>(
         isPresented: Binding<Bool>,
         type: Popup<PopupContent>.PopupType = .`default`,
@@ -19,6 +19,7 @@ extension View {
         dragToDismiss: Bool = true,
         closeOnTap: Bool = true,
         closeOnTapOutside: Bool = false,
+        backgroundColor: Color = Color.clear,
         dismissCallback: @escaping () -> () = {},
         view: @escaping () -> PopupContent) -> some View {
         self.modifier(
@@ -31,6 +32,7 @@ extension View {
                 dragToDismiss: dragToDismiss,
                 closeOnTap: closeOnTap,
                 closeOnTapOutside: closeOnTapOutside,
+                backgroundColor: backgroundColor,
                 dismissCallback: dismissCallback,
                 view: view)
         )
@@ -73,6 +75,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
          dragToDismiss: Bool,
          closeOnTap: Bool,
          closeOnTapOutside: Bool,
+         backgroundColor: Color,
          dismissCallback: @escaping () -> (),
          view: @escaping () -> PopupContent) {
         self._isPresented = isPresented
@@ -83,6 +86,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         self.dragToDismiss = dragToDismiss
         self.closeOnTap = closeOnTap
         self.closeOnTapOutside = closeOnTapOutside
+        self.backgroundColor = backgroundColor
         self.dismissCallback = dismissCallback
         self.view = view
         self.isPresentedRef = ClassReference(self.$isPresented)
@@ -153,6 +157,9 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// Should close on tap outside - default is `true`
     var closeOnTapOutside: Bool
+    
+    /// Bacground color for outside area - default is `Color.clear`
+    var backgroundColor: Color
 
     /// is called on any close action
     var dismissCallback: () -> ()
@@ -218,6 +225,11 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     private var currentOffset: CGFloat {
         return isPresented ? displayedOffset : hiddenOffset
     }
+    
+    /// The current backround opacity, based on the **presented** property
+    private var currentOpacityBackground: Double {
+        return isPresented ? 1.0 : 0.0
+    }
 
     private var screenSize: CGSize {
         #if os(iOS) || os(tvOS)
@@ -251,13 +263,16 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                     }
                 )
             
-            if isPresented && closeOnTapOutside {
-                Color.clear.edgesIgnoringSafeArea(.all)
-                    .contentShape(Rectangle())
-                    .addTapIfNotTV(if: closeOnTapOutside) {
-                        dismiss()
-                    }
-            }
+            backgroundColor
+                .applyIf(closeOnTapOutside) { view in
+                    view.contentShape(Rectangle())
+                }
+                .addTapIfNotTV(if: closeOnTapOutside) {
+                    dismiss()
+                }
+                .edgesIgnoringSafeArea(.all)
+                .opacity(currentOpacityBackground)
+                .animation(animation)
         }
         .overlay(sheet())
     }
