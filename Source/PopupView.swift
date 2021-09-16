@@ -190,8 +190,8 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     /// Show content for lazy loading
     @State private var showContent: Bool = false
     
-    /// Should be presented animation content or not
-    @State private var isPresentedAnimationContent: Bool = false
+    /// Should present the animated part of popup (sliding background)
+    @State private var animatedContentIsPresented: Bool = false
     
     /// The offset when the popup is displayed
     private var displayedOffset: CGFloat {
@@ -230,12 +230,12 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// The current offset, based on the **presented** property
     private var currentOffset: CGFloat {
-        return isPresentedAnimationContent ? displayedOffset : hiddenOffset
+        return animatedContentIsPresented ? displayedOffset : hiddenOffset
     }
     
     /// The current background opacity, based on the **presented** property
     private var currentBackgroundOpacity: Double {
-        return isPresentedAnimationContent ? 1.0 : 0.0
+        return animatedContentIsPresented ? 1.0 : 0.0
     }
 
     private var screenSize: CGSize {
@@ -382,10 +382,10 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         if isPresented {
             showContent = true
             DispatchQueue.main.async {
-                isPresentedAnimationContent = true
+                animatedContentIsPresented = true
             }
         } else {
-            isPresentedAnimationContent = false
+            animatedContentIsPresented = false
         }
     }
     
