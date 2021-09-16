@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Combine
 
 extension View {
 
@@ -185,7 +186,13 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// Last position for drag gesture
     @State private var lastDragPosition: CGFloat = 0
-
+    
+    /// Show content for lazy loading
+    @State private var showContent: Bool = false
+    
+    /// Should be presented animation content or not
+    @State private var isPresentedAnimationContent: Bool = false
+    
     /// The offset when the popup is displayed
     private var displayedOffset: CGFloat {
         switch type {
@@ -223,12 +230,12 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// The current offset, based on the **presented** property
     private var currentOffset: CGFloat {
-        return isPresented ? displayedOffset : hiddenOffset
+        return isPresentedAnimationContent ? displayedOffset : hiddenOffset
     }
     
     /// The current background opacity, based on the **presented** property
     private var currentBackgroundOpacity: Double {
-        return isPresented ? 1.0 : 0.0
+        return isPresentedAnimationContent ? 1.0 : 0.0
     }
 
     private var screenSize: CGSize {
@@ -248,6 +255,19 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     // MARK: - Content Builders
 
     public func body(content: Content) -> some View {
+        Group {
+            if showContent {
+                main(content: content)
+            } else {
+                content
+            }
+        }
+        .valueChanged(value: isPresented) { isPresented in
+            appearAction(isPresented: isPresented)
+        }
+    }
+    
+    private func main(content: Content) -> some View {
         ZStack {
             content
                 .background(
@@ -351,14 +371,23 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
             (position == .top && drag.translation.height < -reference) {
             lastDragPosition = drag.translation.height
             withAnimation {
-                isPresented = false
                 lastDragPosition = 0
             }
-            dispatchWorkHolder.work?.cancel()
-            dismissCallback()
+            dismiss()
         }
     }
     #endif
+    
+    private func appearAction(isPresented: Bool) {
+        if isPresented {
+            showContent = true
+            DispatchQueue.main.async {
+                isPresentedAnimationContent = true
+            }
+        } else {
+            isPresentedAnimationContent = false
+        }
+    }
     
     private func dismiss() {
         dispatchWorkHolder.work?.cancel()
@@ -367,14 +396,29 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     }
 }
 
-class DispatchWorkHolder {
+final class DispatchWorkHolder {
     var work: DispatchWorkItem?
 }
 
 private final class ClassReference<T> {
-  var value: T
+    var value: T
+    
+    init(_ value: T) {
+        self.value = value
+    }
+}
 
-  init(_ value: T) {
-    self.value = value
-  }
+
+extension View {
+    
+    @ViewBuilder
+    fileprivate func valueChanged<T: Equatable>(value: T, onChange: @escaping (T) -> Void) -> some View {
+        if #available(iOS 14.0, *) {
+            self.onChange(of: value, perform: onChange)
+        } else {
+            self.onReceive(Just(value)) { value in
+                onChange(value)
+            }
+        }
+    }
 }
