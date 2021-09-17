@@ -64,7 +64,7 @@ struct ContentView : View {
             self.showingScrollableDraggableCard = false
         }
 
-        return ZStack {
+        let commonView = ZStack {
             bgColor
             VStack(spacing: 15) {
                 ExampleButton(showing: $showingPopup, title: "Popup", hideAll: hideAll)
@@ -72,8 +72,11 @@ struct ContentView : View {
                 ExampleButton(showing: $showingBottomToast, title: "Bottom toast", hideAll: hideAll)
                 ExampleButton(showing: $showingTopFloater, title: "Top floater", hideAll: hideAll)
                 ExampleButton(showing: $showingBottomFloater, title: "Bottom floater", hideAll: hideAll)
+                
+                #if os(iOS)
                 ExampleButton(showing: $showingDraggableCard, title: "Draggable card", hideAll: hideAll)
                 ExampleButton(showing: $showingScrollableDraggableCard, title: "Draggable scrollable card", hideAll: hideAll)
+                #endif
             }
         }
         .edgesIgnoringSafeArea(.all)
@@ -90,22 +93,25 @@ struct ContentView : View {
             createBottomToast()
         }
 
-        .popup(isPresented: $showingTopFloater, type: .floater(), position: .top, animation: Animation.spring(), autohideIn: 2) {
+        .popup(isPresented: $showingTopFloater, type: .floater(), position: .top, animation: .spring(), autohideIn: 2) {
             createTopFloater()
         }
 
-        .popup(isPresented: $showingBottomFloater, type: .floater(), position: .bottom, animation: Animation.spring(), autohideIn: 5) {
+        .popup(isPresented: $showingBottomFloater, type: .floater(), position: .bottom, animation: .spring(), autohideIn: 5) {
             createBottomFloater()
         }
 
-        .popup(isPresented: $showingDraggableCard, type: .toast, position: .bottom) {
-            createDraggableCard()
-        }
-
-        .popup(isPresented: $showingScrollableDraggableCard, type: .toast, position: .bottom) {
-            createScrollableDraggableCard()
-        }
-
+        #if os(iOS)
+        return commonView
+            .popup(isPresented: $showingDraggableCard, type: .toast, position: .bottom) {
+                createDraggableCard()
+            }
+            .popup(isPresented: $showingScrollableDraggableCard, type: .toast, position: .bottom) {
+                createScrollableDraggableCard()
+            }
+        #else
+        return commonView
+        #endif
     }
 
     func createPopup() -> some View {
@@ -252,6 +258,7 @@ struct ContentView : View {
         .cornerRadius(20.0)
     }
 
+    #if os(iOS)
     func createDraggableCard() -> some View {
         DraggableCardView(bgColor: cardColor) {
             VStack(spacing: 10) {
@@ -283,9 +290,10 @@ struct ContentView : View {
             }
         }
     }
-
+    #endif
 }
 
+#if os(iOS)
 struct DraggableCardView<Content: View>: View {
 
     let content: Content
@@ -323,4 +331,4 @@ struct DraggableCardView<Content: View>: View {
         .fixedSize(horizontal: false, vertical: true)
     }
 }
-
+#endif

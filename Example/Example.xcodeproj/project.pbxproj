@@ -21,7 +21,6 @@
 		5B23AA5E24EA57E10085D48E /* ExampleTVApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B23AA5D24EA57E10085D48E /* ExampleTVApp.swift */; };
 		5B23AA6524EA57E20085D48E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B23AA6424EA57E20085D48E /* Preview Assets.xcassets */; };
 		5B28350A252DDBEC00353EED /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5B283509252DDBEC00353EED /* Launch Screen.storyboard */; };
-		5B28350B252DDBEC00353EED /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5B283509252DDBEC00353EED /* Launch Screen.storyboard */; };
 		5B5B04FC25345BB900739AD7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B5B04FA25345BB900739AD7 /* Assets.xcassets */; };
 		5B5B04FD25345BB900739AD7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B5B04FA25345BB900739AD7 /* Assets.xcassets */; };
 		5B5B04FE25345BB900739AD7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B5B04FA25345BB900739AD7 /* Assets.xcassets */; };
@@ -35,6 +34,8 @@
 		5BE3328C24E1453D00BB0D60 /* ExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE3328B24E1453D00BB0D60 /* ExampleApp.swift */; };
 		5BE3329324E1453E00BB0D60 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5BE3329224E1453E00BB0D60 /* Preview Assets.xcassets */; };
 		5BE3329C24E14C0E00BB0D60 /* Pods_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BE3329B24E14C0E00BB0D60 /* Pods_Example.framework */; };
+		A724255926F34F9A00E57CB9 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BD975852672128500432F2C /* Utils.swift */; };
+		A724255A26F34F9A00E57CB9 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BD975852672128500432F2C /* Utils.swift */; };
 		DA44A94D331817E8266A75F9 /* Pods_ExampleMac.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 76DA1B91A1DC3B4D73FDBEB5 /* Pods_ExampleMac.framework */; };
 /* End PBXBuildFile section */
 
@@ -86,7 +87,7 @@
 		3C79EBE5B4DE8C5FBABBBAC6 /* Pods-ExampleMac.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ExampleMac.debug.xcconfig"; path = "Target Support Files/Pods-ExampleMac/Pods-ExampleMac.debug.xcconfig"; sourceTree = "<group>"; };
 		5B10178925346F7A00105E9A /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		5B23AA1724EA559B0085D48E /* ExampleMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExampleMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		5B23AA1924EA559C0085D48E /* ExampleMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleMacApp.swift; sourceTree = "<group>"; };
+		5B23AA1924EA559C0085D48E /* ExampleMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleMacApp.swift; sourceTree = "<group>"; usesTabs = 0; };
 		5B23AA2024EA559D0085D48E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		5B23AA2224EA559D0085D48E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5B23AA2324EA559D0085D48E /* ExampleMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ExampleMac.entitlements; sourceTree = "<group>"; };
@@ -106,8 +107,8 @@
 		5B23AA6624EA57E20085D48E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5B283509252DDBEC00353EED /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		5B5B04FA25345BB900739AD7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		5B5B04FB25345BB900739AD7 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		5BD975852672128500432F2C /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		5B5B04FB25345BB900739AD7 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; usesTabs = 0; };
+		5BD975852672128500432F2C /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; usesTabs = 0; };
 		5BE3328824E1453D00BB0D60 /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5BE3328B24E1453D00BB0D60 /* ExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleApp.swift; sourceTree = "<group>"; };
 		5BE3329224E1453E00BB0D60 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -449,7 +450,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1200;
-				LastUpgradeCheck = 1200;
+				LastUpgradeCheck = 1250;
 				TargetAttributes = {
 					5B23AA1624EA559B0085D48E = {
 						CreatedOnToolsVersion = 12.0;
@@ -500,7 +501,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				5B23AA2124EA559D0085D48E /* Preview Assets.xcassets in Resources */,
-				5B28350B252DDBEC00353EED /* Launch Screen.storyboard in Resources */,
 				5B5B04FD25345BB900739AD7 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -717,6 +717,7 @@
 			files = (
 				5B5B050325345BB900739AD7 /* ContentView.swift in Sources */,
 				5B23AA1A24EA559C0085D48E /* ExampleMacApp.swift in Sources */,
+				A724255926F34F9A00E57CB9 /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -737,6 +738,7 @@
 			files = (
 				5B5B050425345BB900739AD7 /* ContentView.swift in Sources */,
 				5B23AA5E24EA57E10085D48E /* ExampleTVApp.swift in Sources */,
+				A724255A26F34F9A00E57CB9 /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -773,16 +775,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = ExampleMac/ExampleMac.entitlements;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"ExampleMac/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				EXCLUDED_ARCHS = arm64;
 				INFOPLIST_FILE = ExampleMac/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.16;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_BUNDLE_IDENTIFIER = exyte.ExampleMac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -798,16 +802,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = ExampleMac/ExampleMac.entitlements;
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"ExampleMac/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
+				EXCLUDED_ARCHS = arm64;
 				INFOPLIST_FILE = ExampleMac/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.16;
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				PRODUCT_BUNDLE_IDENTIFIER = exyte.ExampleMac;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
