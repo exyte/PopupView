@@ -22,7 +22,7 @@ extension View {
         closeOnTapOutside: Bool = false,
         backgroundColor: Color = Color.clear,
         dismissCallback: @escaping () -> () = {},
-        view: @escaping () -> PopupContent) -> some View {
+        @ViewBuilder view: @escaping () -> PopupContent) -> some View {
         self.modifier(
             Popup(
                 isPresented: isPresented,
