@@ -248,6 +248,10 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         #endif
     }
 
+    private var screenWidth: CGFloat {
+        screenSize.width
+    }
+
     private var screenHeight: CGFloat {
         screenSize.height
     }
@@ -270,18 +274,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     private func main(content: Content) -> some View {
         ZStack {
             content
-                .background(
-                    GeometryReader { proxy -> AnyView in
-                        let rect = proxy.frame(in: .global)
-                        // This avoids an infinite layout loop
-                        if rect.integral != self.presenterContentRect.integral {
-                            DispatchQueue.main.async {
-                                self.presenterContentRect = rect
-                            }
-                        }
-                        return AnyView(EmptyView())
-                    }
-                )
+                .frameGetter($presenterContentRect)
             
             backgroundColor
                 .applyIf(closeOnTapOutside) { view in
@@ -322,19 +315,8 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                 .addTapIfNotTV(if: closeOnTap) {
                     dismiss()
                 }
-                .background(
-                    GeometryReader { proxy -> AnyView in
-                        let rect = proxy.frame(in: .global)
-                        // This avoids an infinite layout loop
-                        if rect.integral != self.sheetContentRect.integral {
-                            DispatchQueue.main.async {
-                                self.sheetContentRect = rect
-                            }
-                        }
-                        return AnyView(EmptyView())
-                    }
-                )
-                .frame(width: screenSize.width)
+                .frameGetter($sheetContentRect)
+                .frame(width: screenWidth)
                 .offset(x: 0, y: currentOffset)
                 .animation(animation)
         }
@@ -420,5 +402,32 @@ extension View {
                 onChange(value)
             }
         }
+    }
+}
+
+extension View {
+    func frameGetter(_ frame: Binding<CGRect>) -> some View {
+        modifier(FrameGetter(frame: frame))
+    }
+}
+
+struct FrameGetter: ViewModifier {
+
+    @Binding var frame: CGRect
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                GeometryReader { proxy -> AnyView in
+                    let rect = proxy.frame(in: .global)
+                    // This avoids an infinite layout loop
+                    if rect.integral != self.frame.integral {
+                        DispatchQueue.main.async {
+                            self.frame = rect
+                        }
+                    }
+                    return AnyView(EmptyView())
+                }
+            )
     }
 }

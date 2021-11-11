@@ -3,7 +3,7 @@
 
 <p><h1 align="left">Popup View</h1></p>
 
-<p><h4>Toasts and popups library written with SwiftUI</h4></p>
+<p><h4>Toasts, alerts and popups library written with SwiftUI</h4></p>
 
 ___
 
