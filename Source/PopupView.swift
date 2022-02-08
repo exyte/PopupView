@@ -259,35 +259,40 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     // MARK: - Content Builders
 
     public func body(content: Content) -> some View {
-        Group {
-            if showContent {
-                main(content: content)
-            } else {
-                content
+        main(content: content)
+            .onAppear {
+                appearAction(isPresented: isPresented)
             }
-        }
-        .valueChanged(value: isPresented) { isPresented in
-            appearAction(isPresented: isPresented)
-        }
+            .valueChanged(value: isPresented) { isPresented in
+                appearAction(isPresented: isPresented)
+            }
     }
-    
+
     private func main(content: Content) -> some View {
         ZStack {
             content
                 .frameGetter($presenterContentRect)
-            
-            backgroundColor
-                .applyIf(closeOnTapOutside) { view in
-                    view.contentShape(Rectangle())
-                }
-                .addTapIfNotTV(if: closeOnTapOutside) {
-                    dismiss()
-                }
-                .edgesIgnoringSafeArea(.all)
-                .opacity(currentBackgroundOpacity)
-                .animation(animation)
+
+            if showContent {
+                popupBackground()
+            }
         }
-        .overlay(sheet())
+        .applyIf(showContent) {
+            $0.overlay(sheet())
+        }
+    }
+
+    private func popupBackground() -> some View {
+        backgroundColor
+            .applyIf(closeOnTapOutside) { view in
+                view.contentShape(Rectangle())
+            }
+            .addTapIfNotTV(if: closeOnTapOutside) {
+                dismiss()
+            }
+            .edgesIgnoringSafeArea(.all)
+            .opacity(currentBackgroundOpacity)
+            .animation(animation)
     }
 
     /// This is the builder for the sheet content
