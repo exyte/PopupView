@@ -277,9 +277,13 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                 popupBackground()
             }
         }
-        .applyIf(showContent) {
-            $0.overlay(sheet())
-        }
+        .overlay(
+            Group {
+                if showContent {
+                    sheet()
+                }
+            }
+        )
     }
 
     private func popupBackground() -> some View {
