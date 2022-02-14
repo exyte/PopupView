@@ -16,10 +16,10 @@ struct ExampleButton : View {
     var hideAll: ()->()
 
     var body: some View {
-        Button(action: {
+        Button {
             self.hideAll()
             self.showing.toggle()
-        }) {
+        } label: {
             Text(title)
                 .foregroundColor(.black)
         }
@@ -44,14 +44,6 @@ struct ContentView : View {
     @State var showingDraggableCard = false
     @State var showingScrollableDraggableCard = false
 
-    private var screenSize: CGSize {
-        #if os(iOS) || os(tvOS)
-        return UIScreen.main.bounds.size
-        #else
-        return NSScreen.main?.frame.size ?? .zero
-        #endif
-    }
-
     var body: some View {
 
         let hideAll = {
@@ -73,10 +65,10 @@ struct ContentView : View {
                 ExampleButton(showing: $showingTopFloater, title: "Top floater", hideAll: hideAll)
                 ExampleButton(showing: $showingBottomFloater, title: "Bottom floater", hideAll: hideAll)
                 
-                #if os(iOS)
+#if os(iOS)
                 ExampleButton(showing: $showingDraggableCard, title: "Draggable card", hideAll: hideAll)
                 ExampleButton(showing: $showingScrollableDraggableCard, title: "Draggable scrollable card", hideAll: hideAll)
-                #endif
+#endif
             }
         }
         .edgesIgnoringSafeArea(.all)
@@ -101,7 +93,7 @@ struct ContentView : View {
             createBottomFloater()
         }
 
-        #if os(iOS)
+#if os(iOS)
         return commonView
             .popup(isPresented: $showingDraggableCard, type: .toast, position: .bottom) {
                 createDraggableCard()
@@ -109,9 +101,9 @@ struct ContentView : View {
             .popup(isPresented: $showingScrollableDraggableCard, type: .toast, position: .bottom) {
                 createScrollableDraggableCard()
             }
-        #else
+#else
         return commonView
-        #endif
+#endif
     }
 
     func createPopup() -> some View {
@@ -131,9 +123,9 @@ struct ContentView : View {
 
             Spacer()
 
-            Button(action: {
+            Button {
                 self.showingPopup = false
-            }) {
+            } label: {
                 Text("Got it")
                     .font(.system(size: 14))
                     .foregroundColor(.black)
@@ -153,10 +145,10 @@ struct ContentView : View {
     func createTopToast() -> some View {
         VStack {
             Spacer(minLength: 20)
-            HStack() {
+            HStack {
                 Image("shop_NA")
                     .resizable()
-                    .aspectRatio(contentMode: ContentMode.fill)
+                    .aspectRatio(contentMode: .fill)
                     .frame(width: 50, height: 50)
                     .cornerRadius(25)
 
@@ -179,35 +171,35 @@ struct ContentView : View {
             }
             .padding(15)
         }
-        .frame(maxWidth: .infinity)
         .frame(height: 110)
         .background(self.topToastColor)
     }
 
     func createBottomToast() -> some View {
-           VStack() {
-                HStack() {
-                    Image("grapes")
-                        .resizable()
-                        .aspectRatio(contentMode: ContentMode.fill)
-                        .frame(width: 50, height: 50)
+        VStack {
+            HStack {
+                Image("grapes")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 50, height: 50)
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Grapes! Grapes! Grapes!")
-                            .foregroundColor(.black)
-                            .fontWeight(.bold)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Grapes! Grapes! Grapes!")
+                        .foregroundColor(.black)
+                        .fontWeight(.bold)
 
-                        Text("Step right up! Buy some grapes now - that's a brilliant investment and you know it!")
-                            .lineLimit(2)
-                            .font(.system(size: 14))
-                            .foregroundColor(.black)
-                    }
+                    Text("Step right up! Buy some grapes now - that's a brilliant investment and you know it!")
+                        .lineLimit(2)
+                        .font(.system(size: 14))
+                        .foregroundColor(.black)
                 }
-                Spacer(minLength: 10)
             }
-            .padding(15)
-            .frame(width: screenSize.width, height: 100)
-            .background(self.bottomToastColor)
+            Spacer(minLength: 10)
+        }
+        .padding(15)
+        .frame(maxWidth: .infinity)
+        .frame(height: 100)
+        .background(self.bottomToastColor)
     }
 
     func createTopFloater() -> some View {
@@ -216,6 +208,7 @@ struct ContentView : View {
                 .resizable()
                 .aspectRatio(contentMode: ContentMode.fill)
                 .frame(width: 20, height: 20)
+
             VStack(spacing: 8) {
                 Text("Coffee temperature")
                     .font(.system(size: 12))
@@ -226,7 +219,8 @@ struct ContentView : View {
                         .frame(width: 30, height: 5)
                     Color(red: 1, green: 1, blue: 1)
                         .frame(width: 70, height: 5)
-                }.cornerRadius(2.5)
+                }
+                .cornerRadius(2.5)
             }
         }
         .frame(width: 200, height: 60)
@@ -258,7 +252,7 @@ struct ContentView : View {
         .cornerRadius(20.0)
     }
 
-    #if os(iOS)
+#if os(iOS)
     func createDraggableCard() -> some View {
         DraggableCardView(bgColor: cardColor) {
             VStack(spacing: 10) {
@@ -290,7 +284,7 @@ struct ContentView : View {
             }
         }
     }
-    #endif
+#endif
 }
 
 #if os(iOS)

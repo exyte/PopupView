@@ -175,11 +175,13 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     /// Class reference for capturing a weak reference later in dispatch work holder.
     private var isPresentedRef: ClassReference<Binding<Bool>>?
 
-    /// The rect of the hosting controller
+    /// The rect and safe area of the hosting controller
     @State private var presenterContentRect: CGRect = .zero
+    @State private var presenterSafeArea: EdgeInsets = EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
 
-    /// The rect of popup content
+    /// The rect and safe area of popup content
     @State private var sheetContentRect: CGRect = .zero
+    @State private var sheetSafeArea: EdgeInsets = EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
 
     /// Drag to dismiss gesture state
     @GestureState private var dragState = DragState.inactive
@@ -197,18 +199,18 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     private var displayedOffset: CGFloat {
         switch type {
         case .`default`:
-            return  -presenterContentRect.midY + screenHeight/2
+            return -presenterContentRect.midY + screenHeight/2
         case .toast:
             if position == .bottom {
-                return screenHeight - presenterContentRect.midY - sheetContentRect.height/2
+                return presenterContentRect.minY + presenterSafeArea.bottom + presenterContentRect.height - presenterContentRect.midY - sheetContentRect.height/2
             } else {
-                return -presenterContentRect.midY + sheetContentRect.height/2
+                return presenterContentRect.minY - presenterSafeArea.top - presenterContentRect.midY + sheetContentRect.height/2
             }
         case .floater(let verticalPadding):
             if position == .bottom {
-                return screenHeight - presenterContentRect.midY - sheetContentRect.height/2 - verticalPadding
+                return presenterContentRect.minY + presenterSafeArea.bottom + presenterContentRect.height - presenterContentRect.midY - sheetContentRect.height/2 - verticalPadding
             } else {
-                return -presenterContentRect.midY + sheetContentRect.height/2 + verticalPadding
+                return presenterContentRect.minY - presenterSafeArea.top - presenterContentRect.midY + sheetContentRect.height/2 + verticalPadding
             }
         }
     }
@@ -248,10 +250,6 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         #endif
     }
 
-    private var screenWidth: CGFloat {
-        screenSize.width
-    }
-
     private var screenHeight: CGFloat {
         screenSize.height
     }
@@ -271,7 +269,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     private func main(content: Content) -> some View {
         ZStack {
             content
-                .frameGetter($presenterContentRect)
+                .frameGetter($presenterContentRect, $presenterSafeArea)
 
             if showContent {
                 popupBackground()
@@ -324,8 +322,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
                 .addTapIfNotTV(if: closeOnTap) {
                     dismiss()
                 }
-                .frameGetter($sheetContentRect)
-                .frame(width: screenWidth)
+                .frameGetter($sheetContentRect, $sheetSafeArea)
                 .offset(x: 0, y: currentOffset)
                 .animation(animation)
         }
@@ -415,14 +412,15 @@ extension View {
 }
 
 extension View {
-    func frameGetter(_ frame: Binding<CGRect>) -> some View {
-        modifier(FrameGetter(frame: frame))
+    public func frameGetter(_ frame: Binding<CGRect>, _ safeArea: Binding<EdgeInsets>) -> some View {
+        modifier(FrameGetter(frame: frame, safeArea: safeArea))
     }
 }
 
 struct FrameGetter: ViewModifier {
 
     @Binding var frame: CGRect
+    @Binding var safeArea: EdgeInsets
 
     func body(content: Content) -> some View {
         content
@@ -432,6 +430,7 @@ struct FrameGetter: ViewModifier {
                     // This avoids an infinite layout loop
                     if rect.integral != self.frame.integral {
                         DispatchQueue.main.async {
+                            self.safeArea = proxy.safeAreaInsets
                             self.frame = rect
                         }
                     }
