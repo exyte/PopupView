@@ -23,24 +23,21 @@ ___
 [![Platform](https://img.shields.io/cocoapods/p/ExytePopupView.svg?style=flat)](http://cocoapods.org/pods/ExytePopupView)
 
 # Usage
-1. Put all your body code into a ZStack
-2. Add a binding bool to control popup presentation state
-3. Add `.popup` modifier to your ZStack
+1. Add a binding bool to control popup presentation state
+1. Add `.popup` modifier to your view
 ```swift
 struct ContentView: View {
 
     @State var showingPopup = false
 
     var body: some View {
-        ZStack {
-            // your view
-        }
-        .popup(isPresented: $showingPopup, autohideIn: 2) {
-            Text("The popup")
-                .frame(width: 200, height: 60)
-                .background(Color(red: 0.85, green: 0.8, blue: 0.95))
-                .cornerRadius(30.0)
-        }
+        YourView()
+            .popup(isPresented: $showingPopup, autohideIn: 2) {
+                Text("The popup")
+                    .frame(width: 200, height: 60)
+                    .background(Color(red: 0.85, green: 0.8, blue: 0.95))
+                    .cornerRadius(30.0)
+            }
     }
 }
 ```
