@@ -17,8 +17,8 @@ struct ExampleButton : View {
 
     var body: some View {
         Button {
-            self.hideAll()
-            self.showing.toggle()
+            hideAll()
+            showing.toggle()
         } label: {
             Text(title)
                 .foregroundColor(.black)
@@ -36,7 +36,7 @@ struct ContentView : View {
     let bottomFloatColor = Color(hex: "ee6c4d")
     let cardColor = Color(hex: "3d5a80")
 
-    @State var showingPopup = false
+    @State var showingPopupItem: String? = nil
     @State var showingTopToast = false
     @State var showingBottomToast = false
     @State var showingTopFloater = false
@@ -47,7 +47,7 @@ struct ContentView : View {
     var body: some View {
 
         let hideAll = {
-            self.showingPopup = false
+            self.showingPopupItem = nil
             self.showingTopToast = false
             self.showingBottomToast = false
             self.showingTopFloater = false
@@ -59,7 +59,14 @@ struct ContentView : View {
         let commonView = ZStack {
             bgColor
             VStack(spacing: 15) {
-                ExampleButton(showing: $showingPopup, title: "Popup", hideAll: hideAll)
+                Button {
+                    hideAll()
+                    showingPopupItem = "string"
+                } label: {
+                    Text("Popup")
+                        .foregroundColor(.black)
+                }
+
                 ExampleButton(showing: $showingTopToast, title: "Top toast", hideAll: hideAll)
                 ExampleButton(showing: $showingBottomToast, title: "Bottom toast", hideAll: hideAll)
                 ExampleButton(showing: $showingTopFloater, title: "Top floater", hideAll: hideAll)
@@ -73,7 +80,7 @@ struct ContentView : View {
         }
         .edgesIgnoringSafeArea(.all)
 
-        .popup(isPresented: $showingPopup, type: .`default`, closeOnTap: false) {
+        .popup(item: $showingPopupItem, type: .`default`, closeOnTap: false) {
             createPopup()
         }
 
@@ -124,7 +131,7 @@ struct ContentView : View {
             Spacer()
 
             Button {
-                self.showingPopup = false
+                self.showingPopupItem = nil
             } label: {
                 Text("Got it")
                     .font(.system(size: 14))

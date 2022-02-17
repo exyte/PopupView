@@ -11,10 +11,38 @@ import Combine
 
 extension View {
 
+    public func popup<Item: Equatable, PopupContent: View>(
+        item: Binding<Item?>,
+        type: Popup<Item, PopupContent>.PopupType = .`default`,
+        position: Popup<Item, PopupContent>.Position = .bottom,
+        animation: Animation = Animation.easeOut(duration: 0.3),
+        autohideIn: Double? = nil,
+        dragToDismiss: Bool = true,
+        closeOnTap: Bool = true,
+        closeOnTapOutside: Bool = false,
+        backgroundColor: Color = Color.clear,
+        dismissCallback: @escaping () -> () = {},
+        @ViewBuilder view: @escaping () -> PopupContent) -> some View {
+            self.modifier(
+                Popup(
+                    item: item,
+                    type: type,
+                    position: position,
+                    animation: animation,
+                    autohideIn: autohideIn,
+                    dragToDismiss: dragToDismiss,
+                    closeOnTap: closeOnTap,
+                    closeOnTapOutside: closeOnTapOutside,
+                    backgroundColor: backgroundColor,
+                    dismissCallback: dismissCallback,
+                    view: view)
+            )
+        }
+
     public func popup<PopupContent: View>(
         isPresented: Binding<Bool>,
-        type: Popup<PopupContent>.PopupType = .`default`,
-        position: Popup<PopupContent>.Position = .bottom,
+        type: Popup<Int, PopupContent>.PopupType = .`default`,
+        position: Popup<Int, PopupContent>.Position = .bottom,
         animation: Animation = Animation.easeOut(duration: 0.3),
         autohideIn: Double? = nil,
         dragToDismiss: Bool = true,
@@ -24,7 +52,7 @@ extension View {
         dismissCallback: @escaping () -> () = {},
         @ViewBuilder view: @escaping () -> PopupContent) -> some View {
         self.modifier(
-            Popup(
+            Popup<Int, PopupContent>(
                 isPresented: isPresented,
                 type: type,
                 position: position,
@@ -66,7 +94,7 @@ extension View {
     }
 }
 
-public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
+public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     
     init(isPresented: Binding<Bool>,
          type: PopupType,
@@ -80,6 +108,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
          dismissCallback: @escaping () -> (),
          view: @escaping () -> PopupContent) {
         self._isPresented = isPresented
+        self._item = .constant(nil)
         self.type = type
         self.position = position
         self.animation = animation
@@ -91,6 +120,34 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
         self.dismissCallback = dismissCallback
         self.view = view
         self.isPresentedRef = ClassReference(self.$isPresented)
+        self.itemRef = ClassReference(self.$item)
+    }
+
+    init(item: Binding<Item?>,
+         type: PopupType,
+         position: Position,
+         animation: Animation,
+         autohideIn: Double?,
+         dragToDismiss: Bool,
+         closeOnTap: Bool,
+         closeOnTapOutside: Bool,
+         backgroundColor: Color,
+         dismissCallback: @escaping () -> (),
+         view: @escaping () -> PopupContent) {
+        self._isPresented = .constant(false)
+        self._item = item
+        self.type = type
+        self.position = position
+        self.animation = animation
+        self.autohideIn = autohideIn
+        self.dragToDismiss = dragToDismiss
+        self.closeOnTap = closeOnTap
+        self.closeOnTapOutside = closeOnTapOutside
+        self.backgroundColor = backgroundColor
+        self.dismissCallback = dismissCallback
+        self.view = view
+        self.isPresentedRef = ClassReference(self.$isPresented)
+        self.itemRef = ClassReference(self.$item)
     }
     
     public enum PopupType {
@@ -141,13 +198,18 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
 
     /// Tells if the sheet should be presented or not
     @Binding var isPresented: Bool
+    @Binding var item: Item?
+
+    var sheetPresented: Bool {
+        item != nil || isPresented
+    }
 
     var type: PopupType
     var position: Position
 
     var animation: Animation
 
-    /// If nil - niver hides on its own
+    /// If nil - never hides on its own
     var autohideIn: Double?
 
     /// Should close on tap - default is `true`
@@ -174,6 +236,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     
     /// Class reference for capturing a weak reference later in dispatch work holder.
     private var isPresentedRef: ClassReference<Binding<Bool>>?
+    private var itemRef: ClassReference<Binding<Item?>>?
 
     /// The rect and safe area of the hosting controller
     @State private var presenterContentRect: CGRect = .zero
@@ -259,10 +322,13 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     public func body(content: Content) -> some View {
         main(content: content)
             .onAppear {
-                appearAction(isPresented: isPresented)
+                appearAction(sheetPresented: sheetPresented)
             }
             .valueChanged(value: isPresented) { isPresented in
-                appearAction(isPresented: isPresented)
+                appearAction(sheetPresented: isPresented)
+            }
+            .valueChanged(value: item) { item in
+                appearAction(sheetPresented: item != nil)
             }
     }
 
@@ -308,11 +374,12 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
             // which would create a retain cycle with the work holder itself.
 			
             let block = dismissCallback
-            dispatchWorkHolder.work = DispatchWorkItem(block: { [weak isPresentedRef] in
+            dispatchWorkHolder.work = DispatchWorkItem(block: { [weak isPresentedRef, weak itemRef] in
                 isPresentedRef?.value.wrappedValue = false
+                itemRef?.value.wrappedValue = nil
                 block()
             })
-            if isPresented, let work = dispatchWorkHolder.work {
+            if sheetPresented, let work = dispatchWorkHolder.work {
                 DispatchQueue.main.asyncAfter(deadline: .now() + autohideIn, execute: work)
             }
         }
@@ -366,8 +433,8 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     }
     #endif
     
-    private func appearAction(isPresented: Bool) {
-        if isPresented {
+    private func appearAction(sheetPresented: Bool) {
+        if sheetPresented {
             showContent = true
             DispatchQueue.main.async {
                 animatedContentIsPresented = true
@@ -380,6 +447,7 @@ public struct Popup<PopupContent>: ViewModifier where PopupContent: View {
     private func dismiss() {
         dispatchWorkHolder.work?.cancel()
         isPresented = false
+        item = nil
         dismissCallback()
     }
 }
@@ -398,7 +466,7 @@ private final class ClassReference<T> {
 
 
 extension View {
-    
+
     @ViewBuilder
     fileprivate func valueChanged<T: Equatable>(value: T, onChange: @escaping (T) -> Void) -> some View {
         if #available(iOS 14.0, tvOS 14.0, macOS 11.0, watchOS 7.0, *) {
