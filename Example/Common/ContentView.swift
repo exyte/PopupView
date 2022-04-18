@@ -117,7 +117,7 @@ struct ContentView : View {
         VStack(spacing: 10) {
             Image("okay")
                 .resizable()
-                .aspectRatio(contentMode: ContentMode.fit)
+                .aspectRatio(contentMode: .fit)
                 .frame(width: 100, height: 100)
 
             Text("Tutorial")
@@ -213,7 +213,7 @@ struct ContentView : View {
         HStack(spacing: 10) {
             Image("transaction_coffee")
                 .resizable()
-                .aspectRatio(contentMode: ContentMode.fill)
+                .aspectRatio(contentMode: .fill)
                 .frame(width: 20, height: 20)
 
             VStack(spacing: 8) {
@@ -239,7 +239,7 @@ struct ContentView : View {
         HStack(spacing: 15) {
             Image("shop_coffee")
                 .resizable()
-                .aspectRatio(contentMode: ContentMode.fill)
+                .aspectRatio(contentMode: .fill)
                 .frame(width: 60, height: 60)
                 .cornerRadius(10.0)
 

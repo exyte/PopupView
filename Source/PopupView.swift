@@ -154,7 +154,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
 
         case `default`
         case toast
-        case floater(verticalPadding: CGFloat = 50)
+        case floater(verticalPadding: CGFloat = 10, useSafeAreaInset: Bool = true)
 
         func shouldBeCentered() -> Bool {
             switch self {
@@ -269,11 +269,11 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
             } else {
                 return presenterContentRect.minY - presenterSafeArea.top - presenterContentRect.midY + sheetContentRect.height/2
             }
-        case .floater(let verticalPadding):
+        case .floater(let verticalPadding, let useSafeAreaInset):
             if position == .bottom {
-                return presenterContentRect.minY + presenterSafeArea.bottom + presenterContentRect.height - presenterContentRect.midY - sheetContentRect.height/2 - verticalPadding
+                return presenterContentRect.minY + presenterSafeArea.bottom + presenterContentRect.height - presenterContentRect.midY - sheetContentRect.height/2 - verticalPadding + (useSafeAreaInset ? -presenterSafeArea.bottom : 0)
             } else {
-                return presenterContentRect.minY - presenterSafeArea.top - presenterContentRect.midY + sheetContentRect.height/2 + verticalPadding
+                return presenterContentRect.minY - presenterSafeArea.top - presenterContentRect.midY + sheetContentRect.height/2 + verticalPadding + (useSafeAreaInset ? presenterSafeArea.top : 0)
             }
         }
     }
@@ -390,7 +390,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
                     dismiss()
                 }
                 .frameGetter($sheetContentRect, $sheetSafeArea)
-                .offset(x: 0, y: currentOffset)
+                .offset(y: currentOffset)
                 .animation(animation)
         }
 

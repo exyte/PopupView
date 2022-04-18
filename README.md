@@ -47,7 +47,9 @@ struct ContentView: View {
 `view` - view you want to display on your popup  
 
 ### Available customizations - optional parameters  
-`type` - toast, float or default   
+`type` - toast, float or default. Floater has parameters of its own: 
+        `verticalPadding`  - padding which will define padding from the top or will be added to safe area if `useSafeAreaInset` is true
+        `useSafeAreaInset` - whether to include safe area insets in floater padding     
 `position` - top or bottom (for default case it just determines animation direction)  
 `animation` - custom animation for popup sliding onto screen  
 `autohideIn` - time after which popup should disappear    
