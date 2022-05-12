@@ -360,7 +360,6 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
             }
             .edgesIgnoringSafeArea(.all)
             .opacity(currentBackgroundOpacity)
-            .animation(animation)
     }
 
     /// This is the builder for the sheet content
