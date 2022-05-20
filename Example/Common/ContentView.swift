@@ -9,327 +9,123 @@
 import SwiftUI
 import ExytePopupView
 
-struct ExampleButton : View {
+struct ToastsState {
+    var showingTopFirst = false
+    var showingTopSecond = false
+    var showingBottomFirst = false
+    var showingBottomSecond = false
+}
 
-    @Binding var showing: Bool
-    var title: String
-    var hideAll: ()->()
+struct PopupsState {
+    var showingMiddle = false
+    var showingBottomFirst = false
+    var showingBottomSecond = false
+}
 
-    var body: some View {
-        Button {
-            hideAll()
-            showing.toggle()
-        } label: {
-            Text(title)
-                .foregroundColor(.black)
-        }
-    }
+struct ActionSheetsState {
+    var showingFirst = false
+    var showingSecond = false
 }
 
 struct ContentView : View {
-
-    let bgColor = Color(hex: "e0fbfc")
-    let popupColor = Color(hex: "3d5a80")
-    let topToastColor = Color(hex: "293241")
-    let bottomToastColor = Color(hex: "98c1d9")
-    let topFloatColor = Color(hex: "293241")
-    let bottomFloatColor = Color(hex: "ee6c4d")
-    let cardColor = Color(hex: "3d5a80")
-
-    @State var showingPopupItem: String? = nil
-    @State var showingTopToast = false
-    @State var showingBottomToast = false
-    @State var showingTopFloater = false
-    @State var showingBottomFloater = false
-    @State var showingDraggableCard = false
-    @State var showingScrollableDraggableCard = false
-
+    @State var floats = ToastsState()
+    @State var toasts = ToastsState()
+    @State var popups = PopupsState()
+    @State var actionSheets = ActionSheetsState()
+    
     var body: some View {
-
-        let hideAll = {
-            self.showingPopupItem = nil
-            self.showingTopToast = false
-            self.showingBottomToast = false
-            self.showingTopFloater = false
-            self.showingBottomFloater = false
-            self.showingDraggableCard = false
-            self.showingScrollableDraggableCard = false
-        }
-
-        let commonView = ZStack {
-            bgColor
-            VStack(spacing: 15) {
-                Button {
-                    hideAll()
-                    showingPopupItem = "string"
-                } label: {
-                    Text("Popup")
-                        .foregroundColor(.black)
-                }
-
-                ExampleButton(showing: $showingTopToast, title: "Top toast", hideAll: hideAll)
-                ExampleButton(showing: $showingBottomToast, title: "Bottom toast", hideAll: hideAll)
-                ExampleButton(showing: $showingTopFloater, title: "Top floater", hideAll: hideAll)
-                ExampleButton(showing: $showingBottomFloater, title: "Bottom floater", hideAll: hideAll)
-                
-#if os(iOS)
-                ExampleButton(showing: $showingDraggableCard, title: "Draggable card", hideAll: hideAll)
-                ExampleButton(showing: $showingScrollableDraggableCard, title: "Draggable scrollable card", hideAll: hideAll)
-#endif
+        let commonView = createPopupsList()
+        
+        // MARK: - Designed floats
+            .popup(isPresented: $floats.showingTopFirst, type: .floater(), position: .top, animation: .spring()) {
+                FloatTopFirst()
             }
-        }
-        .edgesIgnoringSafeArea(.all)
-
-        .popup(item: $showingPopupItem, type: .`default`, closeOnTap: false) {
-            createPopup()
-        }
-
-        .popup(isPresented: $showingTopToast, type: .toast, position: .top) {
-            createTopToast()
-        }
-
-        .popup(isPresented: $showingBottomToast, type: .toast, position: .bottom) {
-            createBottomToast()
-        }
-
-        .popup(isPresented: $showingTopFloater, type: .floater(), position: .top, animation: .spring(), autohideIn: 2) {
-            createTopFloater()
-        }
-
-        .popup(isPresented: $showingBottomFloater, type: .floater(), position: .bottom, animation: .spring(), autohideIn: 5) {
-            createBottomFloater()
-        }
-
+            .popup(isPresented: $floats.showingTopSecond, type: .floater(), position: .top, animation: .spring(), autohideIn: 3) {
+                FloatTopSecond()
+            }
+            .popup(isPresented: $floats.showingBottomFirst, type: .floater(), position: .bottom, animation: .spring(), autohideIn: 2) {
+                FloatBottomFirst()
+            }
+            .popup(isPresented: $floats.showingBottomSecond, type: .floater(), position: .bottom, animation: .spring(), autohideIn: 5) {
+                FloatBottomSecond()
+            }
+        
+        // MARK: - Designed toasts
+            .popup(isPresented: $toasts.showingTopFirst, type: .toast, position: .top) {
+                ToastTopFirst()
+            }
+            .popup(isPresented: $toasts.showingTopSecond, type: .toast, position: .top) {
+                ToastTopSecond()
+            }
+            .popup(isPresented: $toasts.showingBottomFirst, type: .toast, position: .bottom, closeOnTap: false, backgroundColor: .black.opacity(0.4)) {
+                ToastBottomFirst(isShowing: $toasts.showingBottomFirst)
+            }
+            .popup(isPresented: $toasts.showingBottomSecond, type: .toast, position: .bottom, autohideIn: 10) {
+                ToastBottomSecond()
+            }
+        
+        // MARK: - Designed popups
+            .popup(isPresented: $popups.showingMiddle, type: .`default`, backgroundColor: .black.opacity(0.4)) {
+                PopupMiddle()
+            }
+            .popup(isPresented: $popups.showingBottomFirst, type: .floater(), position: .bottom, backgroundColor: .black.opacity(0.4)) {
+                PopupBottomFirst()
+            }
+            .popup(isPresented: $popups.showingBottomSecond, type: .floater(verticalPadding: 0, useSafeAreaInset: false), position: .bottom, closeOnTapOutside: true, backgroundColor: .black.opacity(0.4)) {
+                PopupBottomSecond()
+            }
+        
 #if os(iOS)
+        // MARK: - Designed action sheets
         return commonView
-            .popup(isPresented: $showingDraggableCard, type: .toast, position: .bottom) {
-                createDraggableCard()
+            .popup(isPresented: $actionSheets.showingFirst, type: .toast, position: .bottom, closeOnTap: false, backgroundColor: .black.opacity(0.4)) {
+                ActionSheetFirst()
             }
-            .popup(isPresented: $showingScrollableDraggableCard, type: .toast, position: .bottom) {
-                createScrollableDraggableCard()
+            .popup(isPresented: $actionSheets.showingSecond, type: .toast, position: .bottom, closeOnTap: false, backgroundColor: .black.opacity(0.4)) {
+                ActionSheetSecond()
             }
 #else
         return commonView
 #endif
     }
-
-    func createPopup() -> some View {
-        VStack(spacing: 10) {
-            Image("okay")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 100, height: 100)
-
-            Text("Tutorial")
-                .foregroundColor(.white)
-                .fontWeight(.bold)
-
-            Text("In this example floats are set to disappear after 2 seconds. Tap the toasts to dismiss or just open some other popup - previous one will be dismissed. This popup will only be closed if you tap the button.")
-                .font(.system(size: 12))
-                .foregroundColor(Color(red: 0.9, green: 0.9, blue: 0.9))
-
-            Spacer()
-
-            Button {
-                self.showingPopupItem = nil
-            } label: {
-                Text("Got it")
-                    .font(.system(size: 14))
-                    .foregroundColor(.black)
-                    .fontWeight(.bold)
-            }
-            .frame(width: 100, height: 40)
-            .background(Color.white)
-            .cornerRadius(20.0)
-        }
-        .padding(EdgeInsets(top: 70, leading: 20, bottom: 40, trailing: 20))
-        .frame(width: 300, height: 400)
-        .background(self.popupColor)
-        .cornerRadius(10.0)
-        .shadow(color: Color(.sRGBLinear, white: 0, opacity: 0.13), radius: 10.0)
-    }
-
-    func createTopToast() -> some View {
-        VStack {
-            Spacer(minLength: 20)
-            HStack {
-                Image("shop_NA")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 50, height: 50)
-                    .cornerRadius(25)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack {
-                        Text("Nik")
-                            .foregroundColor(.white)
-                            .fontWeight(.bold)
-                        Spacer()
-                        Text("11:30")
-                            .font(.system(size: 12))
-                            .foregroundColor(Color(red: 0.9, green: 0.9, blue: 0.9))
-                    }
-
-                    Text("How about a dinner in an hour? We could discuss that one urgent issue we should be discussing.")
-                        .lineLimit(2)
-                        .font(.system(size: 14))
-                        .foregroundColor(.white)
-                }
-            }
-            .padding(15)
-        }
-        .frame(height: 110)
-        .background(self.topToastColor)
-    }
-
-    func createBottomToast() -> some View {
-        VStack {
-            HStack {
-                Image("grapes")
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 50, height: 50)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Grapes! Grapes! Grapes!")
-                        .foregroundColor(.black)
-                        .fontWeight(.bold)
-
-                    Text("Step right up! Buy some grapes now - that's a brilliant investment and you know it!")
-                        .lineLimit(2)
-                        .font(.system(size: 14))
-                        .foregroundColor(.black)
-                }
-            }
-            Spacer(minLength: 10)
-        }
-        .padding(15)
-        .frame(maxWidth: .infinity)
-        .frame(height: 100)
-        .background(self.bottomToastColor)
-    }
-
-    func createTopFloater() -> some View {
-        HStack(spacing: 10) {
-            Image("transaction_coffee")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 20, height: 20)
-
-            VStack(spacing: 8) {
-                Text("Coffee temperature")
-                    .font(.system(size: 12))
-                    .foregroundColor(.white)
-
-                HStack(spacing: 0) {
-                    Color(red: 1, green: 112/255, blue: 59/255)
-                        .frame(width: 30, height: 5)
-                    Color(red: 1, green: 1, blue: 1)
-                        .frame(width: 70, height: 5)
-                }
-                .cornerRadius(2.5)
-            }
-        }
-        .frame(width: 200, height: 60)
-        .background(self.topFloatColor)
-        .cornerRadius(30.0)
-    }
-
-    func createBottomFloater() -> some View {
-        HStack(spacing: 15) {
-            Image("shop_coffee")
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width: 60, height: 60)
-                .cornerRadius(10.0)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Ever thought of taking a break?")
-                    .foregroundColor(.black)
-                    .fontWeight(.bold)
-
-                Text("Our hand picked organic fresh tasty coffee from southern slopes of Australia is bound to lighten your mood.")
-                    .font(.system(size: 14))
-                    .foregroundColor(.black)
-            }
-        }
-        .padding(15)
-        .frame(width: 300, height: 160)
-        .background(self.bottomFloatColor)
-        .cornerRadius(20.0)
-    }
-
+    
+    func createPopupsList() -> PopupsList {
 #if os(iOS)
-    func createDraggableCard() -> some View {
-        DraggableCardView(bgColor: cardColor) {
-            VStack(spacing: 10) {
-                Text("Weasels")
-                    .foregroundColor(.white)
-                    .fontWeight(.bold)
-
-                Text(Constants.shortText)
-                    .font(.system(size: 14))
-                    .foregroundColor(.white)
-            }
-            .padding(.horizontal, 20)
-        }
-    }
-
-    func createScrollableDraggableCard() -> some View {
-        DraggableCardView(topPadding: 300, fixedHeight: true, bgColor: cardColor) {
-            ScrollView {
-                VStack(spacing: 10) {
-                    Text("Mongoose")
-                        .foregroundColor(.white)
-                        .fontWeight(.bold)
-
-                    Text(Constants.longText)
-                        .font(.system(size: 14))
-                        .foregroundColor(.white)
-                }
-                .padding(.horizontal, 20)
-            }
-        }
-    }
+        PopupsList(
+            showingTopFirstFloat: $floats.showingTopFirst,
+            showingTopSecondFloat: $floats.showingTopSecond,
+            showingBottomFirstFloat: $floats.showingBottomFirst,
+            showingBottomSecondFloat: $floats.showingBottomSecond,
+            showingTopFirstToast: $toasts.showingTopFirst,
+            showingTopSecondToast: $toasts.showingTopSecond,
+            showingBottomFirstToast: $toasts.showingBottomFirst,
+            showingBottomSecondToast: $toasts.showingBottomSecond,
+            showingMiddlePopup: $popups.showingMiddle,
+            showingBottomFirstPopup: $popups.showingBottomFirst,
+            showingBottomSecondPopup: $popups.showingBottomSecond,
+            showingFirstActionSheet: $actionSheets.showingFirst,
+            showingSecondActionSheet: $actionSheets.showingSecond
+        )
+#else
+        PopupsList(
+            showingTopFirstFloat: $floats.showingTopFirst,
+            showingTopSecondFloat: $floats.showingTopSecond,
+            showingBottomFirstFloat: $floats.showingBottomFirst,
+            showingBottomSecondFloat: $floats.showingBottomSecond,
+            showingTopFirstToast: $toasts.showingTopFirst,
+            showingTopSecondToast: $toasts.showingTopSecond,
+            showingBottomFirstToast: $toasts.showingBottomFirst,
+            showingBottomSecondToast: $toasts.showingBottomSecond,
+            showingMiddlePopup: $popups.showingMiddle,
+            showingBottomFirstPopup: $popups.showingBottomFirst,
+            showingBottomSecondPopup: $popups.showingBottomSecond
+        )
 #endif
+    }
 }
 
-#if os(iOS)
-struct DraggableCardView<Content: View>: View {
-
-    let content: Content
-    let topPadding: CGFloat
-    let fixedHeight: Bool
-    let bgColor: Color
-
-    init(topPadding: CGFloat = 100, fixedHeight: Bool = false, bgColor: Color = .white, @ViewBuilder content: () -> Content) {
-        self.content = content()
-        self.topPadding = topPadding
-        self.fixedHeight = fixedHeight
-        self.bgColor = bgColor
-    }
-
-    var body: some View {
-        ZStack {
-            bgColor.cornerRadius(40, corners: [.topLeft, .topRight])
-            VStack {
-                Color.white
-                    .frame(width: 72, height: 6)
-                    .clipShape(Capsule())
-                    .padding(.top, 15)
-                    .padding(.bottom, 10)
-
-                content
-                    .padding(.bottom, 30)
-                    .applyIf(fixedHeight) {
-                        $0.frame(height: UIScreen.main.bounds.height - topPadding)
-                    }
-                    .applyIf(!fixedHeight) {
-                        $0.frame(maxHeight: UIScreen.main.bounds.height - topPadding)
-                    }
-            }
-        }
-        .fixedSize(horizontal: false, vertical: true)
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
     }
 }
-#endif

@@ -12,17 +12,17 @@ extension Color {
         let scanner = Scanner(string: hex)
         var rgbValue: UInt64 = 0
         scanner.scanHexInt64(&rgbValue)
-
+        
         let r = (rgbValue & 0xff0000) >> 16
         let g = (rgbValue & 0xff00) >> 8
         let b = rgbValue & 0xff
-
+        
         self.init(red: Double(r) / 0xff, green: Double(g) / 0xff, blue: Double(b) / 0xff)
     }
 }
 
 extension View {
-
+    
     @ViewBuilder
     func applyIf<T: View>(_ condition: Bool, apply: (Self) -> T) -> some View {
         if condition {
@@ -31,12 +31,41 @@ extension View {
             self
         }
     }
+    
+    func shadowedStyle() -> some View {
+        self
+            .shadow(color: .black.opacity(0.08), radius: 2, x: 0, y: 0)
+            .shadow(color: .black.opacity(0.16), radius: 24, x: 0, y: 0)
+    }
+    
+    func customButtonStyle(
+        foreground: Color = .black,
+        background: Color = .white
+    ) -> some View {
+        self.buttonStyle(
+            ExampleButtonStyle(
+                foreground: foreground,
+                background: background
+            )
+        )
+    }
 
-    #if os(iOS)
+#if os(iOS)
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape(RoundedCorner(radius: radius, corners: corners))
     }
-    #endif
+#endif
+}
+
+private struct ExampleButtonStyle: ButtonStyle {
+    let foreground: Color
+    let background: Color
+    
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .foregroundColor(configuration.isPressed ? foreground.opacity(0.55) : foreground)
+            .background(configuration.isPressed ? background.opacity(0.55) : background)
+    }
 }
 
 #if os(iOS)
@@ -52,26 +81,21 @@ struct RoundedCorner: Shape {
 #endif
 
 class Constants {
+    static let privacyPolicy = """
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam consectetur orci eget rutrum dignissim. Vivamus aliquam a massa a scelerisque. Integer eleifend lectus non blandit ultricies. Maecenas volutpat neque ut elit facilisis sodales. Mauris et iaculis tellus. Etiam nec mi consequat, ornare quam in, ornare magna. Donec quis egestas nunc. Morbi vel orci leo. Suspendisse eget lectus a erat dignissim interdum et quis neque. Fusce dapibus rhoncus nulla. Cras sed ipsum congue, tempus mi nec, vestibulum lorem.
 
-    static let shortText = """
-                     Weasels /ˈwiːzəl/ are mammals of the genus Mustela of the family Mustelidae. The genus Mustela includes the least weasels, polecats, stoats, ferrets and mink. Members of this genus are small, active predators, with long and slender bodies and short legs. The family Mustelidae, or mustelids, (which also includes badgers, otters, and wolverines) is often referred to as the "weasel family". In the UK, the term "weasel" usually refers to the smallest species, the least weasel (M. nivalis),[1] the smallest carnivoran species.[2]
+Mauris rutrum urna ex, eget bibendum lectus vehicula nec. Mauris quis porttitor sapien, id vestibulum nibh. Proin mi lectus, pretium sed nulla bibendum, fringilla dignissim lacus. Vestibulum eget ante quis urna facilisis tristique. Curabitur mollis cursus mauris, vitae sollicitudin lacus fermentum nec. Etiam accumsan venenatis feugiat. Curabitur vitae posuere quam, imperdiet mattis elit. Nulla sollicitudin non neque sed aliquet. Donec lobortis iaculis interdum.
 
-                     Weasels vary in length from 173 to 217 mm (6+3⁄4 to 8+1⁄2 in),[3] females being smaller than the males, and usually have red or brown upper coats and white bellies; some populations of some species moult to a wholly white coat in winter. They have long, slender bodies, which enable them to follow their prey into burrows. Their tails may be from 34 to 52 mm (1+1⁄4 to 2 in) long.[3]
-                     """
+Nam eu feugiat arcu. Suspendisse porta eu sapien et eleifend. Fusce viverra laoreet tellus, eget convallis odio. Vivamus eget mollis dui. Sed euismod sed justo in fermentum. Nam at augue convallis, vulputate ligula eu, convallis risus. Proin egestas pretium nibh, in blandit ipsum varius quis. Aenean dolor mauris, luctus vel consequat id, tristique sit amet sem. Donec at pulvinar sem. Mauris diam lacus, placerat eget dolor ac, hendrerit elementum velit.
 
-    static let longText = """
-                     A mongoose is a small terrestrial carnivorous mammal belonging to the family Herpestidae. This family is currently split into two subfamilies, the Herpestinae and the Mungotinae. The Herpestinae comprises 23 living species that are native to southern Europe, Africa and Asia, whereas the Mungotinae comprises 11 species native to Africa.[2] The Herpestidae originated about 21.8 ± 3.6 million years ago in the Early Miocene and genetically diverged into two main genetic lineages between 19.1 and 18.5 ± 3.5 million years ago.[3]
+Integer sagittis ultricies commodo. Nullam eu diam at justo ornare viverra. Praesent ante metus, rhoncus ac condimentum id, malesuada viverra arcu. Nunc porta, odio at elementum viverra, tortor sem placerat lacus, eget scelerisque turpis odio at nisl. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nulla varius luctus ex, eu sagittis leo tempor nec. Etiam viverra molestie iaculis. Fusce in cursus ipsum, et elementum metus. Nullam sed sodales ligula. Aliquam erat volutpat. Proin mattis nisi et lectus rutrum, quis aliquet metus aliquet. Nulla est nisi, condimentum sed pretium ac, scelerisque semper eros. Nullam varius diam at augue vehicula elementum eget a leo. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Etiam nisi enim, euismod ac tellus at, hendrerit dignissim turpis. Proin sit amet sapien posuere, facilisis velit quis, placerat purus.
 
-                     The English word \"mongoose\" used to be spelled \"mungoose\" in the 18th and 19th centuries. The name is derived from names used in India for Herpestes species:[4][5][6][7] muṅgūs or maṅgūs in classical Hindi;[8] muṅgūsa in Marathi;[9] mungisa in Telugu;[10] mungi, mungisi and munguli in Kannada.[11]
+Maecenas eget felis in lacus pharetra tristique. Nunc vehicula porttitor dolor, non viverra magna blandit sit amet. Phasellus et pellentesque ante, at sollicitudin leo. Etiam at quam nec ex rhoncus sagittis. Nullam tempor lectus id felis efficitur tempus eget eget lectus. Mauris vitae odio nisi. Fusce pellentesque mattis enim, vitae tincidunt nisl tempus sed. Sed et lacus vitae lectus pretium congue nec molestie odio. Phasellus nec libero ac enim consequat dapibus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Morbi suscipit, urna vel elementum consequat, eros urna tempor nulla, vel mattis arcu ex quis nisl. Phasellus consequat porta lectus, eu tristique ipsum laoreet sit amet. Nam scelerisque ipsum sem, vitae sodales risus gravida in.
 
-                     The form of the English name (since 1698) was altered to its "-goose" ending by folk etymology.[12] The plural form is "mongooses".[13]
+Maecenas felis velit, sodales ut diam vitae, sagittis aliquet neque. Duis tristique nisl at tristique hendrerit. Suspendisse sed egestas orci. Phasellus tempor cursus tellus, eget rhoncus justo mattis id. In a dapibus enim. Nulla eu neque tincidunt tellus finibus mattis. Mauris congue tellus vitae tortor laoreet accumsan.
 
-                     Mongooses have long faces and bodies, small, rounded ears, short legs, and long, tapering tails. Most are brindled or grizzly; a few have strongly marked coats which bear a striking resemblance to mustelids. Their nonretractile claws are used primarily for digging. Mongooses, much like goats, have narrow, ovular pupils. Most species have a large anal scent gland, used for territorial marking and signaling reproductive status. They range from 24 to 58 cm (9.4 to 22.8 in) in head-to-body length, excluding the tail. In weight, they range from 320 g (11 oz) to 5 kg (11 lb).[14]
+Aenean iaculis porta consectetur. Vivamus tristique erat consectetur mi congue sollicitudin. Donec pellentesque, arcu pellentesque rhoncus vestibulum, massa diam vehicula nulla, non lacinia nunc lacus ut felis. Nam euismod finibus quam nec placerat. In imperdiet egestas sapien, sed elementum purus. Nullam interdum nisl fermentum ultrices elementum. Quisque eu mi sapien. Morbi vestibulum urna vel lacinia ultrices. Ut urna tortor, luctus in lorem eget, euismod volutpat magna. Etiam a accumsan massa. Fusce finibus blandit diam ac tincidunt. Nullam vitae dolor augue.
 
-                     Mongooses are one of at least four known mammalian taxa with mutations in the nicotinic acetylcholine receptor that protect against snake venom.[15] Their modified receptors prevent the snake venom α-neurotoxin from binding. These represent four separate, independent mutations. In the mongoose, this change is effected, uniquely, by glycosylation.[16]
-
-                     Herpestina was a scientific name proposed by Charles Lucien Bonaparte in 1845 who considered the mongooses a subfamily of the Viverridae.[17] In 1864, John Edward Gray classified the mongooses into three subfamilies: Galidiinae, Herpestinae and Mungotinae.[18] This grouping was supported by Reginald Innes Pocock in 1919, who referred to the family as "Mungotidae".[19]
-
-                     Genetic research based on nuclear and mitochondrial DNA analyses revealed that the Galidiinae are more closely related to Madagascar carnivores, including the fossa and Malagasy civet.[20][21] Galidiinae is presently considered a subfamily of Eupleridae.[22]
-                     """
+Maecenas maximus feugiat tellus sed vulputate. Proin ut ante vitae justo pulvinar laoreet. Donec fringilla justo consectetur mi consequat porttitor. Sed at mollis metus. Quisque at magna quis est malesuada aliquam sit amet at augue. Mauris hendrerit nunc ligula, in faucibus erat commodo quis. Nulla lacus dolor, cursus quis ligula eu, lacinia sollicitudin felis. Praesent odio tellus, pellentesque vitae leo ac, faucibus facilisis augue. Pellentesque bibendum nisl eget vehicula convallis. Maecenas velit urna, hendrerit quis nulla vitae, aliquam posuere erat. Integer accumsan sed arcu nec tempus. Etiam pharetra suscipit sapien id venenatis. Donec ultricies quis nisi vitae consectetur.
+"""
 }
