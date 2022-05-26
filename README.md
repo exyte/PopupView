@@ -1,5 +1,30 @@
 <img src="https://github.com/exyte/PopupView/blob/master/Assets/header.png">
-<img align="right" src="https://raw.githubusercontent.com/exyte/PopupView/master/Assets/demo.gif" width="480" />
+<table>
+    <thead>
+        <tr>
+            <th>Floaters</th>
+            <th>Tosts</th>
+            <th>Popups</th>
+            <th>Sheets</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <img src="https://raw.githubusercontent.com/exyte/media/master/ScalingHeaderScrollView/1.gif" width="200" />
+            </td>
+            <td>
+                <img src="https://raw.githubusercontent.com/exyte/media/master/ScalingHeaderScrollView/2.gif" width="200" />
+            </td>
+            <td>
+                <img src="https://raw.githubusercontent.com/exyte/media/master/ScalingHeaderScrollView/3.gif" width="200" />
+            </td>
+            <td>
+                <img src="https://raw.githubusercontent.com/exyte/media/master/ScalingHeaderScrollView/4.gif" width="200" />
+            </td>
+        </tr>
+    </tbody>
+</table>
 
 <p><h1 align="left">Popup View</h1></p>
 

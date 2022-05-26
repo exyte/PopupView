@@ -65,11 +65,11 @@ struct ContentView : View {
             }
         
         // MARK: - Designed popups
-            .popup(isPresented: $popups.showingMiddle, type: .`default`, backgroundColor: .black.opacity(0.4)) {
-                PopupMiddle()
+            .popup(isPresented: $popups.showingMiddle, type: .`default`, closeOnTap: false, backgroundColor: .black.opacity(0.4)) {
+                PopupMiddle(isPresented: $popups.showingMiddle)
             }
-            .popup(isPresented: $popups.showingBottomFirst, type: .floater(), position: .bottom, backgroundColor: .black.opacity(0.4)) {
-                PopupBottomFirst()
+            .popup(isPresented: $popups.showingBottomFirst, type: .floater(), position: .bottom, closeOnTap: false, backgroundColor: .black.opacity(0.4)) {
+                PopupBottomFirst(isPresented: $popups.showingBottomFirst)
             }
             .popup(isPresented: $popups.showingBottomSecond, type: .floater(verticalPadding: 0, useSafeAreaInset: false), position: .bottom, closeOnTapOutside: true, backgroundColor: .black.opacity(0.4)) {
                 PopupBottomSecond()

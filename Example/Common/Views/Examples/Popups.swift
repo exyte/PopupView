@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct PopupMiddle: View {
+
+    @Binding var isPresented: Bool
+
     var body: some View {
         VStack(spacing: 12) {
             Image("winner")
@@ -27,14 +30,17 @@ struct PopupMiddle: View {
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 20)
             
-            Text("Thanks")
-                .font(.system(size: 18, weight: .bold))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 18)
-                .padding(.horizontal, 24)
-                .foregroundColor(.white)
-                .background(Color(hex: "9265F8"))
-                .cornerRadius(12)
+            Button("Thanks") {
+                isPresented = false
+            }
+            .buttonStyle(.plain)
+            .font(.system(size: 18, weight: .bold))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 18)
+            .padding(.horizontal, 24)
+            .foregroundColor(.white)
+            .background(Color(hex: "9265F8"))
+            .cornerRadius(12)
         }
         .padding(EdgeInsets(top: 37, leading: 24, bottom: 40, trailing: 24))
         .background(Color.white.cornerRadius(20))
@@ -44,6 +50,9 @@ struct PopupMiddle: View {
 }
 
 struct PopupBottomFirst: View {
+
+    @Binding var isPresented: Bool
+
     var body: some View {
         VStack(spacing: 12) {
             Text("Policy changes")
@@ -56,14 +65,17 @@ struct PopupBottomFirst: View {
                 .opacity(0.6)
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 12)
-            
-            Text("Ok, I accept")
-                .font(.system(size: 18, weight: .bold))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 18)
-                .foregroundColor(.white)
-                .background(Color(hex: "FFB93D"))
-                .cornerRadius(12)
+
+            Button("Ok, I accept") {
+                isPresented = false
+            }
+            .buttonStyle(.plain)
+            .font(.system(size: 18, weight: .bold))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 18)
+            .foregroundColor(.white)
+            .background(Color(hex: "FFB93D"))
+            .cornerRadius(12)
         }
         .padding(EdgeInsets(top: 37, leading: 24, bottom: 40, trailing: 24))
         .background(Color.white.cornerRadius(20))
@@ -73,6 +85,7 @@ struct PopupBottomFirst: View {
 }
 
 struct PopupBottomSecond: View {
+
     var body: some View {
         VStack(spacing: 12) {
             Image("chest")
@@ -117,13 +130,13 @@ struct Popups_Previews: PreviewProvider {
         ZStack {
             Rectangle()
                 .ignoresSafeArea()
-            PopupMiddle()
+            PopupMiddle(isPresented: .constant(true))
         }
         
         ZStack {
             Rectangle()
                 .ignoresSafeArea()
-            PopupBottomFirst()
+            PopupBottomFirst(isPresented: .constant(false))
         }
         
         ZStack {

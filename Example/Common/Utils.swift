@@ -63,6 +63,7 @@ private struct ExampleButtonStyle: ButtonStyle {
     
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
+            .opacity(configuration.isPressed ? 0.45 : 1)
             .foregroundColor(configuration.isPressed ? foreground.opacity(0.55) : foreground)
             .background(configuration.isPressed ? background.opacity(0.55) : background)
     }
