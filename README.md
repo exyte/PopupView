@@ -11,16 +11,16 @@
     <tbody>
         <tr>
             <td>
-                <img src="https://raw.githubusercontent.com/exyte/media/master/PopupView/1.gif" width="200" />
+                <img src="https://raw.githubusercontent.com/exyte/media/master/PopupView/1.gif" />
             </td>
             <td>
-                <img src="https://raw.githubusercontent.com/exyte/media/master/PopupView/2.gif" width="200" />
+                <img src="https://raw.githubusercontent.com/exyte/media/master/PopupView/2.gif" />
             </td>
             <td>
-                <img src="https://raw.githubusercontent.com/exyte/media/master/PopupView/3.gif" width="200" />
+                <img src="https://raw.githubusercontent.com/exyte/media/master/PopupView/3.gif" />
             </td>
             <td>
-                <img src="https://raw.githubusercontent.com/exyte/media/master/PopupView/4.gif" width="200" />
+                <img src="https://raw.githubusercontent.com/exyte/media/master/PopupView/4.gif" />
             </td>
         </tr>
     </tbody>
