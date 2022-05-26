@@ -1,4 +1,4 @@
-<img src="https://github.com/exyte/PopupView/blob/master/Assets/header.png">
+<img src="https://raw.githubusercontent.com/exyte/media/master/common/header.png">
 <table>
     <thead>
         <tr>
@@ -11,16 +11,16 @@
     <tbody>
         <tr>
             <td>
-                <img src="https://raw.githubusercontent.com/exyte/media/master/ScalingHeaderScrollView/1.gif" width="200" />
+                <img src="https://raw.githubusercontent.com/exyte/media/master/PopupView/1.gif" width="200" />
             </td>
             <td>
-                <img src="https://raw.githubusercontent.com/exyte/media/master/ScalingHeaderScrollView/2.gif" width="200" />
+                <img src="https://raw.githubusercontent.com/exyte/media/master/PopupView/2.gif" width="200" />
             </td>
             <td>
-                <img src="https://raw.githubusercontent.com/exyte/media/master/ScalingHeaderScrollView/3.gif" width="200" />
+                <img src="https://raw.githubusercontent.com/exyte/media/master/PopupView/3.gif" width="200" />
             </td>
             <td>
-                <img src="https://raw.githubusercontent.com/exyte/media/master/ScalingHeaderScrollView/4.gif" width="200" />
+                <img src="https://raw.githubusercontent.com/exyte/media/master/PopupView/4.gif" width="200" />
             </td>
         </tr>
     </tbody>
