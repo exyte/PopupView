@@ -14,11 +14,6 @@ target 'ExampleMac' do
   	platform :osx, '10.16'
     pods
 end
- 
-target 'ExampleTV' do
-	platform :tvos, '14.0'
-    pods
-end
 
 target 'ExampleWatch WatchKit Extension' do
 	platform :watchos, '7.0'

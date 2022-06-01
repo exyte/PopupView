@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import Combine
 
 extension View {
 
@@ -251,12 +250,12 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
 
     /// Last position for drag gesture
     @State private var lastDragPosition: CGFloat = 0
+
+    /// Trigger popup showing/hiding animations and...
+    @State private var shouldShowContent: Bool = false
     
-    /// Show content for lazy loading
+    /// ... once hiding animation is finished remove popup from the memory using this flag
     @State private var showContent: Bool = false
-    
-    /// Should present the animated part of popup (sliding background)
-    @State private var animatedContentIsPresented: Bool = false
     
     /// The offset when the popup is displayed
     private var displayedOffset: CGFloat {
@@ -295,12 +294,12 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
 
     /// The current offset, based on the **presented** property
     private var currentOffset: CGFloat {
-        return animatedContentIsPresented ? displayedOffset : hiddenOffset
+        return shouldShowContent ? displayedOffset : hiddenOffset
     }
     
     /// The current background opacity, based on the **presented** property
     private var currentBackgroundOpacity: Double {
-        return animatedContentIsPresented ? 1.0 : 0.0
+        return shouldShowContent ? 1.0 : 0.0
     }
 
     private var screenSize: CGSize {
@@ -390,6 +389,9 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
                 }
                 .frameGetter($sheetContentRect, $sheetSafeArea)
                 .offset(y: currentOffset)
+                .onAnimationCompleted(for: currentOffset) {
+                    showContent = shouldShowContent
+                }
                 .animation(animation)
         }
 
@@ -434,12 +436,13 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     
     private func appearAction(sheetPresented: Bool) {
         if sheetPresented {
-            showContent = true
+            showContent = true // immediately load popup body
             DispatchQueue.main.async {
-                animatedContentIsPresented = true
+                shouldShowContent = true // this will cause currentOffset change thus triggering the showing animation
             }
         } else {
-            animatedContentIsPresented = false
+            shouldShowContent = false // this will cause currentOffset change thus triggering the hiding animation
+            // unload popup body after hiding animation is done (see sheet())
         }
     }
     
@@ -448,61 +451,5 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
         isPresented = false
         item = nil
         dismissCallback()
-    }
-}
-
-final class DispatchWorkHolder {
-    var work: DispatchWorkItem?
-}
-
-private final class ClassReference<T> {
-    var value: T
-    
-    init(_ value: T) {
-        self.value = value
-    }
-}
-
-
-extension View {
-
-    @ViewBuilder
-    fileprivate func valueChanged<T: Equatable>(value: T, onChange: @escaping (T) -> Void) -> some View {
-        if #available(iOS 14.0, tvOS 14.0, macOS 11.0, watchOS 7.0, *) {
-            self.onChange(of: value, perform: onChange)
-        } else {
-            self.onReceive(Just(value)) { value in
-                onChange(value)
-            }
-        }
-    }
-}
-
-extension View {
-    public func frameGetter(_ frame: Binding<CGRect>, _ safeArea: Binding<EdgeInsets>) -> some View {
-        modifier(FrameGetter(frame: frame, safeArea: safeArea))
-    }
-}
-
-struct FrameGetter: ViewModifier {
-
-    @Binding var frame: CGRect
-    @Binding var safeArea: EdgeInsets
-
-    func body(content: Content) -> some View {
-        content
-            .background(
-                GeometryReader { proxy -> AnyView in
-                    let rect = proxy.frame(in: .global)
-                    // This avoids an infinite layout loop
-                    if rect.integral != self.frame.integral {
-                        DispatchQueue.main.async {
-                            self.safeArea = proxy.safeAreaInsets
-                            self.frame = rect
-                        }
-                    }
-                    return AnyView(EmptyView())
-                }
-            )
     }
 }

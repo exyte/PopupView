@@ -85,13 +85,11 @@ struct ContentView: View {
 `backgroundColor` - Color.clear by default: change background color of outside area     
 `dismissCallback` - custom callback to call once the popup is dismissed      
 
-<img align="right" src="https://raw.githubusercontent.com/exyte/PopupView/master/Assets/drag.gif" width="480" />
-
-### Draggable card
-With latest addition of `dragToDismiss`, you can use bottom toast to add this popular component to your app (see example project for implementation)
+### Draggable card - sheet
+To implement a sheet (like in 4th gif) enable dragToDismiss on bottom toast (see example project for implementation of the card itself)
 ```swift
-.popup(isPresented: $show, type: .toast, position: .bottom) {
-    // your content
+.popup(isPresented: $show, type: .toast, position: .bottom, dragToDismiss: true) {
+    // your content 
 }
 ```
 
