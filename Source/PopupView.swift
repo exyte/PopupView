@@ -21,7 +21,7 @@ extension View {
         closeOnTapOutside: Bool = false,
         backgroundColor: Color = Color.clear,
         dismissCallback: @escaping () -> () = {},
-        @ViewBuilder view: @escaping (Item) -> PopupContent) -> some View {
+        @ViewBuilder view: @escaping () -> PopupContent) -> some View {
             self.modifier(
                 Popup(
                     item: item,
@@ -132,7 +132,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
          closeOnTapOutside: Bool,
          backgroundColor: Color,
          dismissCallback: @escaping () -> (),
-         view: @escaping (Item) -> PopupContent) {
+         view: @escaping () -> PopupContent) {
         self._isPresented = .constant(false)
         self._item = item
         self.type = type
@@ -144,7 +144,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
         self.closeOnTapOutside = closeOnTapOutside
         self.backgroundColor = backgroundColor
         self.dismissCallback = dismissCallback
-        self.viewWithItem = view
+        self.view = view
         self.isPresentedRef = ClassReference(self.$isPresented)
         self.itemRef = ClassReference(self.$item)
     }
@@ -226,9 +226,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     /// is called on any close action
     var dismissCallback: () -> ()
 
-    var view: (() -> PopupContent)?
-
-    var viewWithItem: ((Item) -> PopupContent)?
+    var view: () -> PopupContent
 
     /// holder for autohiding dispatch work (to be able to cancel it when needed)
     var dispatchWorkHolder = DispatchWorkHolder()
@@ -385,29 +383,16 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
         }
 
         let sheet = ZStack {
-            if let view = view {
-                view()
-                    .addTapIfNotTV(if: closeOnTap) {
-                        dismiss()
-                    }
-                    .frameGetter($sheetContentRect, $sheetSafeArea)
-                    .offset(y: currentOffset)
-                    .onAnimationCompleted(for: currentOffset) {
-                        showContent = shouldShowContent
-                    }
-                    .animation(animation)
-            } else if let viewWithItem = viewWithItem, let item = item {
-                viewWithItem(item)
-                    .addTapIfNotTV(if: closeOnTap) {
-                        dismiss()
-                    }
-                    .frameGetter($sheetContentRect, $sheetSafeArea)
-                    .offset(y: currentOffset)
-                    .onAnimationCompleted(for: currentOffset) {
-                        showContent = shouldShowContent
-                    }
-                    .animation(animation)
-            }
+            self.view()
+                .addTapIfNotTV(if: closeOnTap) {
+                    dismiss()
+                }
+                .frameGetter($sheetContentRect, $sheetSafeArea)
+                .offset(y: currentOffset)
+                .onAnimationCompleted(for: currentOffset) {
+                    showContent = shouldShowContent
+                }
+                .animation(animation)
         }
 
         #if !os(tvOS)
