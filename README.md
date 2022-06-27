@@ -3,7 +3,7 @@
     <thead>
         <tr>
             <th>Floaters</th>
-            <th>Tosts</th>
+            <th>Toasts</th>
             <th>Popups</th>
             <th>Sheets</th>
         </tr>
