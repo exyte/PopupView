@@ -49,7 +49,7 @@ ___
 
 # Usage
 1. Add a binding bool to control popup presentation state
-1. Add `.popup` modifier to your view
+2. Add `.popup` modifier to your view. 
 ```swift
 struct ContentView: View {
 
@@ -66,6 +66,10 @@ struct ContentView: View {
     }
 }
 ```
+### Note
+Please keep in mind that the popup calculates its position using the frame of the view you attach it to. So you'll likely want to attach it to the root view of your screen.    
+### Note 2
+Unfortunately popup can not be displayed above navigation bar - Apple doesn't provide API for that. So if you want the popup to be fullscreen, you might want to attach it to the root view of your app.   
 
 ### Required parameters 
 `isPresented` - binding to determine if the popup should be seen on screen or hidden     
