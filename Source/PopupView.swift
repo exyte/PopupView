@@ -232,6 +232,8 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     var dispatchWorkHolder = DispatchWorkHolder()
 
     // MARK: - Private Properties
+
+    @Environment(\.safeAreaInsets) private var safeAreaInsets
     
     /// Class reference for capturing a weak reference later in dispatch work holder.
     private var isPresentedRef: ClassReference<Binding<Bool>>?
@@ -239,11 +241,9 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
 
     /// The rect and safe area of the hosting controller
     @State private var presenterContentRect: CGRect = .zero
-    @State private var presenterSafeArea: EdgeInsets = EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
 
     /// The rect and safe area of popup content
     @State private var sheetContentRect: CGRect = .zero
-    @State private var sheetSafeArea: EdgeInsets = EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
 
     /// Drag to dismiss gesture state
     @GestureState private var dragState = DragState.inactive
@@ -264,15 +264,15 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
             return -presenterContentRect.midY + screenHeight/2
         case .toast:
             if position == .bottom {
-                return presenterContentRect.minY + presenterSafeArea.bottom + presenterContentRect.height - presenterContentRect.midY - sheetContentRect.height/2
+                return presenterContentRect.minY + safeAreaInsets.bottom + presenterContentRect.height - presenterContentRect.midY - sheetContentRect.height/2
             } else {
-                return presenterContentRect.minY - presenterSafeArea.top - presenterContentRect.midY + sheetContentRect.height/2
+                return presenterContentRect.minY - safeAreaInsets.top - presenterContentRect.midY + sheetContentRect.height/2
             }
         case .floater(let verticalPadding, let useSafeAreaInset):
             if position == .bottom {
-                return presenterContentRect.minY + presenterSafeArea.bottom + presenterContentRect.height - presenterContentRect.midY - sheetContentRect.height/2 - verticalPadding + (useSafeAreaInset ? -presenterSafeArea.bottom : 0)
+                return presenterContentRect.minY + safeAreaInsets.bottom + presenterContentRect.height - presenterContentRect.midY - sheetContentRect.height/2 - verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0)
             } else {
-                return presenterContentRect.minY - presenterSafeArea.top - presenterContentRect.midY + sheetContentRect.height/2 + verticalPadding + (useSafeAreaInset ? presenterSafeArea.top : 0)
+                return presenterContentRect.minY - safeAreaInsets.top - presenterContentRect.midY + sheetContentRect.height/2 + verticalPadding + (useSafeAreaInset ? safeAreaInsets.top : 0)
             }
         }
     }
@@ -334,7 +334,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     private func main(content: Content) -> some View {
         ZStack {
             content
-                .frameGetter($presenterContentRect, $presenterSafeArea)
+                .frameGetter($presenterContentRect)
 
             if showContent {
                 popupBackground()
@@ -388,7 +388,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
                 .addTapIfNotTV(if: closeOnTap) {
                     dismiss()
                 }
-                .frameGetter($sheetContentRect, $sheetSafeArea)
+                .frameGetter($sheetContentRect)
                 .offset(y: currentOffset)
                 .onAnimationCompleted(for: currentOffset) {
                     showContent = shouldShowContent
