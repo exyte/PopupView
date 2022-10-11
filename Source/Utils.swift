@@ -140,6 +140,8 @@ extension View {
     }
 }
 
+#if os(iOS)
+
 extension UIApplication {
     var keyWindow: UIWindow? {
         connectedScenes
@@ -172,3 +174,19 @@ private extension UIEdgeInsets {
         EdgeInsets(top: top, leading: left, bottom: bottom, trailing: right)
     }
 }
+
+#else
+
+private struct SafeAreaInsetsKey: EnvironmentKey {
+    static var defaultValue: EdgeInsets {
+        EdgeInsets()
+    }
+}
+
+extension EnvironmentValues {
+    var safeAreaInsets: EdgeInsets {
+        self[SafeAreaInsetsKey.self]
+    }
+}
+
+#endif
