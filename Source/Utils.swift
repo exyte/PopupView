@@ -35,6 +35,34 @@ extension View {
     }
 }
 
+extension View {
+    @ViewBuilder
+    func applyIf<T: View>(_ condition: Bool, apply: (Self) -> T) -> some View {
+        if condition {
+            apply(self)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder
+    func addTapIfNotTV(if condition: Bool, onTap: @escaping ()->()) -> some View {
+        #if os(tvOS)
+        self
+        #else
+        if condition {
+            self.simultaneousGesture(
+                TapGesture().onEnded {
+                    onTap()
+                }
+            )
+        } else {
+            self
+        }
+        #endif
+    }
+}
+
 struct FrameGetter: ViewModifier {
 
     @Binding var frame: CGRect
