@@ -71,10 +71,10 @@ struct FrameGetter: ViewModifier {
         content
             .background(
                 GeometryReader { proxy -> AnyView in
-                    let rect = proxy.frame(in: .global)
-                    // This avoids an infinite layout loop
-                    if rect.integral != self.frame.integral {
-                        DispatchQueue.main.async {
+                    DispatchQueue.main.async {
+                        let rect = proxy.frame(in: .global)
+                        // This avoids an infinite layout loop
+                        if rect.integral != self.frame.integral {
                             self.frame = rect
                         }
                     }
