@@ -19,7 +19,7 @@ extension View {
         closeOnTap: Bool = true,
         closeOnTapOutside: Bool = false,
         backgroundColor: Color = Color.clear,
-        @ViewBuilder view: @escaping () -> PopupContent) -> some View {
+        @ViewBuilder view: @escaping (Item) -> PopupContent) -> some View {
             self.modifier(
                 Popup(
                     item: item,
@@ -74,7 +74,7 @@ extension View {
         closeOnTapOutside: Bool = false,
         backgroundColor: Color = Color.clear,
         dismissCallback: @escaping () -> (),
-        @ViewBuilder view: @escaping () -> PopupContent) -> some View {
+        @ViewBuilder view: @escaping (Item) -> PopupContent) -> some View {
             self.modifier(
                 Popup(
                     item: item,
@@ -130,7 +130,7 @@ extension View {
         closeOnTapOutside: Bool = false,
         backgroundColor: Color = Color.clear,
         dismissSourceCallback: @escaping (DismissSource) -> (),
-        @ViewBuilder view: @escaping () -> PopupContent) -> some View {
+        @ViewBuilder view: @escaping (Item) -> PopupContent) -> some View {
             self.modifier(
                 Popup(
                     item: item,

@@ -55,7 +55,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
          closeOnTapOutside: Bool,
          backgroundColor: Color,
          dismissCallback: @escaping (DismissSource) -> (),
-         view: @escaping () -> PopupContent) {
+         view: @escaping (Item) -> PopupContent) {
         self._isPresented = .constant(false)
         self._item = item
         self.type = type
@@ -67,7 +67,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
         self.closeOnTapOutside = closeOnTapOutside
         self.backgroundColor = backgroundColor
         self.dismissCallback = dismissCallback
-        self.view = view
+        self.viewWithItem = view
         self.isPresentedRef = ClassReference(self.$isPresented)
         self.itemRef = ClassReference(self.$item)
     }
@@ -122,6 +122,9 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     @Binding var isPresented: Bool
     @Binding var item: Item?
 
+    /// Holds on to last non-nil item value to preserve dismissal animation
+    @State private var cachedItem: Item?
+
     var sheetPresented: Bool {
         item != nil || isPresented
     }
@@ -149,7 +152,9 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     /// is called on any close action
     var dismissCallback: (DismissSource) -> ()
 
-    var view: () -> PopupContent
+    var view: (() -> PopupContent)?
+
+    var viewWithItem: ((Item) -> PopupContent)?
 
     /// holder for autohiding dispatch work (to be able to cancel it when needed)
     var dispatchWorkHolder = DispatchWorkHolder()
@@ -260,7 +265,8 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
             }
             .valueChanged(value: item) { item in
                 appearAction(sheetPresented: item != nil)
-                if item != nil {
+                if let item = item {
+                    cachedItem = item
                     dismissSource = .binding
                 }
                 if item == nil {
@@ -322,17 +328,31 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
         }
 
         let sheet = ZStack {
-            self.view()
-                .addTapIfNotTV(if: closeOnTap) {
-                    dismissSource = .tapInside
-                    dismiss()
-                }
-                .frameGetter($sheetContentRect)
-                .offset(y: currentOffset)
-                .onAnimationCompleted(for: currentOffset) {
-                    showContent = shouldShowContent
-                }
-                .animation(animation)
+            if let view = view {
+                view()
+                    .addTapIfNotTV(if: closeOnTap) {
+                        dismissSource = .tapInside
+                        dismiss()
+                    }
+                    .frameGetter($sheetContentRect)
+                    .offset(y: currentOffset)
+                    .onAnimationCompleted(for: currentOffset) {
+                        showContent = shouldShowContent
+                    }
+                    .animation(animation)
+            } else if let viewWithItem = viewWithItem, let item = item ?? cachedItem {
+                viewWithItem(item)
+                    .addTapIfNotTV(if: closeOnTap) {
+                        dismissSource = .tapInside
+                        dismiss()
+                    }
+                    .frameGetter($sheetContentRect)
+                    .offset(y: currentOffset)
+                    .onAnimationCompleted(for: currentOffset) {
+                        showContent = shouldShowContent
+                    }
+                    .animation(animation)
+            }
         }
 
         #if !os(tvOS)
