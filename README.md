@@ -137,12 +137,12 @@ dependencies: [
 * iOS 13+
 * Xcode 11+ 
 
-### Our other open source SwiftUI libraries
-[Grid](https://github.com/exyte/Grid) - The most powerful Grid container
-[ScalingHeaderScrollView](https://github.com/exyte/ScalingHeaderScrollView) - A scroll view with a sticky header which shrinks as you scroll.
-[ConcentricOnboarding](https://github.com/exyte/ConcentricOnboarding) - Animated onboarding flow
-[FloatingButton](https://github.com/exyte/FloatingButton) - Floating button menu
-[ActivityIndicatorView](https://github.com/exyte/ActivityIndicatorView) - A number of animated loading indicators
-[ProgressIndicatorView](https://github.com/exyte/ProgressIndicatorView) - A number of animated progress indicators
-[SVGView](https://github.com/exyte/SVGView) - SVG parser
-[LiquidSwipe](https://github.com/exyte/LiquidSwipe) - Liquid navigation animation
+## Our other open source SwiftUI libraries
+[Grid](https://github.com/exyte/Grid) - The most powerful Grid container    
+[ScalingHeaderScrollView](https://github.com/exyte/ScalingHeaderScrollView) - A scroll view with a sticky header which shrinks as you scroll.    
+[ConcentricOnboarding](https://github.com/exyte/ConcentricOnboarding) - Animated onboarding flow    
+[FloatingButton](https://github.com/exyte/FloatingButton) - Floating button menu    
+[ActivityIndicatorView](https://github.com/exyte/ActivityIndicatorView) - A number of animated loading indicators    
+[ProgressIndicatorView](https://github.com/exyte/ProgressIndicatorView) - A number of animated progress indicators    
+[SVGView](https://github.com/exyte/SVGView) - SVG parser    
+[LiquidSwipe](https://github.com/exyte/LiquidSwipe) - Liquid navigation animation    
