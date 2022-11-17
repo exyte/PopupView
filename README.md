@@ -128,15 +128,21 @@ github "Exyte/PopupView"
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/exyte/PopupView.git", from: "1.0.0")
+    .package(url: "https://github.com/exyte/PopupView.git")
 ]
 ```
-
-### Manually
-
-Drop [PopupView.swift](https://github.com/exyte/PopupView/blob/master/Source/PopupView.swift) in your project.
 
 ## Requirements
 
 * iOS 13+
 * Xcode 11+ 
+
+### Our other open source SwiftUI libraries
+[Grid](https://github.com/exyte/Grid) - The most powerful Grid container
+[ScalingHeaderScrollView](https://github.com/exyte/ScalingHeaderScrollView) - A scroll view with a sticky header which shrinks as you scroll.
+[ConcentricOnboarding](https://github.com/exyte/ConcentricOnboarding) - Animated onboarding flow
+[FloatingButton](https://github.com/exyte/FloatingButton) - Floating button menu
+[ActivityIndicatorView](https://github.com/exyte/ActivityIndicatorView) - A number of animated loading indicators
+[ProgressIndicatorView](https://github.com/exyte/ProgressIndicatorView) - A number of animated progress indicators
+[SVGView](https://github.com/exyte/SVGView) - SVG parser
+[LiquidSwipe](https://github.com/exyte/LiquidSwipe) - Liquid navigation animation
