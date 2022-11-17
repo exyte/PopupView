@@ -254,7 +254,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
             .onAppear {
                 appearAction(sheetPresented: sheetPresented)
             }
-            .valueChanged(value: isPresented) { isPresented in
+            .valueChanged(value: isPresented) { _, isPresented in
                 appearAction(sheetPresented: isPresented)
                 if isPresented {
                     dismissSource = .binding
@@ -263,14 +263,17 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
                     dismissCallback(dismissSource ?? .autohide)
                 }
             }
-            .valueChanged(value: item) { item in
+            .valueChanged(value: item) { oldItem, item in
                 appearAction(sheetPresented: item != nil)
-                if let item = item {
-                    cachedItem = item
+                if item != nil {
                     dismissSource = .binding
+                    cachedItem = nil
                 }
                 if item == nil {
                     dismissCallback(dismissSource ?? .autohide)
+                    if let oldItem = oldItem {
+                        cachedItem = oldItem
+                    }
                 }
             }
     }
@@ -350,6 +353,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
                     .offset(y: currentOffset)
                     .onAnimationCompleted(for: currentOffset) {
                         showContent = shouldShowContent
+                        cachedItem = nil
                     }
                     .animation(animation)
             }
