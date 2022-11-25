@@ -108,6 +108,14 @@ To try PopupView examples:
 
 ## Installation
 
+### [Swift Package Manager](https://swift.org/package-manager/)
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/exyte/PopupView.git")
+]
+```
+
 ### [CocoaPods](http://cocoapods.org)
 
 To install `PopupView`, simply add the following line to your Podfile:
@@ -124,14 +132,6 @@ To integrate `PopupView` into your Xcode project using Carthage, specify it in y
 github "Exyte/PopupView"
 ```
 
-### [Swift Package Manager](https://swift.org/package-manager/)
-
-```swift
-dependencies: [
-    .package(url: "https://github.com/exyte/PopupView.git")
-]
-```
-
 ## Requirements
 
 * iOS 13+
@@ -140,6 +140,7 @@ dependencies: [
 ## Our other open source SwiftUI libraries
 [Grid](https://github.com/exyte/Grid) - The most powerful Grid container    
 [ScalingHeaderScrollView](https://github.com/exyte/ScalingHeaderScrollView) - A scroll view with a sticky header which shrinks as you scroll.    
+[MediaPicker](https://github.com/exyte/mediapicker) - Customizable media picker     
 [ConcentricOnboarding](https://github.com/exyte/ConcentricOnboarding) - Animated onboarding flow    
 [FloatingButton](https://github.com/exyte/FloatingButton) - Floating button menu    
 [ActivityIndicatorView](https://github.com/exyte/ActivityIndicatorView) - A number of animated loading indicators    
