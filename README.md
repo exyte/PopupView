@@ -51,6 +51,8 @@ ___
 1. Add a binding bool to control popup presentation state
 2. Add `.popup` modifier to your view. 
 ```swift
+import PopupView
+
 struct ContentView: View {
 
     @State var showingPopup = false
