@@ -90,7 +90,7 @@ extension View {
     }
 }
 
-struct AnimationCompletionObserverModifier<Value>: AnimatableModifier where Value: VectorArithmetic {
+struct AnimationCompletionObserverModifier<Value>: AnimatableModifier where Value: VectorArithmetic, Value: Comparable {
 
     /// While animating, SwiftUI changes the old input value to the new target value using this property. This value is set to the old value until the animation completes.
     var animatableData: Value {
@@ -128,15 +128,54 @@ struct AnimationCompletionObserverModifier<Value>: AnimatableModifier where Valu
     }
 }
 
+struct AnimatableModifierDouble: AnimatableModifier {
+
+    var targetValue: Double
+    static var done = false
+
+    // SwiftUI gradually varies it from old value to the new value
+    var animatableData: Double {
+        didSet {
+            checkIfFinished()
+        }
+    }
+    var completion: () -> ()
+
+    // Re-created every time the control argument changes
+    init(bindedValue: Double, completion: @escaping () -> ()) {
+        self.completion = completion
+
+        // Set animatableData to the new value. But SwiftUI again directly
+        // and gradually varies the value while the body
+        // is being called to animate. Following line serves the purpose of
+        // associating the extenal argument with the animatableData.
+        self.animatableData = bindedValue
+        targetValue = bindedValue
+        AnimatableModifierDouble.done = false
+    }
+
+    func checkIfFinished() -> () {
+        if AnimatableModifierDouble.done { return }
+        let delta = 0.1
+        if animatableData > targetValue - delta &&
+            animatableData < targetValue + delta {
+            //print("check", animatableData, targetValue)
+            AnimatableModifierDouble.done = true
+            DispatchQueue.main.async {
+                self.completion()
+            }
+        }
+    }
+
+    func body(content: Content) -> some View {
+        content
+    }
+}
+
 extension View {
 
-    /// Calls the completion handler whenever an animation on the given value completes.
-    /// - Parameters:
-    ///   - value: The value to observe for animations.
-    ///   - completion: The completion callback to call once the animation completes.
-    /// - Returns: A modified `View` instance with the observer attached.
-    func onAnimationCompleted<Value: VectorArithmetic>(for value: Value, completion: @escaping () -> Void) -> ModifiedContent<Self, AnimationCompletionObserverModifier<Value>> {
-        return modifier(AnimationCompletionObserverModifier(observedValue: value, completion: completion))
+    func onAnimationCompleted(for value: Double, completion: @escaping () -> Void) -> some View {
+        modifier(AnimatableModifierDouble(bindedValue: value, completion: completion))
     }
 }
 
@@ -190,3 +229,87 @@ extension EnvironmentValues {
 }
 
 #endif
+
+extension View {
+
+    func transparentFullScreenCover<Content: View>(isPresented: Binding<Bool>, content: @escaping () -> Content) -> some View {
+        fullScreenCover(isPresented: isPresented) {
+            ZStack {
+                content()
+            }
+            .background(TransparentBackground())
+        }
+    }
+}
+
+struct TransparentBackground: UIViewRepresentable {
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        DispatchQueue.main.async {
+            view.superview?.superview?.backgroundColor = .clear
+        }
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
+}
+
+extension View {
+
+    func transparentNonAnimatingFullScreenCover<Content: View>(isPresented: Binding<Bool>, content: @escaping () -> Content) -> some View {
+        modifier(TransparentNonAnimatableFullScreenModifier(isPresented: isPresented, fullScreenContent: content))
+    }
+
+}
+
+private struct TransparentNonAnimatableFullScreenModifier<FullScreenContent: View>: ViewModifier {
+
+    @Binding var isPresented: Bool
+    let fullScreenContent: () -> (FullScreenContent)
+
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: isPresented) { isPresented in
+                UIView.setAnimationsEnabled(false)
+            }
+            .fullScreenCover(isPresented: $isPresented,
+                             content: {
+                ZStack {
+                    fullScreenContent()
+                }
+                .background(FullScreenCoverBackgroundRemovalView())
+                .onAppear {
+                    if !UIView.areAnimationsEnabled {
+                        UIView.setAnimationsEnabled(true)
+                    }
+                }
+                .onDisappear {
+                    if !UIView.areAnimationsEnabled {
+                        UIView.setAnimationsEnabled(true)
+                    }
+                }
+            })
+    }
+
+}
+
+private struct FullScreenCoverBackgroundRemovalView: UIViewRepresentable {
+
+    private class BackgroundRemovalView: UIView {
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+
+            superview?.superview?.backgroundColor = .clear
+        }
+
+    }
+
+    func makeUIView(context: Context) -> UIView {
+        return BackgroundRemovalView()
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
+
+}

@@ -37,16 +37,16 @@ struct ContentView : View {
         let commonView = createPopupsList()
         
         // MARK: - Designed floats
-            .popup(isPresented: $floats.showingTopFirst, type: .floater(), position: .top, animation: .spring()) {
+            .popup(isPresented: $floats.showingTopFirst, type: .floater(), position: .top, animation: .spring(), closeOnTapOutside: true, backgroundColor: .black.opacity(0.5)) {
                 FloatTopFirst()
             }
-            .popup(isPresented: $floats.showingTopSecond, type: .floater(), position: .top, animation: .spring(), autohideIn: 3) {
+            .popup(isPresented: $floats.showingTopSecond, type: .floater(), position: .top, animation: .spring(), autohideIn: 3, closeOnTapOutside: true, backgroundColor: .black.opacity(0.5)) {
                 FloatTopSecond()
             }
-            .popup(isPresented: $floats.showingBottomFirst, type: .floater(), position: .bottom, animation: .spring(), autohideIn: 2) {
+            .popup(isPresented: $floats.showingBottomFirst, type: .floater(), position: .bottom, animation: .spring(), autohideIn: 2, closeOnTapOutside: true, backgroundColor: .purple.opacity(0.5)) {
                 FloatBottomFirst()
             }
-            .popup(isPresented: $floats.showingBottomSecond, type: .floater(), position: .bottom, animation: .spring(), autohideIn: 5) {
+            .popup(isPresented: $floats.showingBottomSecond, type: .floater(), position: .bottom, animation: .spring(), autohideIn: 5, closeOnTapOutside: true) {
                 FloatBottomSecond()
             }
         

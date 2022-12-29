@@ -21,7 +21,7 @@ extension View {
         backgroundColor: Color = Color.clear,
         @ViewBuilder view: @escaping () -> PopupContent) -> some View {
             self.modifier(
-                Popup(
+                FullscreenPopup(
                     item: item,
                     type: type,
                     position: position,
@@ -48,7 +48,7 @@ extension View {
         backgroundColor: Color = Color.clear,
         @ViewBuilder view: @escaping () -> PopupContent) -> some View {
             self.modifier(
-                Popup<Int, PopupContent>(
+                FullscreenPopup<Int, PopupContent>(
                     isPresented: isPresented,
                     type: type,
                     position: position,
@@ -76,7 +76,7 @@ extension View {
         dismissCallback: @escaping () -> (),
         @ViewBuilder view: @escaping () -> PopupContent) -> some View {
             self.modifier(
-                Popup(
+                FullscreenPopup(
                     item: item,
                     type: type,
                     position: position,
@@ -104,7 +104,7 @@ extension View {
         dismissCallback: @escaping () -> (),
         @ViewBuilder view: @escaping () -> PopupContent) -> some View {
             self.modifier(
-                Popup<Int, PopupContent>(
+                FullscreenPopup<Int, PopupContent>(
                     isPresented: isPresented,
                     type: type,
                     position: position,
@@ -132,7 +132,7 @@ extension View {
         dismissSourceCallback: @escaping (DismissSource) -> (),
         @ViewBuilder view: @escaping () -> PopupContent) -> some View {
             self.modifier(
-                Popup(
+                FullscreenPopup(
                     item: item,
                     type: type,
                     position: position,
@@ -160,7 +160,7 @@ extension View {
         dismissSourceCallback: @escaping (DismissSource) -> (),
         @ViewBuilder view: @escaping () -> PopupContent) -> some View {
             self.modifier(
-                Popup<Int, PopupContent>(
+                FullscreenPopup<Int, PopupContent>(
                     isPresented: isPresented,
                     type: type,
                     position: position,
