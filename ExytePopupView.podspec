@@ -10,8 +10,6 @@ Pod::Spec.new do |s|
   s.social_media_url = 'http://exyte.com'
 
   s.ios.deployment_target = '14.0'
-  s.tvos.deployment_target = '13.0'
-  s.watchos.deployment_target = '6.0'
   
   s.requires_arc = true
   s.swift_version = "5.2"
