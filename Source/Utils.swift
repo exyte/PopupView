@@ -230,14 +230,6 @@ extension EnvironmentValues {
 
 #endif
 
-#if os(iOS)
-typealias UniversalView = UIView
-typealias UniversalViewRepresentable = UIViewRepresentable
-#else
-typealias UniversalView = NSView
-typealias UniversalViewRepresentable = NSViewRepresentable
-#endif
-
 extension View {
 
     func transparentNonAnimatingFullScreenCover<Content: View>(isPresented: Binding<Bool>, content: @escaping () -> Content) -> some View {
@@ -253,22 +245,21 @@ private struct TransparentNonAnimatableFullScreenModifier<FullScreenContent: Vie
     func body(content: Content) -> some View {
         content
             .onChange(of: isPresented) { isPresented in
-                UniversalView.setAnimationsEnabled(false)
+                UIView.setAnimationsEnabled(false)
             }
-            .fullScreenCover(isPresented: $isPresented,
-                             content: {
+            .fullScreenCover(isPresented: $isPresented, content: {
                 ZStack {
                     fullScreenContent()
                 }
                 .background(FullScreenCoverBackgroundRemovalView())
                 .onAppear {
-                    if !UniversalView.areAnimationsEnabled {
-                        UniversalView.setAnimationsEnabled(true)
+                    if !UIView.areAnimationsEnabled {
+                        UIView.setAnimationsEnabled(true)
                     }
                 }
                 .onDisappear {
-                    if !UniversalView.areAnimationsEnabled {
-                        UniversalView.setAnimationsEnabled(true)
+                    if !UIView.areAnimationsEnabled {
+                        UIView.setAnimationsEnabled(true)
                     }
                 }
             })
@@ -276,9 +267,9 @@ private struct TransparentNonAnimatableFullScreenModifier<FullScreenContent: Vie
 
 }
 
-private struct FullScreenCoverBackgroundRemovalView: UniversalViewRepresentable {
+private struct FullScreenCoverBackgroundRemovalView: UIViewRepresentable {
 
-    private class BackgroundRemovalView: UniversalView {
+    private class BackgroundRemovalView: UIView {
 
         override func didMoveToWindow() {
             super.didMoveToWindow()
@@ -288,10 +279,10 @@ private struct FullScreenCoverBackgroundRemovalView: UniversalViewRepresentable 
 
     }
 
-    func makeUIView(context: Context) -> UniversalView {
+    func makeUIView(context: Context) -> UIView {
         return BackgroundRemovalView()
     }
 
-    func updateUIView(_ uiView: UniversalView, context: Context) {}
+    func updateUIView(_ uiView: UIView, context: Context) {}
 
 }
