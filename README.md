@@ -134,8 +134,8 @@ github "Exyte/PopupView"
 
 ## Requirements
 
-* iOS 13+
-* Xcode 11+ 
+* iOS 14+
+* Xcode 12+ 
 
 ## Our other open source SwiftUI libraries
 [Grid](https://github.com/exyte/Grid) - The most powerful Grid container    
