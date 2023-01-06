@@ -28,9 +28,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "8FE74777E0C4E10E36B286749960C1E4"
+               BlueprintIdentifier = "E3BF7971BE024EA2CBC58C6A22E7F7CD"
                BuildableName = "ExytePopupView.framework"
-               BlueprintName = "ExytePopupView-iOS"
+               BlueprintName = "ExytePopupView"
                ReferencedContainer = "container:Pods/Pods.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

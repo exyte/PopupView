@@ -17,67 +17,31 @@ public enum DismissSource {
 }
 
 public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
-    
-    init(isPresented: Binding<Bool>,
-         type: PopupType,
-         position: Position,
-         animation: Animation,
-         autohideIn: Double?,
-         dragToDismiss: Bool,
-         closeOnTap: Bool,
-         closeOnTapOutside: Bool,
-         shouldShowContent: Bool = true,
-         showContent: Bool = true,
-         dismissCallback: @escaping (DismissSource) -> (),
-         dismissSource: Binding<DismissSource?>,
-         animationCompletedCallback: @escaping () -> (),
-         view: @escaping () -> PopupContent) {
-        self._isPresented = isPresented
-        self._item = .constant(nil)
-        self.type = type
-        self.position = position
-        self.animation = animation
-        self.autohideIn = autohideIn
-        self.dragToDismiss = dragToDismiss
-        self.closeOnTap = closeOnTap
-        self.closeOnTapOutside = closeOnTapOutside
-        self.shouldShowContent = shouldShowContent
-        self.showContent = showContent
-        self.dismissCallback = dismissCallback
-        self._dismissSource = dismissSource
-        self.animationCompletedCallback = animationCompletedCallback
-        self.view = view
-    }
 
-    init(item: Binding<Item?>,
-         type: PopupType,
-         position: Position,
-         animation: Animation,
-         autohideIn: Double?,
-         dragToDismiss: Bool,
-         closeOnTap: Bool,
-         closeOnTapOutside: Bool,
+    init(isPresented: Binding<Bool> = .constant(false),
+         item: Binding<Item?> = .constant(nil),
+         params: Popup<Item, PopupContent>.PopupParameters,
+         view: @escaping () -> PopupContent,
          shouldShowContent: Bool = true,
          showContent: Bool = true,
-         dismissCallback: @escaping (DismissSource) -> (),
          dismissSource: Binding<DismissSource?>,
-         animationCompletedCallback: @escaping () -> (),
-         view: @escaping () -> PopupContent) {
-        self._isPresented = .constant(false)
+         animationCompletedCallback: @escaping () -> ()) {
+
+        self._isPresented = isPresented
         self._item = item
-        self.type = type
-        self.position = position
-        self.animation = animation
-        self.autohideIn = autohideIn
-        self.dragToDismiss = dragToDismiss
-        self.closeOnTap = closeOnTap
-        self.closeOnTapOutside = closeOnTapOutside
+
+        self.type = params.type
+        self.position = params.position
+        self.animation = params.animation
+        self.dragToDismiss = params.dragToDismiss
+        self.closeOnTap = params.closeOnTap
+
+        self.view = view
+
         self.shouldShowContent = shouldShowContent
         self.showContent = showContent
-        self.dismissCallback = dismissCallback
         self._dismissSource = dismissSource
         self.animationCompletedCallback = animationCompletedCallback
-        self.view = view
     }
     
     public enum PopupType {
@@ -99,6 +63,93 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     public enum Position {
         case top
         case bottom
+    }
+
+    public struct PopupParameters {
+        var type: PopupType = .default
+
+        var position: Position = .bottom
+
+        var animation: Animation = .easeOut(duration: 0.3)
+
+        /// If nil - never hides on its own
+        var autohideIn: Double?
+
+        /// Should close on tap - default is `true`
+        var closeOnTap: Bool = true
+
+        /// Should allow dismiss by dragging
+        var dragToDismiss: Bool = true
+
+        /// Should close on tap outside - default is `true`
+        var closeOnTapOutside: Bool = false
+
+        /// Background color for outside area
+        var backgroundColor: Color = .clear
+
+        var dismissCallback: (DismissSource) -> () = {_ in}
+
+        public func type(_ type: PopupType) -> PopupParameters {
+            var params = self
+            params.type = type
+            return params
+        }
+
+        public func position(_ position: Position) -> PopupParameters {
+            var params = self
+            params.position = position
+            return params
+        }
+
+        public func animation(_ animation: Animation) -> PopupParameters {
+            var params = self
+            params.animation = animation
+            return params
+        }
+
+        public func autohideIn(_ autohideIn: Double?) -> PopupParameters {
+            var params = self
+            params.autohideIn = autohideIn
+            return params
+        }
+
+        public func closeOnTap(_ closeOnTap: Bool) -> PopupParameters {
+            var params = self
+            params.closeOnTap = closeOnTap
+            return params
+        }
+
+        public func dragToDismiss(_ dragToDismiss: Bool) -> PopupParameters {
+            var params = self
+            params.dragToDismiss = dragToDismiss
+            return params
+        }
+
+        public func closeOnTapOutside(_ closeOnTapOutside: Bool) -> PopupParameters {
+            var params = self
+            params.closeOnTapOutside = closeOnTapOutside
+            return params
+        }
+
+        public func backgroundColor(_ backgroundColor: Color) -> PopupParameters {
+            var params = self
+            params.backgroundColor = backgroundColor
+            return params
+        }
+
+        public func dismissCallback(_ dismissCallback: @escaping () -> ()) -> PopupParameters {
+            var params = self
+            params.dismissCallback = { _ in
+                dismissCallback()
+            }
+            return params
+        }
+
+        public func dismissSourceCallback(_ dismissCallback: @escaping (DismissSource) -> ()) -> PopupParameters {
+            var params = self
+            params.dismissCallback = dismissCallback
+            return params
+        }
     }
 
     private enum DragState {
@@ -135,26 +186,17 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
 
     var animation: Animation
 
-    /// If nil - never hides on its own
-    var autohideIn: Double?
-
     /// Should close on tap - default is `true`
     var closeOnTap: Bool
 
     /// Should allow dismiss by dragging
     var dragToDismiss: Bool
 
-    /// Should close on tap outside - default is `true`
-    var closeOnTapOutside: Bool
-
     /// Trigger popup showing/hiding animations and...
     var shouldShowContent: Bool
 
     /// ... once hiding animation is finished remove popup from the memory using this flag
     var showContent: Bool
-
-    /// is called on any close action
-    var dismissCallback: (DismissSource) -> ()
 
     /// Set dismiss souce to pass to dismiss callback
     @Binding private var dismissSource: DismissSource?

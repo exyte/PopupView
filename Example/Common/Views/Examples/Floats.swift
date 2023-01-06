@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct FloatTopFirst: View {
+
+    @Binding var isShowing: Bool
+
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 12)
@@ -30,6 +33,7 @@ struct FloatTopFirst: View {
                     
                     Button {
                         debugPrint("Accepted!")
+                        isShowing = false
                     } label: {
                         Text("Accept".uppercased())
                             .font(.system(size: 14, weight: .black))
@@ -112,7 +116,7 @@ struct Floats_Previews: PreviewProvider {
             Rectangle()
                 .ignoresSafeArea()
             VStack {
-                FloatTopFirst()
+                FloatTopFirst(isShowing: .constant(true))
                 FloatTopSecond()
                 FloatBottomFirst()
                 FloatBottomSecond()

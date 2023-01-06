@@ -23,25 +23,16 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     // MARK: - Parameters
 
-    var type: Popup<Item, PopupContent>.PopupType
-    var position: Popup<Item, PopupContent>.Position
-
-    var animation: Animation
-
     /// If nil - never hides on its own
     var autohideIn: Double?
-
-    /// Should close on tap - default is `true`
-    var closeOnTap: Bool
-
-    /// Should allow dismiss by dragging
-    var dragToDismiss: Bool
 
     /// Should close on tap outside - default is `true`
     var closeOnTapOutside: Bool
 
     /// Background color for outside area - default is `Color.clear`
     var backgroundColor: Color
+
+    var params: Popup<Item, PopupContent>.PopupParameters
 
     /// is called on any close action
     var dismissCallback: (DismissSource) -> ()
@@ -76,60 +67,21 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     /// Set dismiss souce to pass to dismiss callback
     @State private var dismissSource: DismissSource?
 
-    init(isPresented: Binding<Bool>,
-         type: Popup<Item, PopupContent>.PopupType = .`default`,
-         position: Popup<Item, PopupContent>.Position = .bottom,
-         animation: Animation,
-         autohideIn: Double?,
-         dragToDismiss: Bool,
-         closeOnTap: Bool,
-         closeOnTapOutside: Bool,
-         backgroundColor: Color,
-         dismissCallback: @escaping (DismissSource) -> (),
+    init(isPresented: Binding<Bool> = .constant(false),
+         item: Binding<Item?> = .constant(nil),
+         isBoolMode: Bool,
+         params: Popup<Item, PopupContent>.PopupParameters,
          view: @escaping () -> PopupContent) {
         self._isPresented = isPresented
-        self._item = .constant(nil)
-        self.isBoolMode = true
-
-        self.type = type
-        self.position = position
-        self.animation = animation
-        self.autohideIn = autohideIn
-        self.dragToDismiss = dragToDismiss
-        self.closeOnTap = closeOnTap
-        self.closeOnTapOutside = closeOnTapOutside
-        self.backgroundColor = backgroundColor
-        self.dismissCallback = dismissCallback
-        self.view = view
-
-        self.isPresentedRef = ClassReference(self.$isPresented)
-        self.itemRef = ClassReference(self.$item)
-    }
-
-    init(item: Binding<Item?>,
-         type: Popup<Item, PopupContent>.PopupType = .`default`,
-         position: Popup<Item, PopupContent>.Position = .bottom,
-         animation: Animation,
-         autohideIn: Double?,
-         dragToDismiss: Bool,
-         closeOnTap: Bool,
-         closeOnTapOutside: Bool,
-         backgroundColor: Color,
-         dismissCallback: @escaping (DismissSource) -> (),
-         view: @escaping () -> PopupContent) {
-        self._isPresented = .constant(false)
         self._item = item
-        self.isBoolMode = false
+        self.isBoolMode = isBoolMode
 
-        self.type = type
-        self.position = position
-        self.animation = animation
-        self.autohideIn = autohideIn
-        self.dragToDismiss = dragToDismiss
-        self.closeOnTap = closeOnTap
-        self.closeOnTapOutside = closeOnTapOutside
-        self.backgroundColor = backgroundColor
-        self.dismissCallback = dismissCallback
+        self.params = params
+        self.autohideIn = params.autohideIn
+        self.closeOnTapOutside = params.closeOnTapOutside
+        self.backgroundColor = params.backgroundColor
+        self.dismissCallback = params.dismissCallback
+
         self.view = view
 
         self.isPresentedRef = ClassReference(self.$isPresented)
@@ -165,19 +117,12 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                     .modifier(
                         Popup(
                             isPresented: $isPresented,
-                            type: type,
-                            position: position,
-                            animation: animation,
-                            autohideIn: autohideIn,
-                            dragToDismiss: dragToDismiss,
-                            closeOnTap: closeOnTap,
-                            closeOnTapOutside: closeOnTapOutside,
+                            params: params,
+                            view: view,
                             shouldShowContent: shouldShowContent,
                             showContent: showContent,
-                            dismissCallback: { _ in },
                             dismissSource: $dismissSource,
-                            animationCompletedCallback: onAnimationCompleted,
-                            view: view)
+                            animationCompletedCallback: onAnimationCompleted)
                     )
             }
             .onChange(of: isPresented) { newValue in
@@ -192,19 +137,12 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                     .modifier(
                         Popup(
                             item: $item,
-                            type: type,
-                            position: position,
-                            animation: animation,
-                            autohideIn: autohideIn,
-                            dragToDismiss: dragToDismiss,
-                            closeOnTap: closeOnTap,
-                            closeOnTapOutside: closeOnTapOutside,
+                            params: params,
+                            view: view,
                             shouldShowContent: shouldShowContent,
                             showContent: showContent,
-                            dismissCallback: { _ in },
                             dismissSource: $dismissSource,
-                            animationCompletedCallback: onAnimationCompleted,
-                            view: view)
+                            animationCompletedCallback: onAnimationCompleted)
                     )
             }
             .onChange(of: item) { newValue in
