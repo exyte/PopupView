@@ -35,6 +35,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
         self.animation = params.animation
         self.dragToDismiss = params.dragToDismiss
         self.closeOnTap = params.closeOnTap
+        self.isOpaque = params.isOpaque
 
         self.view = view
 
@@ -75,17 +76,20 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
         /// If nil - never hides on its own
         var autohideIn: Double?
 
-        /// Should close on tap - default is `true`
-        var closeOnTap: Bool = true
-
         /// Should allow dismiss by dragging
         var dragToDismiss: Bool = true
+
+        /// Should close on tap - default is `true`
+        var closeOnTap: Bool = true
 
         /// Should close on tap outside - default is `true`
         var closeOnTapOutside: Bool = false
 
         /// Background color for outside area
         var backgroundColor: Color = .clear
+
+        /// If true taps do not pass through popup's background and the popup is displayed on top of navbar. Always opaque if closeOnTapOutside is true
+        var isOpaque: Bool = false
 
         var dismissCallback: (DismissSource) -> () = {_ in}
 
@@ -113,15 +117,15 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
             return params
         }
 
-        public func closeOnTap(_ closeOnTap: Bool) -> PopupParameters {
-            var params = self
-            params.closeOnTap = closeOnTap
-            return params
-        }
-
         public func dragToDismiss(_ dragToDismiss: Bool) -> PopupParameters {
             var params = self
             params.dragToDismiss = dragToDismiss
+            return params
+        }
+
+        public func closeOnTap(_ closeOnTap: Bool) -> PopupParameters {
+            var params = self
+            params.closeOnTap = closeOnTap
             return params
         }
 
@@ -137,17 +141,23 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
             return params
         }
 
-        public func dismissCallback(_ dismissCallback: @escaping () -> ()) -> PopupParameters {
+        public func isOpaque(_ isOpaque: Bool) -> PopupParameters {
             var params = self
-            params.dismissCallback = { _ in
-                dismissCallback()
-            }
+            params.isOpaque = isOpaque
             return params
         }
 
         public func dismissSourceCallback(_ dismissCallback: @escaping (DismissSource) -> ()) -> PopupParameters {
             var params = self
             params.dismissCallback = dismissCallback
+            return params
+        }
+
+        public func dismissCallback(_ dismissCallback: @escaping () -> ()) -> PopupParameters {
+            var params = self
+            params.dismissCallback = { _ in
+                dismissCallback()
+            }
             return params
         }
     }
@@ -192,6 +202,9 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     /// Should allow dismiss by dragging
     var dragToDismiss: Bool
 
+    /// If opaque taps do not pass through popup's background color. Always opaque if closeOnTapOutside is true
+    var isOpaque: Bool
+
     /// Trigger popup showing/hiding animations and...
     var shouldShowContent: Bool
 
@@ -222,8 +235,27 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     /// Last position for drag gesture
     @State private var lastDragPosition: CGFloat = 0
     
-    /// The offset when the popup is displayed
+    /// The offset when the popup is displayed - without this offset they'd be exactly in the middle
     private var displayedOffset: CGFloat {
+        if isOpaque {
+            switch type {
+            case .`default`:
+                return 0
+            case .toast:
+                if position == .bottom {
+                    return screenHeight/2 - sheetContentRect.height/2
+                } else {
+                    return -screenHeight/2 + sheetContentRect.height/2
+                }
+            case .floater(let verticalPadding, let useSafeAreaInset):
+                if position == .bottom {
+                    return screenHeight/2 - sheetContentRect.height/2 - verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0)
+                } else {
+                    return -screenHeight/2 + sheetContentRect.height/2 + verticalPadding + (useSafeAreaInset ? safeAreaInsets.top : 0)
+                }
+            }
+        }
+
         switch type {
         case .`default`:
             return -presenterContentRect.midY + screenHeight/2

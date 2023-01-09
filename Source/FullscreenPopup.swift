@@ -32,10 +32,13 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     /// Background color for outside area - default is `Color.clear`
     var backgroundColor: Color
 
-    var params: Popup<Item, PopupContent>.PopupParameters
+    /// If opaque taps do not pass through popup's background color. Always opaque if closeOnTapOutside is true
+    var isOpaque: Bool
 
-    /// is called on any close action
+    /// Is called on any close action
     var dismissCallback: (DismissSource) -> ()
+
+    var params: Popup<Item, PopupContent>.PopupParameters
 
     var view: () -> PopupContent
 
@@ -67,6 +70,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     /// Set dismiss souce to pass to dismiss callback
     @State private var dismissSource: DismissSource?
 
+    var opaqueBackground: Bool {
+        isOpaque || closeOnTapOutside
+    }
+
     init(isPresented: Binding<Bool> = .constant(false),
          item: Binding<Item?> = .constant(nil),
          isBoolMode: Bool,
@@ -80,6 +87,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         self.autohideIn = params.autohideIn
         self.closeOnTapOutside = params.closeOnTapOutside
         self.backgroundColor = params.backgroundColor
+        self.isOpaque = params.isOpaque
         self.dismissCallback = params.dismissCallback
 
         self.view = view
@@ -90,10 +98,31 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     public func body(content: Content) -> some View {
         if isBoolMode {
-            boolBody(content: content)
+            main(content: content)
+                .onChange(of: isPresented) { newValue in
+                    appearAction(sheetPresented: newValue)
+                }
         } else {
-            itemBody(content: content)
+            main(content: content)
+                .onChange(of: item) { newValue in
+                    appearAction(sheetPresented: newValue != nil)
+                }
         }
+    }
+
+    public func main(content: Content) -> some View {
+        content
+            .applyIf(opaqueBackground) { body in
+                body.transparentNonAnimatingFullScreenCover(isPresented: $showSheet) {
+                    constructPopup()
+                }
+            }
+            .applyIf(!opaqueBackground) { body in
+                ZStack {
+                    body
+                    constructPopup()
+                }
+            }
     }
 
     func backgroundColorView() -> some View {
@@ -110,9 +139,9 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             .animation(.linear(duration: 0.2), value: opacity)
     }
 
-    public func boolBody(content: Content) -> some View {
-        content
-            .transparentNonAnimatingFullScreenCover(isPresented: $showSheet) {
+    func constructPopup() -> some View {
+        Group {
+            if showContent {
                 backgroundColorView()
                     .modifier(
                         Popup(
@@ -125,29 +154,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                             animationCompletedCallback: onAnimationCompleted)
                     )
             }
-            .onChange(of: isPresented) { newValue in
-                appearAction(sheetPresented: newValue)
-            }
-    }
-
-    public func itemBody(content: Content) -> some View {
-        content
-            .transparentNonAnimatingFullScreenCover(isPresented: $showSheet) {
-                backgroundColorView()
-                    .modifier(
-                        Popup(
-                            item: $item,
-                            params: params,
-                            view: view,
-                            shouldShowContent: shouldShowContent,
-                            showContent: showContent,
-                            dismissSource: $dismissSource,
-                            animationCompletedCallback: onAnimationCompleted)
-                    )
-            }
-            .onChange(of: item) { newValue in
-                appearAction(sheetPresented: newValue != nil)
-            }
+        }
     }
 
     func appearAction(sheetPresented: Bool) {

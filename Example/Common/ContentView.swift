@@ -45,7 +45,6 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.top)
                     .animation(.spring())
-                    .closeOnTapOutside(true)
                     .dismissSourceCallback {
                         print($0)
                     }
@@ -58,7 +57,6 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.top)
                     .animation(.spring())
-                    .closeOnTapOutside(true)
                     .autohideIn(3)
             }
 
@@ -69,7 +67,6 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.bottom)
                     .animation(.spring())
-                    .closeOnTapOutside(true)
                     .autohideIn(2)
             }
 
@@ -80,7 +77,6 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.bottom)
                     .animation(.spring())
-                    .closeOnTapOutside(true)
                     .autohideIn(5)
             }
         

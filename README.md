@@ -47,6 +47,42 @@ ___
 [![License](https://img.shields.io/cocoapods/l/ExytePopupView.svg?style=flat)](http://cocoapods.org/pods/ExytePopupView)
 [![Platform](https://img.shields.io/cocoapods/p/ExytePopupView.svg?style=flat)](http://cocoapods.org/pods/ExytePopupView)
 
+# Update to version 2
+
+Instead of:
+```swift
+.popup(isPresented: $floats.showingTopFirst, type: .floater(), position: .top, animation: .spring(), closeOnTapOutside: true, backgroundColor: .black.opacity(0.5)) {
+    FloatTopFirst()
+}
+```
+use:
+```swift
+.popup(isPresented: $floats.showingTopFirst) {
+    FloatTopFirst()
+} customize: {
+    $0
+        .type(.floater())
+        .position(.top)
+        .animation(.spring())
+        .closeOnTapOutside(true)
+        .backgroundColor(.black.opacity(0.5))
+}
+```
+Using this API you can pass parameters in any order you like.
+
+# Show over navbar
+To display your popup over all other views including navbars please use:
+```swift
+.popup(isPresented: $floats.showingTopFirst) {
+    FloatTopFirst()
+} customize: {
+    $0.isOpaque(true)
+}
+```
+This will also mean that you won't be able to tap "through" the popup's background on any of the controls "behind it" (that's because this method actually uses transparent fullscreenSheet, which won't pass the touches to underlying view). Opaque popup uses screen size to calculate its position.   
+
+Unfortunately, if opaque is false (to allow "through-touches" if you need them), popup - even if forced to be fullscreen, will be displayed under the navbar (if you know how to pass over this restriction, please do let me know in the comments). Please keep in mind that in this case the popup calculates its position using the frame of the view you attach it to, to avoid being under the navbar. So you'll likely want to attach it to the root view of your screen.  
+
 # Usage
 1. Add a binding bool to control popup presentation state
 2. Add `.popup` modifier to your view. 
@@ -59,23 +95,25 @@ struct ContentView: View {
 
     var body: some View {
         YourView()
-            .popup(isPresented: $showingPopup, autohideIn: 2) {
+            .popup(isPresented: $showingPopup) {
                 Text("The popup")
                     .frame(width: 200, height: 60)
                     .background(Color(red: 0.85, green: 0.8, blue: 0.95))
                     .cornerRadius(30.0)
+            } customize: {
+                $0.autohideIn(2)
             }
     }
 }
 ```
-### Note
-Please keep in mind that the popup calculates its position using the frame of the view you attach it to. So you'll likely want to attach it to the root view of your screen.     
 
 ### Required parameters 
 `isPresented` - binding to determine if the popup should be seen on screen or hidden     
 `view` - view you want to display on your popup  
 
-### Available customizations - optional parameters    
+### Available customizations - optional parameters
+use `customize` closure in popup modifier:
+
 `type` - toast, float or default. Floater has parameters of its own:     
 - `verticalPadding`  - padding which will define padding from the top or will be added to safe area if `useSafeAreaInset` is true     
 - `useSafeAreaInset` - whether to include safe area insets in floater padding      
@@ -87,13 +125,19 @@ Please keep in mind that the popup calculates its position using the frame of th
 `closeOnTap` - true by default: enable/disable closing on tap on popup     
 `closeOnTapOutside` - false by default: enable/disable closing on tap on outside of popup     
 `backgroundColor` - Color.clear by default: change background color of outside area     
+`isOpaque` - false by default: if true taps do not pass through popup's background and the popup is displayed on top of navbar. Always opaque if closeOnTapOutside is true. For more see section "Show over navbar"
 `dismissCallback` - custom callback to call once the popup is dismissed      
 
 ### Draggable card - sheet
 To implement a sheet (like in 4th gif) enable dragToDismiss on bottom toast (see example project for implementation of the card itself)
 ```swift
-.popup(isPresented: $show, type: .toast, position: .bottom, dragToDismiss: true) {
+.popup(isPresented: $show) {
     // your content 
+} customize: {
+    $0
+        .type (.toast)
+        .position(bottom)
+        .dragToDismiss(true)
 }
 ```
 
@@ -134,8 +178,8 @@ github "Exyte/PopupView"
 
 ## Requirements
 
-* iOS 13+
-* Xcode 11+ 
+* iOS 14+
+* Xcode 12+ 
 
 ## Our other open source SwiftUI libraries
 [Grid](https://github.com/exyte/Grid) - The most powerful Grid container    
