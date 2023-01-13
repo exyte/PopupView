@@ -84,7 +84,7 @@ This will also mean that you won't be able to tap "through" the popup's backgrou
 Unfortunately, if opaque is false (to allow "through-touches" if you need them), popup - even if forced to be fullscreen, will be displayed under the navbar (if you know how to pass over this restriction, please do let me know in the comments). Please keep in mind that in this case the popup calculates its position using the frame of the view you attach it to, to avoid being under the navbar. So you'll likely want to attach it to the root view of your screen.  
 
 # Usage
-1. Add a binding bool to control popup presentation state
+1. Add a bool to control popup presentation state
 2. Add `.popup` modifier to your view. 
 ```swift
 import PopupView
@@ -125,11 +125,11 @@ use `customize` closure in popup modifier:
 `closeOnTap` - true by default: enable/disable closing on tap on popup     
 `closeOnTapOutside` - false by default: enable/disable closing on tap on outside of popup     
 `backgroundColor` - Color.clear by default: change background color of outside area     
-`isOpaque` - false by default: if true taps do not pass through popup's background and the popup is displayed on top of navbar. Always opaque if closeOnTapOutside is true. For more see section "Show over navbar"
+`isOpaque` - false by default: if true taps do not pass through popup's background and the popup is displayed on top of navbar. Always opaque if `closeOnTapOutside` is true. For more see section "Show over navbar"       
 `dismissCallback` - custom callback to call once the popup is dismissed      
 
 ### Draggable card - sheet
-To implement a sheet (like in 4th gif) enable dragToDismiss on bottom toast (see example project for implementation of the card itself)
+To implement a sheet (like in 4th gif) enable `dragToDismiss` on bottom toast (see example project for implementation of the card itself)
 ```swift
 .popup(isPresented: $show) {
     // your content 
