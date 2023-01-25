@@ -335,7 +335,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
                 .onAnimationCompleted(for: currentOffset) {
                     //animationCompletedCallback() TEMP: need to fix
                 }
-                .animation(animation)
+                .animation(animation, value: currentOffset)
         }
 
         #if !os(tvOS)
