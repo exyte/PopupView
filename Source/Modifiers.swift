@@ -35,4 +35,17 @@ extension View {
                     view: view)
             )
         }
+    
+    public func itemPopup<Item: Equatable, PopupContent: View>(
+        item: Binding<Item?>,
+        customize: @escaping (Popup<Item, PopupContent>.PopupParameters) -> Popup<Item, PopupContent>.PopupParameters,
+        @ViewBuilder itemView: @escaping (Item) -> PopupContent) -> some View {
+            self.modifier(
+                FullscreenPopup<Item, PopupContent>(
+                    item: item,
+                    isBoolMode: false,
+                    params: customize(Popup<Item, PopupContent>.PopupParameters()),
+                    itemView: itemView)
+            )
+        }
 }

@@ -24,3 +24,21 @@ struct PopupButton<Content> : View where Content : View {
         .customButtonStyle(foreground: .black, background: .clear)
     }
 }
+
+struct ItemPopupButton<Content> : View where Content : View {
+    @Binding var text: String?
+    
+    var hideAll: () -> ()
+    
+    @ViewBuilder let content: () -> Content
+    
+    var body: some View {
+        Button {
+            text = "This is the unwrapped item"
+            hideAll()
+        } label: {
+            content()
+        }
+        .customButtonStyle(foreground: .black, background: .clear)
+    }
+}

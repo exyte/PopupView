@@ -40,8 +40,9 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     var params: Popup<Item, PopupContent>.PopupParameters
 
-    var view: () -> PopupContent
-
+    var view: (() -> PopupContent)!
+    var itemView: ((Item) -> PopupContent)!
+    
     // MARK: - Presentation animation
 
     /// Trigger popup showing/hiding animations and...
@@ -55,6 +56,9 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     /// opacity of background color
     @State private var opacity = 0.0
+    
+    /// A temporary view to hold a copy of the `itemView` when the item is nil (to complete `itemView`'s dismiss animation)
+    @State private var tempView: (() -> PopupContent)!
 
     // MARK: - Autohide
 
@@ -69,7 +73,6 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     /// Set dismiss souce to pass to dismiss callback
     @State private var dismissSource: DismissSource?
-
     var opaqueBackground: Bool {
         isOpaque || closeOnTapOutside
     }
@@ -91,11 +94,33 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         self.dismissCallback = params.dismissCallback
 
         self.view = view
-
+        
         self.isPresentedRef = ClassReference(self.$isPresented)
         self.itemRef = ClassReference(self.$item)
     }
 
+    init(isPresented: Binding<Bool> = .constant(false),
+         item: Binding<Item?> = .constant(nil),
+         isBoolMode: Bool,
+         params: Popup<Item, PopupContent>.PopupParameters,
+         itemView: @escaping (Item) -> PopupContent) {
+        self._isPresented = isPresented
+        self._item = item
+        self.isBoolMode = isBoolMode
+
+        self.params = params
+        self.autohideIn = params.autohideIn
+        self.closeOnTapOutside = params.closeOnTapOutside
+        self.backgroundColor = params.backgroundColor
+        self.isOpaque = params.isOpaque
+        self.dismissCallback = params.dismissCallback
+
+        self.itemView = itemView
+    
+        self.isPresentedRef = ClassReference(self.$isPresented)
+        self.itemRef = ClassReference(self.$item)
+    }
+    
     public func body(content: Content) -> some View {
         if isBoolMode {
             main(content: content)
@@ -105,6 +130,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         } else {
             main(content: content)
                 .onChange(of: item) { newValue in
+                    if let newValue {
+                        /// copying `itemView`
+                        self.tempView = { itemView(newValue) }
+                    }
                     appearAction(sheetPresented: newValue != nil)
                 }
         }
@@ -143,17 +172,39 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         Group {
             if showContent {
                 backgroundColorView()
-                    .modifier(
-                        Popup(
-                            isPresented: $isPresented,
-                            params: params,
-                            view: view,
-                            shouldShowContent: shouldShowContent,
-                            showContent: showContent,
-                            dismissSource: $dismissSource,
-                            animationCompletedCallback: onAnimationCompleted)
-                    )
+                    .modifier(getModifier())
             }
+        }
+    }
+    
+    private func getItemView() -> (() -> PopupContent)? {
+        if let item {
+            return { itemView(item) }
+        }
+        return tempView
+    }
+    
+    private func getModifier() -> Popup<Item, PopupContent> {
+        if let viewOfItem = getItemView() {
+            return Popup(
+                isPresented: $isPresented,
+                item: $item,
+                params: params,
+                view: viewOfItem,
+                shouldShowContent: shouldShowContent,
+                showContent: showContent,
+                dismissSource: $dismissSource,
+                animationCompletedCallback: onAnimationCompleted
+            )
+        } else  {
+            return Popup(
+                isPresented: $isPresented,
+                params: params,
+                view: view,
+                shouldShowContent: shouldShowContent,
+                showContent: showContent,
+                dismissSource: $dismissSource,
+                animationCompletedCallback: onAnimationCompleted)
         }
     }
 

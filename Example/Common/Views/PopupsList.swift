@@ -77,7 +77,7 @@ struct PopupsList: View {
     @Binding var showingMiddlePopup: Bool
     @Binding var showingBottomFirstPopup: Bool
     @Binding var showingBottomSecondPopup: Bool
-    
+    @Binding var showingItem: String?
 #if os(iOS)
     @Binding var showingFirstActionSheet: Bool
     @Binding var showingSecondActionSheet: Bool
@@ -198,6 +198,14 @@ struct PopupsList: View {
                         PopupButton(isShowing: $showingMiddlePopup, hideAll: hideAll) {
                             PopupTypeView(
                                 title: "Middle",
+                                detail: "Popup in the middle of the screen with a picture"
+                            ) {
+                                PopupImage(style: .default)
+                            }
+                        }
+                        ItemPopupButton(text: $showingItem, hideAll: hideAll) {
+                            PopupTypeView(
+                                title: "Middle with Binding",
                                 detail: "Popup in the middle of the screen with a picture"
                             ) {
                                 PopupImage(style: .default)
