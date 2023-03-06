@@ -20,11 +20,13 @@ struct PopupsState {
     var showingMiddle = false
     var showingBottomFirst = false
     var showingBottomSecond = false
+    var popupItem: String?
 }
 
 struct ActionSheetsState {
     var showingFirst = false
     var showingSecond = false
+    var text: String?
 }
 
 struct ContentView : View {
@@ -32,7 +34,7 @@ struct ContentView : View {
     @State var toasts = ToastsState()
     @State var popups = PopupsState()
     @State var actionSheets = ActionSheetsState()
-    
+    @State private var item: String?
     var body: some View {
         let commonView = createPopupsList()
         
@@ -120,13 +122,22 @@ struct ContentView : View {
 //        // MARK: - Designed popups
 
             .popup(isPresented: $popups.showingMiddle) {
-                PopupMiddle(isPresented: $popups.showingMiddle)
+                PopupMiddle(isPresented: $popups.showingMiddle,
+                            item: "In two weeks, you did 12 workouts and burned 2671 calories. That's 566 calories more than last month. Continue at the same pace and the result will please you.")
             } customize: {
                 $0
                     .closeOnTap(false)
                     .backgroundColor(.black.opacity(0.4))
             }
-
+            .itemPopup(item: $popups.popupItem, customize: {
+                $0
+                    .closeOnTap(false)
+                    .backgroundColor(.black.opacity(0.4))
+            }, itemView: { item in
+                PopupMiddle(isPresented: $popups.showingMiddle, item: item) {
+                    popups.popupItem = nil
+                }
+            })
             .popup(isPresented: $popups.showingBottomFirst) {
                 PopupBottomFirst(isPresented: $popups.showingBottomFirst)
             } customize: {
@@ -187,6 +198,7 @@ struct ContentView : View {
             showingMiddlePopup: $popups.showingMiddle,
             showingBottomFirstPopup: $popups.showingBottomFirst,
             showingBottomSecondPopup: $popups.showingBottomSecond,
+            showingItem: $popups.popupItem,
             showingFirstActionSheet: $actionSheets.showingFirst,
             showingSecondActionSheet: $actionSheets.showingSecond
         )

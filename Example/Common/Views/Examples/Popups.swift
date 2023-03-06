@@ -10,7 +10,8 @@ import SwiftUI
 struct PopupMiddle: View {
 
     @Binding var isPresented: Bool
-
+    let item: String
+    var closure: () -> Void = { }
     var body: some View {
         VStack(spacing: 12) {
             Image("winner")
@@ -23,7 +24,7 @@ struct PopupMiddle: View {
                 .font(.system(size: 24))
                 .padding(.top, 12)
             
-            Text("In two weeks, you did 12 workouts and burned 2671 calories. That's 566 calories more than last month. Continue at the same pace and the result will please you.")
+            Text(item)
                 .foregroundColor(.black)
                 .font(.system(size: 16))
                 .opacity(0.6)
@@ -32,6 +33,7 @@ struct PopupMiddle: View {
             
             Button("Thanks") {
                 isPresented = false
+                closure()
             }
             .buttonStyle(.plain)
             .font(.system(size: 18, weight: .bold))
@@ -130,7 +132,8 @@ struct Popups_Previews: PreviewProvider {
         ZStack {
             Rectangle()
                 .ignoresSafeArea()
-            PopupMiddle(isPresented: .constant(true))
+            PopupMiddle(isPresented: .constant(true),
+                        item: "In two weeks, you did 12 workouts and burned 2671 calories. That's 566 calories more than last month. Continue at the same pace and the result will please you.")
         }
         
         ZStack {
