@@ -238,6 +238,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         performWithDelay(0.01) {
             showSheet = false
         }
+        tempItem = nil
         dismissCallback(dismissSource ?? .binding)
     }
 
