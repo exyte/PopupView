@@ -111,6 +111,10 @@ struct ContentView: View {
 `isPresented` - binding to determine if the popup should be seen on screen or hidden     
 `view` - view you want to display on your popup  
 
+#### or
+`item` - binding to item: if item's value is nil - popup is hidden, if non-nil - displayed. Be careful - library makes a copy of your item during dismiss animation!!     
+`view` - view you want to display on your popup  
+
 ### Available customizations - optional parameters
 use `customize` closure in popup modifier:
 
