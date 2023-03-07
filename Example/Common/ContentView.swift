@@ -17,9 +17,9 @@ class SomeItem: Equatable {
         self.value = value
     }
     
-     static func == (lhs: SomeItem, rhs: SomeItem) -> Bool {
-         lhs.value == rhs.value
-     }
+    static func == (lhs: SomeItem, rhs: SomeItem) -> Bool {
+        lhs.value == rhs.value
+    }
 }
 
 struct ToastsState {
@@ -30,16 +30,14 @@ struct ToastsState {
 }
 
 struct PopupsState {
-    var showingMiddle = false
+    var middleItem: SomeItem?
     var showingBottomFirst = false
     var showingBottomSecond = false
-    var popupItem: SomeItem?
 }
 
 struct ActionSheetsState {
     var showingFirst = false
     var showingSecond = false
-    var text: String?
 }
 
 struct ContentView : View {
@@ -47,7 +45,7 @@ struct ContentView : View {
     @State var toasts = ToastsState()
     @State var popups = PopupsState()
     @State var actionSheets = ActionSheetsState()
-    @State private var item: String?
+
     var body: some View {
         let commonView = createPopupsList()
         
@@ -132,24 +130,18 @@ struct ContentView : View {
                     .autohideIn(10)
             }
 
-//        // MARK: - Designed popups
+        // MARK: - Designed popups
 
-            .popup(isPresented: $popups.showingMiddle) {
-                PopupMiddle(isPresented: $popups.showingMiddle)
+            .popup(item: $popups.middleItem) { item in
+                PopupMiddle(item: item) {
+                    popups.middleItem = nil
+                }
             } customize: {
                 $0
                     .closeOnTap(false)
                     .backgroundColor(.black.opacity(0.4))
             }
-            .itemPopup(item: $popups.popupItem, customize: {
-                $0
-                    .closeOnTap(false)
-                    .backgroundColor(.black.opacity(0.4))
-            }, itemView: { item in
-                ItemPopupMiddle(item: item) {
-                    popups.popupItem = nil
-                }
-            })
+
             .popup(isPresented: $popups.showingBottomFirst) {
                 PopupBottomFirst(isPresented: $popups.showingBottomFirst)
             } customize: {
@@ -207,10 +199,9 @@ struct ContentView : View {
             showingTopSecondToast: $toasts.showingTopSecond,
             showingBottomFirstToast: $toasts.showingBottomFirst,
             showingBottomSecondToast: $toasts.showingBottomSecond,
-            showingMiddlePopup: $popups.showingMiddle,
+            middleItem: $popups.middleItem,
             showingBottomFirstPopup: $popups.showingBottomFirst,
             showingBottomSecondPopup: $popups.showingBottomSecond,
-            showingItem: $popups.popupItem,
             showingFirstActionSheet: $actionSheets.showingFirst,
             showingSecondActionSheet: $actionSheets.showingSecond
         )
@@ -224,7 +215,7 @@ struct ContentView : View {
             showingTopSecondToast: $toasts.showingTopSecond,
             showingBottomFirstToast: $toasts.showingBottomFirst,
             showingBottomSecondToast: $toasts.showingBottomSecond,
-            showingMiddlePopup: $popups.showingMiddle,
+            middleItem: $popups.middleItem,
             showingBottomFirstPopup: $popups.showingBottomFirst,
             showingBottomSecondPopup: $popups.showingBottomSecond
         )

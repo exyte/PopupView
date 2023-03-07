@@ -74,10 +74,9 @@ struct PopupsList: View {
     @Binding var showingBottomFirstToast: Bool
     @Binding var showingBottomSecondToast: Bool
     
-    @Binding var showingMiddlePopup: Bool
+    @Binding var middleItem: SomeItem?
     @Binding var showingBottomFirstPopup: Bool
     @Binding var showingBottomSecondPopup: Bool
-    @Binding var showingItem: SomeItem?
 #if os(iOS)
     @Binding var showingFirstActionSheet: Bool
     @Binding var showingSecondActionSheet: Bool
@@ -95,7 +94,7 @@ struct PopupsList: View {
             self.showingBottomFirstToast = false
             self.showingBottomSecondToast = false
             
-            self.showingMiddlePopup = false
+            self.middleItem = nil
             self.showingBottomFirstPopup = false
             self.showingBottomSecondPopup = false
             
@@ -194,18 +193,10 @@ struct PopupsList: View {
                     Group {
                         SectionHeader(name: "Popups", count: 3)
                             .padding(EdgeInsets(top: 20, leading: 0, bottom: 12, trailing: 0))
-                        
-                        PopupButton(isShowing: $showingMiddlePopup, hideAll: hideAll) {
+
+                        ItemPopupButton(item: $middleItem, hideAll: hideAll) {
                             PopupTypeView(
                                 title: "Middle",
-                                detail: "Popup in the middle of the screen with a picture"
-                            ) {
-                                PopupImage(style: .default)
-                            }
-                        }
-                        ItemPopupButton(item: $showingItem, hideAll: hideAll) {
-                            PopupTypeView(
-                                title: "Middle with Binding",
                                 detail: "Popup in the middle of the screen with a picture"
                             ) {
                                 PopupImage(style: .default)

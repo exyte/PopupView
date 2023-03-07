@@ -27,6 +27,8 @@ struct PopupButton<Content> : View where Content : View {
 
 struct ItemPopupButton<Content> : View where Content : View {
     @Binding var item: SomeItem?
+
+    let text = "In two weeks, you did 12 workouts and burned 2671 calories. That's 566 calories more than last month. Continue at the same pace and the result will please you."
     
     var hideAll: () -> ()
     
@@ -34,8 +36,8 @@ struct ItemPopupButton<Content> : View where Content : View {
     
     var body: some View {
         Button {
-            item = SomeItem(value: "This is the unwrapped item")
             hideAll()
+            item = SomeItem(value: text)
         } label: {
             content()
         }

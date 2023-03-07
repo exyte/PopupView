@@ -73,6 +73,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     /// Set dismiss souce to pass to dismiss callback
     @State private var dismissSource: DismissSource?
+    
     var opaqueBackground: Bool {
         isOpaque || closeOnTapOutside
     }
@@ -94,7 +95,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         self.dismissCallback = params.dismissCallback
 
         self.view = view
-        
+
         self.isPresentedRef = ClassReference(self.$isPresented)
         self.itemRef = ClassReference(self.$item)
     }
