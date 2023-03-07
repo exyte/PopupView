@@ -9,6 +9,19 @@
 import SwiftUI
 import ExytePopupView
 
+class SomeItem: Equatable {
+    
+    let value: String
+    
+    init(value: String) {
+        self.value = value
+    }
+    
+     static func == (lhs: SomeItem, rhs: SomeItem) -> Bool {
+         lhs.value == rhs.value
+     }
+}
+
 struct ToastsState {
     var showingTopFirst = false
     var showingTopSecond = false
@@ -20,7 +33,7 @@ struct PopupsState {
     var showingMiddle = false
     var showingBottomFirst = false
     var showingBottomSecond = false
-    var popupItem: String?
+    var popupItem: SomeItem?
 }
 
 struct ActionSheetsState {
@@ -122,8 +135,7 @@ struct ContentView : View {
 //        // MARK: - Designed popups
 
             .popup(isPresented: $popups.showingMiddle) {
-                PopupMiddle(isPresented: $popups.showingMiddle,
-                            item: "In two weeks, you did 12 workouts and burned 2671 calories. That's 566 calories more than last month. Continue at the same pace and the result will please you.")
+                PopupMiddle(isPresented: $popups.showingMiddle)
             } customize: {
                 $0
                     .closeOnTap(false)
@@ -134,7 +146,7 @@ struct ContentView : View {
                     .closeOnTap(false)
                     .backgroundColor(.black.opacity(0.4))
             }, itemView: { item in
-                PopupMiddle(isPresented: $popups.showingMiddle, item: item) {
+                ItemPopupMiddle(item: item) {
                     popups.popupItem = nil
                 }
             })

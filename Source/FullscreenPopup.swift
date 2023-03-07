@@ -57,8 +57,8 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     /// opacity of background color
     @State private var opacity = 0.0
     
-    /// A temporary view to hold a copy of the `itemView` when the item is nil (to complete `itemView`'s dismiss animation)
-    @State private var tempView: (() -> PopupContent)!
+    /// A temporary variable to hold a copy of the `item` when the item is nil (to complete `itemView`'s dismiss animation)
+    @State private var tempItem: Item?
 
     // MARK: - Autohide
 
@@ -131,8 +131,8 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             main(content: content)
                 .onChange(of: item) { newValue in
                     if let newValue {
-                        /// copying `itemView`
-                        self.tempView = { itemView(newValue) }
+                        /// copying `item`
+                        self.tempItem = newValue
                     }
                     appearAction(sheetPresented: newValue != nil)
                 }
@@ -177,26 +177,26 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         }
     }
     
-    private func getItemView() -> (() -> PopupContent)? {
-        if let item {
+    var viewForItem: (() -> PopupContent)? {
+        if let item = item ?? tempItem {
             return { itemView(item) }
         }
-        return tempView
+        return nil
     }
     
     private func getModifier() -> Popup<Item, PopupContent> {
-        if let viewOfItem = getItemView() {
+        if let viewForItem {
             return Popup(
                 isPresented: $isPresented,
                 item: $item,
                 params: params,
-                view: viewOfItem,
+                view: viewForItem,
                 shouldShowContent: shouldShowContent,
                 showContent: showContent,
                 dismissSource: $dismissSource,
                 animationCompletedCallback: onAnimationCompleted
             )
-        } else  {
+        } else {
             return Popup(
                 isPresented: $isPresented,
                 params: params,
