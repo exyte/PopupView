@@ -8,9 +8,48 @@
 import SwiftUI
 
 struct PopupMiddle: View {
-
     @Binding var isPresented: Bool
-    let item: String
+    var body: some View {
+        VStack(spacing: 12) {
+            Image("winner")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 226, maxHeight: 226)
+            
+            Text("Congratulations!")
+                .foregroundColor(.black)
+                .font(.system(size: 24))
+                .padding(.top, 12)
+            
+            Text("In two weeks, you did 12 workouts and burned 2671 calories. That's 566 calories more than last month. Continue at the same pace and the result will please you.")
+                .foregroundColor(.black)
+                .font(.system(size: 16))
+                .opacity(0.6)
+                .multilineTextAlignment(.center)
+                .padding(.bottom, 20)
+            
+            Button("Thanks") {
+                isPresented = false
+            }
+            .buttonStyle(.plain)
+            .font(.system(size: 18, weight: .bold))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 18)
+            .padding(.horizontal, 24)
+            .foregroundColor(.white)
+            .background(Color(hex: "9265F8"))
+            .cornerRadius(12)
+        }
+        .padding(EdgeInsets(top: 37, leading: 24, bottom: 40, trailing: 24))
+        .background(Color.white.cornerRadius(20))
+        .shadowedStyle()
+        .padding(.horizontal, 40)
+    }
+}
+
+struct ItemPopupMiddle: View {
+
+    let item: SomeItem
     var closure: () -> Void = { }
     var body: some View {
         VStack(spacing: 12) {
@@ -24,7 +63,7 @@ struct PopupMiddle: View {
                 .font(.system(size: 24))
                 .padding(.top, 12)
             
-            Text(item)
+            Text(item.value)
                 .foregroundColor(.black)
                 .font(.system(size: 16))
                 .opacity(0.6)
@@ -32,7 +71,6 @@ struct PopupMiddle: View {
                 .padding(.bottom, 20)
             
             Button("Thanks") {
-                isPresented = false
                 closure()
             }
             .buttonStyle(.plain)
@@ -132,8 +170,7 @@ struct Popups_Previews: PreviewProvider {
         ZStack {
             Rectangle()
                 .ignoresSafeArea()
-            PopupMiddle(isPresented: .constant(true),
-                        item: "In two weeks, you did 12 workouts and burned 2671 calories. That's 566 calories more than last month. Continue at the same pace and the result will please you.")
+            PopupMiddle(isPresented: .constant(true))
         }
         
         ZStack {

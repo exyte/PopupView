@@ -26,7 +26,7 @@ struct PopupButton<Content> : View where Content : View {
 }
 
 struct ItemPopupButton<Content> : View where Content : View {
-    @Binding var text: String?
+    @Binding var item: SomeItem?
     
     var hideAll: () -> ()
     
@@ -34,7 +34,7 @@ struct ItemPopupButton<Content> : View where Content : View {
     
     var body: some View {
         Button {
-            text = "This is the unwrapped item"
+            item = SomeItem(value: "This is the unwrapped item")
             hideAll()
         } label: {
             content()
