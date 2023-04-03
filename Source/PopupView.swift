@@ -35,7 +35,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
         self.animation = params.animation
         self.dragToDismiss = params.dragToDismiss
         self.closeOnTap = params.closeOnTap
-        self.isOpaque = params.isOpaque
+        self.opaqueBackground = params.isOpaque || params.closeOnTapOutside
 
         self.view = view
 
@@ -202,8 +202,8 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     /// Should allow dismiss by dragging
     var dragToDismiss: Bool
 
-    /// If opaque taps do not pass through popup's background color. Always opaque if closeOnTapOutside is true
-    var isOpaque: Bool
+    /// If opaque taps do not pass through popup's background color. True if either closeOnTapOutside or isOpaque is true
+    var opaqueBackground: Bool
 
     /// Trigger popup showing/hiding animations and...
     var shouldShowContent: Bool
@@ -237,7 +237,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     
     /// The offset when the popup is displayed - without this offset they'd be exactly in the middle
     private var displayedOffset: CGFloat {
-        if isOpaque {
+        if opaqueBackground {
             switch type {
             case .`default`:
                 return 0
