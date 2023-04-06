@@ -42,10 +42,12 @@ ___
 </br></br>
 
 [![Twitter](https://img.shields.io/badge/Twitter-@exyteHQ-blue.svg?style=flat)](http://twitter.com/exyteHQ)
-[![Version](https://img.shields.io/cocoapods/v/ExytePopupView.svg?style=flat)](http://cocoapods.org/pods/ExytePopupView)
-[![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-0473B3.svg?style=flat)](https://github.com/Carthage/Carthage)
-[![License](https://img.shields.io/cocoapods/l/ExytePopupView.svg?style=flat)](http://cocoapods.org/pods/ExytePopupView)
-[![Platform](https://img.shields.io/cocoapods/p/ExytePopupView.svg?style=flat)](http://cocoapods.org/pods/ExytePopupView)
+![Platform](https://img.shields.io/cocoapods/p/ExytePopupView.svg?style=flat)
+![Version](https://img.shields.io/cocoapods/v/ExytePopupView.svg?style=flat)
+[![SPM Compatible](https://img.shields.io/badge/SwiftPM-Compatible-brightgreen.svg)](https://www.swift.org/package-manager/)
+[![Cocoapods Compatible](https://img.shields.io/badge/cocoapods-Compatible-brightgreen.svg)](https://cocoapods.org)
+[![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-brightgreen.svg?style=flat)](https://github.com/Carthage/Carthage)
+![License](https://img.shields.io/cocoapods/l/ExytePopupView.svg?style=flat)
 
 # Update to version 2
 
