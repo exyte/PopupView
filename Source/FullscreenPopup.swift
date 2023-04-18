@@ -254,6 +254,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                 isPresentedRef?.value.wrappedValue = false
                 itemRef?.value.wrappedValue = nil
                 dismissSource = .autohide
+                dispatchWorkHolder.work = nil
             })
             if sheetPresented, let work = dispatchWorkHolder.work {
                 DispatchQueue.main.asyncAfter(deadline: .now() + autohideIn, execute: work)
