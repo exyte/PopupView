@@ -128,6 +128,11 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                 .onChange(of: isPresented) { newValue in
                     appearAction(sheetPresented: newValue)
                 }
+                .onAppear {
+                    if isPresented {
+                        appearAction(sheetPresented: true)
+                    }
+                }
         } else {
             main(content: content)
                 .onChange(of: item) { newValue in
@@ -136,6 +141,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                         self.tempItem = newValue
                     }
                     appearAction(sheetPresented: newValue != nil)
+                }.onAppear {
+                    if item != nil {
+                        appearAction(sheetPresented: true)
+                    }
                 }
         }
     }
