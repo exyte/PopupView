@@ -290,6 +290,7 @@ private struct FullScreenCoverBackgroundRemovalView: UIViewRepresentable {
 class KeyboardHeightHelper: ObservableObject {
 
     @Published var keyboardHeight: CGFloat = 0
+    @Published var keyboardDisplayed: Bool = false
 
     init() {
         self.listenForKeyboardNotifications()
@@ -303,12 +304,14 @@ class KeyboardHeightHelper: ObservableObject {
                   let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
 
             self.keyboardHeight = keyboardRect.height
+            self.keyboardDisplayed = true
         }
 
         NotificationCenter.default.addObserver(forName: UIResponder.keyboardDidHideNotification,
                                                object: nil,
                                                queue: .main) { (notification) in
             self.keyboardHeight = 0
+            self.keyboardDisplayed = false
         }
     }
 }

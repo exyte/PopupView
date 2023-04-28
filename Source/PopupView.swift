@@ -258,21 +258,21 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
         }
 
         switch type {
-            case .`default`:
-                return (presenterContentRect.height - sheetContentRect.height)/2
-            case .toast:
-                if position == .bottom {
-                    return presenterContentRect.height - sheetContentRect.height - keyboardHeightHelper.keyboardHeight + safeAreaInsets.bottom
-                } else {
-                    return -safeAreaInsets.top
-                }
-            case .floater(let verticalPadding, let useSafeAreaInset):
-                if position == .bottom {
-                    return presenterContentRect.height - sheetContentRect.height - keyboardHeightHelper.keyboardHeight - verticalPadding + (useSafeAreaInset ? 0 : -safeAreaInsets.bottom)
-                } else {
-                    return verticalPadding + (useSafeAreaInset ? 0 : -safeAreaInsets.top)
-                }
+        case .`default`:
+            return (presenterContentRect.height - sheetContentRect.height)/2
+        case .toast:
+            if position == .bottom {
+                return presenterContentRect.height - sheetContentRect.height + safeAreaInsets.bottom + (keyboardHeightHelper.keyboardDisplayed ? -safeAreaInsets.bottom : 0)
+            } else {
+                return -safeAreaInsets.top
             }
+        case .floater(let verticalPadding, let useSafeAreaInset):
+            if position == .bottom {
+                return presenterContentRect.height - sheetContentRect.height + safeAreaInsets.bottom + verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0)
+            } else {
+                return verticalPadding + (useSafeAreaInset ? 0 : -safeAreaInsets.top)
+            }
+        }
     }
 
     /// The offset when the popup is hidden
