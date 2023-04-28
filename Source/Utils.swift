@@ -47,9 +47,9 @@ extension View {
 
     @ViewBuilder
     func addTapIfNotTV(if condition: Bool, onTap: @escaping ()->()) -> some View {
-        #if os(tvOS)
+#if os(tvOS)
         self
-        #else
+#else
         if condition {
             self.gesture(
                 TapGesture().onEnded {
@@ -59,7 +59,7 @@ extension View {
         } else {
             self
         }
-        #endif
+#endif
     }
 }
 
@@ -285,4 +285,30 @@ private struct FullScreenCoverBackgroundRemovalView: UIViewRepresentable {
 
     func updateUIView(_ uiView: UIView, context: Context) {}
 
+}
+
+class KeyboardHeightHelper: ObservableObject {
+
+    @Published var keyboardHeight: CGFloat = 0
+
+    init() {
+        self.listenForKeyboardNotifications()
+    }
+
+    private func listenForKeyboardNotifications() {
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardDidShowNotification,
+                                               object: nil,
+                                               queue: .main) { (notification) in
+            guard let userInfo = notification.userInfo,
+                  let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
+
+            self.keyboardHeight = keyboardRect.height
+        }
+
+        NotificationCenter.default.addObserver(forName: UIResponder.keyboardDidHideNotification,
+                                               object: nil,
+                                               queue: .main) { (notification) in
+            self.keyboardHeight = 0
+        }
+    }
 }

@@ -222,6 +222,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     // MARK: - Private Properties
 
     @Environment(\.safeAreaInsets) private var safeAreaInsets
+    @StateObject var keyboardHeightHelper = KeyboardHeightHelper()
 
     /// The rect and safe area of the hosting controller
     @State private var presenterContentRect: CGRect = .zero
@@ -235,57 +236,54 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     /// Last position for drag gesture
     @State private var lastDragPosition: CGFloat = 0
     
-    /// The offset when the popup is displayed - without this offset they'd be exactly in the middle
+    /// The offset when the popup is displayed
     private var displayedOffset: CGFloat {
         if opaqueBackground {
             switch type {
             case .`default`:
-                return 0
+                return (screenHeight - sheetContentRect.height)/2 - safeAreaInsets.top
             case .toast:
                 if position == .bottom {
-                    return screenHeight/2 - sheetContentRect.height/2
+                    return screenHeight - sheetContentRect.height - keyboardHeightHelper.keyboardHeight - safeAreaInsets.top
                 } else {
-                    return -screenHeight/2 + sheetContentRect.height/2
+                    return -safeAreaInsets.top
                 }
             case .floater(let verticalPadding, let useSafeAreaInset):
                 if position == .bottom {
-                    return screenHeight/2 - sheetContentRect.height/2 - verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0)
+                    return screenHeight - sheetContentRect.height - keyboardHeightHelper.keyboardHeight - verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0) - safeAreaInsets.top
                 } else {
-                    return -screenHeight/2 + sheetContentRect.height/2 + verticalPadding + (useSafeAreaInset ? safeAreaInsets.top : 0)
+                    return verticalPadding + (useSafeAreaInset ? 0 :  -safeAreaInsets.top)
                 }
             }
         }
 
         switch type {
-        case .`default`:
-            return -presenterContentRect.midY + screenHeight/2
-        case .toast:
-            if position == .bottom {
-                return presenterContentRect.minY + safeAreaInsets.bottom + presenterContentRect.height - presenterContentRect.midY - sheetContentRect.height/2
-            } else {
-                return presenterContentRect.minY - safeAreaInsets.top - presenterContentRect.midY + sheetContentRect.height/2
+            case .`default`:
+                return (presenterContentRect.height - sheetContentRect.height)/2
+            case .toast:
+                if position == .bottom {
+                    return presenterContentRect.height - sheetContentRect.height - keyboardHeightHelper.keyboardHeight + safeAreaInsets.bottom
+                } else {
+                    return -safeAreaInsets.top
+                }
+            case .floater(let verticalPadding, let useSafeAreaInset):
+                if position == .bottom {
+                    return presenterContentRect.height - sheetContentRect.height - keyboardHeightHelper.keyboardHeight - verticalPadding + (useSafeAreaInset ? 0 : -safeAreaInsets.bottom)
+                } else {
+                    return verticalPadding + (useSafeAreaInset ? 0 : -safeAreaInsets.top)
+                }
             }
-        case .floater(let verticalPadding, let useSafeAreaInset):
-            if position == .bottom {
-                return presenterContentRect.minY + safeAreaInsets.bottom + presenterContentRect.height - presenterContentRect.midY - sheetContentRect.height/2 - verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0)
-            } else {
-                return presenterContentRect.minY - safeAreaInsets.top - presenterContentRect.midY + sheetContentRect.height/2 + verticalPadding + (useSafeAreaInset ? safeAreaInsets.top : 0)
-            }
-        }
     }
 
     /// The offset when the popup is hidden
     private var hiddenOffset: CGFloat {
         if position == .top {
-            if presenterContentRect.isEmpty {
+            if sheetContentRect.isEmpty {
                 return -1000
             }
-            return -presenterContentRect.midY - sheetContentRect.height/2 - 5
+            return -presenterContentRect.minY - safeAreaInsets.top - sheetContentRect.height
         } else {
-            if presenterContentRect.isEmpty {
-                return 1000
-            }
-            return screenHeight - presenterContentRect.midY + sheetContentRect.height/2 + 5
+            return screenHeight
         }
     }
 
@@ -331,7 +329,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
                     dismiss()
                 }
                 .frameGetter($sheetContentRect)
-                .offset(y: currentOffset)
+                .position(x: screenSize.width/2, y: sheetContentRect.height/2 + currentOffset)
                 .onAnimationCompleted(for: currentOffset) {
                     //animationCompletedCallback() TEMP: need to fix
                 }
