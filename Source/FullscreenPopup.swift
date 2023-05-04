@@ -140,9 +140,16 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     @ViewBuilder
     public func main(content: Content) -> some View {
         if opaqueBackground {
+#if os(iOS)
             content.transparentNonAnimatingFullScreenCover(isPresented: $showSheet) {
                 constructPopup()
             }
+#else
+            ZStack {
+                content
+                constructPopup()
+            }
+#endif
         } else {
             ZStack {
                 content

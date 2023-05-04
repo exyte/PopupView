@@ -63,6 +63,8 @@ extension View {
     }
 }
 
+// MARK: - FrameGetter
+
 struct FrameGetter: ViewModifier {
 
     @Binding var frame: CGRect
@@ -89,6 +91,8 @@ extension View {
         modifier(FrameGetter(frame: frame))
     }
 }
+
+// MARK: - AnimationCompletionObserver
 
 struct AnimationCompletionObserverModifier<Value>: AnimatableModifier where Value: VectorArithmetic, Value: Comparable {
 
@@ -179,6 +183,8 @@ extension View {
     }
 }
 
+// MARK: - SafeAreaInsets
+
 #if os(iOS)
 
 extension UIApplication {
@@ -230,6 +236,10 @@ extension EnvironmentValues {
 
 #endif
 
+// MARK: - TransparentNonAnimatingFullScreenCover
+
+#if os(iOS)
+
 extension View {
 
     func transparentNonAnimatingFullScreenCover<Content: View>(isPresented: Binding<Bool>, content: @escaping () -> Content) -> some View {
@@ -264,7 +274,6 @@ private struct TransparentNonAnimatableFullScreenModifier<FullScreenContent: Vie
                 }
             })
     }
-
 }
 
 private struct FullScreenCoverBackgroundRemovalView: UIViewRepresentable {
@@ -286,6 +295,12 @@ private struct FullScreenCoverBackgroundRemovalView: UIViewRepresentable {
     func updateUIView(_ uiView: UIView, context: Context) {}
 
 }
+
+#endif
+
+// MARK: - KeyboardHeightHelper
+
+#if os(iOS)
 
 class KeyboardHeightHelper: ObservableObject {
 
@@ -315,3 +330,13 @@ class KeyboardHeightHelper: ObservableObject {
         }
     }
 }
+
+#else
+
+class KeyboardHeightHelper: ObservableObject {
+
+    @Published var keyboardHeight: CGFloat = 0
+    @Published var keyboardDisplayed: Bool = false
+}
+
+#endif

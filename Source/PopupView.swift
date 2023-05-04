@@ -46,19 +46,9 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     }
     
     public enum PopupType {
-
         case `default`
         case toast
         case floater(verticalPadding: CGFloat = 10, useSafeAreaInset: Bool = true)
-
-        func shouldBeCentered() -> Bool {
-            switch self {
-            case .`default`:
-                return true
-            default:
-                return false
-            }
-        }
     }
 
     public enum Position {
@@ -231,6 +221,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     // MARK: - Private Properties
 
     @Environment(\.safeAreaInsets) private var safeAreaInsets
+
     @StateObject var keyboardHeightHelper = KeyboardHeightHelper()
 
     /// The rect and safe area of the hosting controller
@@ -277,7 +268,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
             }
         case .floater(let verticalPadding, let useSafeAreaInset):
             if position == .bottom {
-                return presenterContentRect.height - sheetContentRect.height + safeAreaInsets.bottom + verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0)
+                return presenterContentRect.height - sheetContentRect.height + safeAreaInsets.bottom + verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0) - 28
             } else {
                 return verticalPadding + (useSafeAreaInset ? 0 : -safeAreaInsets.top)
             }
@@ -302,12 +293,12 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     }
 
     private var screenSize: CGSize {
-        #if os(iOS) || os(tvOS)
+        #if os(iOS)
         return UIScreen.main.bounds.size
         #elseif os(watchOS)
         return WKInterfaceDevice.current().screenBounds.size
         #else
-        return NSScreen.main?.frame.size ?? .zero
+        return CGSize(width: presenterContentRect.size.width, height: presenterContentRect.size.height - presenterContentRect.minY)
         #endif
     }
 
@@ -322,7 +313,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
             .frameGetter($presenterContentRect)
             .overlay(
                 Group {
-                    if showContent {
+                    if showContent, presenterContentRect != .zero {
                         sheet()
                     }
                 }

@@ -1,14 +1,14 @@
 //
-//  ExampleApp.swift
-//  Example
+//  PopupExampleApp.swift
+//  PopupExample
 //
-//  Created by Alisa Mylnikova on 08/10/2020.
+//  Created by Alisa Mylnikova on 04.05.2023.
 //
 
 import SwiftUI
 
 @main
-struct ExampleApp: App {
+struct PopupExampleApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
