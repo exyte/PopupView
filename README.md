@@ -127,6 +127,7 @@ use `customize` closure in popup modifier:
 `closeOnTap` - true by default: enable/disable closing on tap on popup     
 `closeOnTapOutside` - false by default: enable/disable closing on tap on outside of popup     
 `backgroundColor` - Color.clear by default: change background color of outside area     
+`backgroundView` - custom background builder for outside area (if this one is set `backgroundColor` is ignored)    
 `isOpaque` - false by default: if true taps do not pass through popup's background and the popup is displayed on top of navbar. Always opaque if `closeOnTapOutside` is true. For more see section "Show over navbar"       
 `dismissCallback` - custom callback to call once the popup is dismissed      
 

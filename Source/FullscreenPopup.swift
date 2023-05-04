@@ -32,6 +32,9 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     /// Background color for outside area - default is `Color.clear`
     var backgroundColor: Color
 
+    /// Custom background view for outside area
+    var backgroundView: AnyView?
+
     /// If opaque taps do not pass through popup's background color. Always opaque if closeOnTapOutside is true
     var isOpaque: Bool
 
@@ -82,7 +85,8 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
          item: Binding<Item?> = .constant(nil),
          isBoolMode: Bool,
          params: Popup<Item, PopupContent>.PopupParameters,
-         view: @escaping () -> PopupContent) {
+         view: (() -> PopupContent)?,
+         itemView: ((Item) -> PopupContent)?) {
         self._isPresented = isPresented
         self._item = item
         self.isBoolMode = isBoolMode
@@ -91,33 +95,17 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         self.autohideIn = params.autohideIn
         self.closeOnTapOutside = params.closeOnTapOutside
         self.backgroundColor = params.backgroundColor
+        self.backgroundView = params.backgroundView
         self.isOpaque = params.isOpaque
         self.dismissCallback = params.dismissCallback
 
-        self.view = view
+        if let view = view {
+            self.view = view
+        }
+        if let itemView = itemView {
+            self.itemView = itemView
+        }
 
-        self.isPresentedRef = ClassReference(self.$isPresented)
-        self.itemRef = ClassReference(self.$item)
-    }
-
-    init(isPresented: Binding<Bool> = .constant(false),
-         item: Binding<Item?> = .constant(nil),
-         isBoolMode: Bool,
-         params: Popup<Item, PopupContent>.PopupParameters,
-         itemView: @escaping (Item) -> PopupContent) {
-        self._isPresented = isPresented
-        self._item = item
-        self.isBoolMode = isBoolMode
-
-        self.params = params
-        self.autohideIn = params.autohideIn
-        self.closeOnTapOutside = params.closeOnTapOutside
-        self.backgroundColor = params.backgroundColor
-        self.isOpaque = params.isOpaque
-        self.dismissCallback = params.dismissCallback
-
-        self.itemView = itemView
-    
         self.isPresentedRef = ClassReference(self.$isPresented)
         self.itemRef = ClassReference(self.$item)
     }
@@ -163,24 +151,31 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         }
     }
 
-    func backgroundColorView() -> some View {
-        backgroundColor.opacity(opacity)
-            .applyIf(closeOnTapOutside) { view in
-                view.contentShape(Rectangle())
+    func createBackgroundView() -> some View {
+        Group {
+            if let backgroundView = backgroundView {
+                backgroundView
+            } else {
+                backgroundColor
             }
-            .addTapIfNotTV(if: closeOnTapOutside) {
-                dismissSource = .tapOutside
-                isPresented = false
-                item = nil
-            }
-            .edgesIgnoringSafeArea(.all)
-            .animation(.linear(duration: 0.2), value: opacity)
+        }
+        .opacity(opacity)
+        .applyIf(closeOnTapOutside) { view in
+            view.contentShape(Rectangle())
+        }
+        .addTapIfNotTV(if: closeOnTapOutside) {
+            dismissSource = .tapOutside
+            isPresented = false
+            item = nil
+        }
+        .edgesIgnoringSafeArea(.all)
+        .animation(.linear(duration: 0.2), value: opacity)
     }
 
     func constructPopup() -> some View {
         Group {
             if showContent {
-                backgroundColorView()
+                createBackgroundView()
                     .modifier(getModifier())
             }
         }

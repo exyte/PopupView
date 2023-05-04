@@ -19,7 +19,8 @@ extension View {
                     isPresented: isPresented,
                     isBoolMode: true,
                     params: customize(Popup<Int, PopupContent>.PopupParameters()),
-                    view: view)
+                    view: view,
+                    itemView: nil)
             )
         }
 
@@ -33,6 +34,7 @@ extension View {
                     item: item,
                     isBoolMode: false,
                     params: customize(Popup<Item, PopupContent>.PopupParameters()),
+                    view: nil,
                     itemView: itemView)
             )
         }

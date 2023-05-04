@@ -88,6 +88,9 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
         /// Background color for outside area
         var backgroundColor: Color = .clear
 
+        /// Custom background view for outside area
+        var backgroundView: AnyView?
+
         /// If true taps do not pass through popup's background and the popup is displayed on top of navbar. Always opaque if closeOnTapOutside is true
         var isOpaque: Bool = false
 
@@ -138,6 +141,12 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
         public func backgroundColor(_ backgroundColor: Color) -> PopupParameters {
             var params = self
             params.backgroundColor = backgroundColor
+            return params
+        }
+
+        public func backgroundView<BackgroundView: View>(_ backgroundView: ()->(BackgroundView)) -> PopupParameters {
+            var params = self
+            params.backgroundView = AnyView(backgroundView())
             return params
         }
 
