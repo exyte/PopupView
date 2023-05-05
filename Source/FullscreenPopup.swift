@@ -39,9 +39,9 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     var isOpaque: Bool
 
     /// Is called on any close action
-    var dismissCallback: (DismissSource) -> ()
+    var userDismissCallback: (DismissSource) -> ()
 
-    var params: Popup<Item, PopupContent>.PopupParameters
+    var params: Popup<PopupContent>.PopupParameters
 
     var view: (() -> PopupContent)!
     var itemView: ((Item) -> PopupContent)!
@@ -70,7 +70,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     private var itemRef: ClassReference<Binding<Item?>>?
 
     /// holder for autohiding dispatch work (to be able to cancel it when needed)
-    private var dispatchWorkHolder = DispatchWorkHolder()
+    @State private var dispatchWorkHolder = DispatchWorkHolder()
 
     // MARK: - Internal
 
@@ -84,7 +84,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     init(isPresented: Binding<Bool> = .constant(false),
          item: Binding<Item?> = .constant(nil),
          isBoolMode: Bool,
-         params: Popup<Item, PopupContent>.PopupParameters,
+         params: Popup<PopupContent>.PopupParameters,
          view: (() -> PopupContent)?,
          itemView: ((Item) -> PopupContent)?) {
         self._isPresented = isPresented
@@ -97,7 +97,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         self.backgroundColor = params.backgroundColor
         self.backgroundView = params.backgroundView
         self.isOpaque = params.isOpaque
-        self.dismissCallback = params.dismissCallback
+        self.userDismissCallback = params.dismissCallback
 
         if let view = view {
             self.view = view
@@ -194,29 +194,20 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         }
         return nil
     }
-    
-    private func getModifier() -> Popup<Item, PopupContent> {
-        if let viewForItem {
-            return Popup(
-                isPresented: $isPresented,
-                item: $item,
-                params: params,
-                view: viewForItem,
-                shouldShowContent: shouldShowContent,
-                showContent: showContent,
-                dismissSource: $dismissSource,
-                animationCompletedCallback: onAnimationCompleted
-            )
-        } else {
-            return Popup(
-                isPresented: $isPresented,
-                params: params,
-                view: view,
-                shouldShowContent: shouldShowContent,
-                showContent: showContent,
-                dismissSource: $dismissSource,
-                animationCompletedCallback: onAnimationCompleted)
-        }
+
+    private func getModifier() -> Popup<PopupContent> {
+        return Popup(
+            params: params,
+            view: viewForItem != nil ? viewForItem! : view,
+            shouldShowContent: shouldShowContent,
+            showContent: showContent,
+            animationCompletedCallback: onAnimationCompleted,
+            dismissCallback: { source in
+                dismissSource = source
+                isPresented = false
+                item = nil
+            }
+        )
     }
 
     func appearAction(sheetPresented: Bool) {
@@ -249,7 +240,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             showSheet = false
         }
         tempItem = nil
-        dismissCallback(dismissSource ?? .binding)
+        userDismissCallback(dismissSource ?? .binding)
     }
 
     func setupAutohide() {
@@ -261,9 +252,9 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             // which would create a retain cycle with the work holder itself.
 
             dispatchWorkHolder.work = DispatchWorkItem(block: { [weak isPresentedRef, weak itemRef] in
+                dismissSource = .autohide
                 isPresentedRef?.value.wrappedValue = false
                 itemRef?.value.wrappedValue = nil
-                dismissSource = .autohide
                 dispatchWorkHolder.work = nil
             })
             if sheetPresented, let work = dispatchWorkHolder.work {

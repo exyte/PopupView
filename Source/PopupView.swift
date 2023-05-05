@@ -16,19 +16,14 @@ public enum DismissSource {
     case autohide
 }
 
-public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
+public struct Popup<PopupContent: View>: ViewModifier {
 
-    init(isPresented: Binding<Bool> = .constant(false),
-         item: Binding<Item?> = .constant(nil),
-         params: Popup<Item, PopupContent>.PopupParameters,
+    init(params: Popup<PopupContent>.PopupParameters,
          view: @escaping () -> PopupContent,
          shouldShowContent: Bool = true,
          showContent: Bool = true,
-         dismissSource: Binding<DismissSource?>,
-         animationCompletedCallback: @escaping () -> ()) {
-
-        self._isPresented = isPresented
-        self._item = item
+         animationCompletedCallback: @escaping () -> (),
+         dismissCallback: @escaping (DismissSource)->()) {
 
         self.type = params.type
         self.position = params.position
@@ -41,8 +36,8 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
 
         self.shouldShowContent = shouldShowContent
         self.showContent = showContent
-        self._dismissSource = dismissSource
         self.animationCompletedCallback = animationCompletedCallback
+        self.dismissCallback = dismissCallback
     }
     
     public enum PopupType {
@@ -186,10 +181,6 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
 
     // MARK: - Public Properties
 
-    /// Tells if the sheet should be presented or not
-    @Binding var isPresented: Bool
-    @Binding var item: Item?
-
     var type: PopupType
     var position: Position
 
@@ -210,11 +201,11 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     /// ... once hiding animation is finished remove popup from the memory using this flag
     var showContent: Bool
 
-    /// Set dismiss souce to pass to dismiss callback
-    @Binding private var dismissSource: DismissSource?
-
     /// called on showing/hiding sliding animation completed
     var animationCompletedCallback: () -> ()
+
+    /// Call dismiss callback with dismiss source
+    var dismissCallback: (DismissSource)->()
 
     var view: () -> PopupContent
 
@@ -293,13 +284,13 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
     }
 
     private var screenSize: CGSize {
-        #if os(iOS)
+#if os(iOS)
         return UIScreen.main.bounds.size
-        #elseif os(watchOS)
+#elseif os(watchOS)
         return WKInterfaceDevice.current().screenBounds.size
-        #else
+#else
         return CGSize(width: presenterContentRect.size.width, height: presenterContentRect.size.height - presenterContentRect.minY)
-        #endif
+#endif
     }
 
     private var screenHeight: CGFloat {
@@ -325,8 +316,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
         let sheet = ZStack {
             self.view()
                 .addTapIfNotTV(if: closeOnTap) {
-                    dismissSource = .tapInside
-                    dismiss()
+                    dismissCallback(.tapInside)
                 }
                 .frameGetter($sheetContentRect)
                 .position(x: screenSize.width/2, y: sheetContentRect.height/2 + currentOffset)
@@ -336,7 +326,7 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
                 .animation(animation, value: currentOffset)
         }
 
-        #if !os(tvOS)
+#if !os(tvOS)
         let drag = DragGesture()
             .updating($dragState) { drag, state, _ in
                 state = .dragging(translation: drag.translation)
@@ -348,15 +338,15 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
                 $0.offset(y: dragOffset())
                     .simultaneousGesture(drag)
             }
-        #else
+#else
         return sheet
-        #endif
+#endif
     }
 
-    #if !os(tvOS)
+#if !os(tvOS)
     func dragOffset() -> CGFloat {
         if (position == .bottom && dragState.translation.height > 0) ||
-           (position == .top && dragState.translation.height < 0) {
+            (position == .top && dragState.translation.height < 0) {
             return dragState.translation.height
         }
         return lastDragPosition
@@ -370,14 +360,8 @@ public struct Popup<Item: Equatable, PopupContent: View>: ViewModifier {
             withAnimation {
                 lastDragPosition = 0
             }
-            dismissSource = .drag
-            dismiss()
+            dismissCallback(.drag)
         }
     }
-    #endif
-    
-    private func dismiss() {
-        isPresented = false
-        item = nil
-    }
+#endif
 }

@@ -12,13 +12,13 @@ extension View {
     public func popup<PopupContent: View>(
         isPresented: Binding<Bool>,
         @ViewBuilder view: @escaping () -> PopupContent,
-        customize: @escaping (Popup<Int, PopupContent>.PopupParameters) -> Popup<Int, PopupContent>.PopupParameters
+        customize: @escaping (Popup<PopupContent>.PopupParameters) -> Popup<PopupContent>.PopupParameters
         ) -> some View {
             self.modifier(
                 FullscreenPopup<Int, PopupContent>(
                     isPresented: isPresented,
                     isBoolMode: true,
-                    params: customize(Popup<Int, PopupContent>.PopupParameters()),
+                    params: customize(Popup<PopupContent>.PopupParameters()),
                     view: view,
                     itemView: nil)
             )
@@ -27,13 +27,13 @@ extension View {
     public func popup<Item: Equatable, PopupContent: View>(
         item: Binding<Item?>,
         @ViewBuilder itemView: @escaping (Item) -> PopupContent,
-        customize: @escaping (Popup<Item, PopupContent>.PopupParameters) -> Popup<Item, PopupContent>.PopupParameters
+        customize: @escaping (Popup<PopupContent>.PopupParameters) -> Popup<PopupContent>.PopupParameters
         ) -> some View {
             self.modifier(
                 FullscreenPopup<Item, PopupContent>(
                     item: item,
                     isBoolMode: false,
-                    params: customize(Popup<Item, PopupContent>.PopupParameters()),
+                    params: customize(Popup<PopupContent>.PopupParameters()),
                     view: nil,
                     itemView: itemView)
             )
