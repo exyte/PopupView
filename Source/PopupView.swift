@@ -274,6 +274,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
             }
             return -presenterContentRect.minY - safeAreaInsets.top - sheetContentRect.height
         } else {
+            if sheetContentRect.isEmpty {
+                return screenHeight * 2
+            }
             return screenHeight
         }
     }
