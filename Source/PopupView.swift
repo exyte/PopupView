@@ -319,7 +319,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
                     dismissCallback(.tapInside)
                 }
                 .frameGetter($sheetContentRect)
-                .position(x: screenSize.width/2, y: sheetContentRect.height/2 + currentOffset)
+                .position(x: (screenSize.width - safeAreaInsets.leading - safeAreaInsets.trailing)/2, y: sheetContentRect.height/2 + currentOffset)
                 .onAnimationCompleted(for: currentOffset) {
                     //animationCompletedCallback() TEMP: need to fix
                 }
