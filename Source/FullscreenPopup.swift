@@ -215,7 +215,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             dismissSource = nil
             showSheet = true // show transparent fullscreen sheet
             showContent = true // immediately load popup body
-            performWithDelay(0.01) {
+            performWithDelay(0.1) {
                 shouldShowContent = true // this will cause currentOffset change thus triggering the sliding showing animation
                 opacity = 1 // this will cause cross disolving animation for background color
                 setupAutohide()
