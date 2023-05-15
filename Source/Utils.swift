@@ -92,6 +92,33 @@ extension View {
     }
 }
 
+struct SafeAreaGetter: ViewModifier {
+
+    @Binding var safeArea: EdgeInsets
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                GeometryReader { proxy -> AnyView in
+                    DispatchQueue.main.async {
+                        let area = proxy.safeAreaInsets
+                        // This avoids an infinite layout loop
+                        if area != self.safeArea {
+                            self.safeArea = area
+                        }
+                    }
+                    return AnyView(EmptyView())
+                }
+            )
+    }
+}
+
+extension View {
+    public func safeAreaGetter(_ safeArea: Binding<EdgeInsets>) -> some View {
+        modifier(SafeAreaGetter(safeArea: safeArea))
+    }
+}
+
 // MARK: - AnimationCompletionObserver
 
 struct AnimationCompletionObserverModifier<Value>: AnimatableModifier where Value: VectorArithmetic, Value: Comparable {
@@ -182,59 +209,6 @@ extension View {
         modifier(AnimatableModifierDouble(bindedValue: value, completion: completion))
     }
 }
-
-// MARK: - SafeAreaInsets
-
-#if os(iOS)
-
-extension UIApplication {
-    var keyWindow: UIWindow? {
-        connectedScenes
-            .compactMap {
-                $0 as? UIWindowScene
-            }
-            .flatMap {
-                $0.windows
-            }
-            .first {
-                $0.isKeyWindow
-            }
-    }
-}
-
-private struct SafeAreaInsetsKey: EnvironmentKey {
-    static var defaultValue: EdgeInsets {
-        UIApplication.shared.keyWindow?.safeAreaInsets.swiftUiInsets ?? EdgeInsets()
-    }
-}
-
-extension EnvironmentValues {
-    var safeAreaInsets: EdgeInsets {
-        self[SafeAreaInsetsKey.self]
-    }
-}
-
-private extension UIEdgeInsets {
-    var swiftUiInsets: EdgeInsets {
-        EdgeInsets(top: top, leading: left, bottom: bottom, trailing: right)
-    }
-}
-
-#else
-
-private struct SafeAreaInsetsKey: EnvironmentKey {
-    static var defaultValue: EdgeInsets {
-        EdgeInsets()
-    }
-}
-
-extension EnvironmentValues {
-    var safeAreaInsets: EdgeInsets {
-        self[SafeAreaInsetsKey.self]
-    }
-}
-
-#endif
 
 // MARK: - TransparentNonAnimatingFullScreenCover
 

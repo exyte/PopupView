@@ -228,8 +228,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     // MARK: - Private Properties
 
-    @Environment(\.safeAreaInsets) private var safeAreaInsets
-
     @StateObject var keyboardHeightHelper = KeyboardHeightHelper()
 
     /// The rect and safe area of the hosting controller
@@ -237,6 +235,8 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     /// The rect and safe area of popup content
     @State private var sheetContentRect: CGRect = .zero
+
+    @State private var safeAreaInsets: EdgeInsets = EdgeInsets()
 
     /// Drag to dismiss gesture state
     @GestureState private var dragState = DragState.inactive
@@ -335,6 +335,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
     public func body(content: Content) -> some View {
         content
             .frameGetter($presenterContentRect)
+            .safeAreaGetter($safeAreaInsets)
             .overlay(
                 Group {
                     if showContent, presenterContentRect != .zero {

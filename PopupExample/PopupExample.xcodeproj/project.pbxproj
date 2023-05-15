@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5B1E02572A11F13F004172ED /* PopupWatchExample Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 5B1E02562A11F13F004172ED /* PopupWatchExample Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5B1E025C2A11F13F004172ED /* PopupWatchExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1E025B2A11F13F004172ED /* PopupWatchExampleApp.swift */; };
+		5B1E025E2A11F13F004172ED /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1E025D2A11F13F004172ED /* ContentView.swift */; };
+		5B1E02632A11F140004172ED /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B1E02622A11F140004172ED /* Preview Assets.xcassets */; };
+		5B1E026C2A11F5D4004172ED /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = 5B1E026B2A11F5D4004172ED /* PopupView */; };
+		5B1E026E2A11F819004172ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B1E026D2A11F819004172ED /* Assets.xcassets */; };
+		5B1E026F2A11F819004172ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B1E026D2A11F819004172ED /* Assets.xcassets */; };
 		5B1F0F5E2A03984D00C387EE /* PopupExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1F0F5D2A03984D00C387EE /* PopupExampleApp.swift */; };
 		5B1F0F602A03984D00C387EE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1F0F5F2A03984D00C387EE /* ContentView.swift */; };
 		5B1F0F622A03984E00C387EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B1F0F612A03984E00C387EE /* Assets.xcassets */; };
@@ -22,7 +29,37 @@
 		5B1F0F872A039B9300C387EE /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = 5B1F0F862A039B9300C387EE /* PopupView */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		5B1E02582A11F13F004172ED /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5B1F0F522A03984D00C387EE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5B1E02552A11F13F004172ED;
+			remoteInfo = "PopupWatchExample Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5B1E02662A11F140004172ED /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				5B1E02572A11F13F004172ED /* PopupWatchExample Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		5B1E02512A11F13F004172ED /* PopupWatchExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PopupWatchExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B1E02562A11F13F004172ED /* PopupWatchExample Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PopupWatchExample Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B1E025B2A11F13F004172ED /* PopupWatchExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupWatchExampleApp.swift; sourceTree = "<group>"; };
+		5B1E025D2A11F13F004172ED /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		5B1E02622A11F140004172ED /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		5B1E026D2A11F819004172ED /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5B1F0F5A2A03984D00C387EE /* PopupExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PopupExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B1F0F5D2A03984D00C387EE /* PopupExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupExampleApp.swift; sourceTree = "<group>"; };
 		5B1F0F5F2A03984D00C387EE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -41,6 +78,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		5B1E02532A11F13F004172ED /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B1E026C2A11F5D4004172ED /* PopupView in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5B1F0F572A03984D00C387EE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -52,11 +97,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5B1E025A2A11F13F004172ED /* PopupWatchExample Watch App */ = {
+			isa = PBXGroup;
+			children = (
+				5B1E025B2A11F13F004172ED /* PopupWatchExampleApp.swift */,
+				5B1E025D2A11F13F004172ED /* ContentView.swift */,
+				5B1E02612A11F140004172ED /* Preview Content */,
+			);
+			path = "PopupWatchExample Watch App";
+			sourceTree = "<group>";
+		};
+		5B1E02612A11F140004172ED /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				5B1E02622A11F140004172ED /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
 		5B1F0F512A03984D00C387EE = {
 			isa = PBXGroup;
 			children = (
+				5B1E026D2A11F819004172ED /* Assets.xcassets */,
 				5B1F0F6C2A03989100C387EE /* PopupView */,
 				5B1F0F5C2A03984D00C387EE /* PopupExample */,
+				5B1E025A2A11F13F004172ED /* PopupWatchExample Watch App */,
 				5B1F0F5B2A03984D00C387EE /* Products */,
 				5B1F0F852A039B9000C387EE /* Frameworks */,
 			);
@@ -66,6 +131,8 @@
 			isa = PBXGroup;
 			children = (
 				5B1F0F5A2A03984D00C387EE /* PopupExample.app */,
+				5B1E02512A11F13F004172ED /* PopupWatchExample.app */,
+				5B1E02562A11F13F004172ED /* PopupWatchExample Watch App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -132,6 +199,43 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		5B1E02502A11F13F004172ED /* PopupWatchExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5B1E026A2A11F140004172ED /* Build configuration list for PBXNativeTarget "PopupWatchExample" */;
+			buildPhases = (
+				5B1E024F2A11F13F004172ED /* Resources */,
+				5B1E02662A11F140004172ED /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5B1E02592A11F13F004172ED /* PBXTargetDependency */,
+			);
+			name = PopupWatchExample;
+			productName = PopupWatchExample;
+			productReference = 5B1E02512A11F13F004172ED /* PopupWatchExample.app */;
+			productType = "com.apple.product-type.application.watchapp2-container";
+		};
+		5B1E02552A11F13F004172ED /* PopupWatchExample Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5B1E02692A11F140004172ED /* Build configuration list for PBXNativeTarget "PopupWatchExample Watch App" */;
+			buildPhases = (
+				5B1E02522A11F13F004172ED /* Sources */,
+				5B1E02532A11F13F004172ED /* Frameworks */,
+				5B1E02542A11F13F004172ED /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "PopupWatchExample Watch App";
+			packageProductDependencies = (
+				5B1E026B2A11F5D4004172ED /* PopupView */,
+			);
+			productName = "PopupWatchExample Watch App";
+			productReference = 5B1E02562A11F13F004172ED /* PopupWatchExample Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
 		5B1F0F592A03984D00C387EE /* PopupExample */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5B1F0F692A03984E00C387EE /* Build configuration list for PBXNativeTarget "PopupExample" */;
@@ -162,6 +266,12 @@
 				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					5B1E02502A11F13F004172ED = {
+						CreatedOnToolsVersion = 14.3;
+					};
+					5B1E02552A11F13F004172ED = {
+						CreatedOnToolsVersion = 14.3;
+					};
 					5B1F0F592A03984D00C387EE = {
 						CreatedOnToolsVersion = 14.3;
 					};
@@ -181,16 +291,35 @@
 			projectRoot = "";
 			targets = (
 				5B1F0F592A03984D00C387EE /* PopupExample */,
+				5B1E02502A11F13F004172ED /* PopupWatchExample */,
+				5B1E02552A11F13F004172ED /* PopupWatchExample Watch App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		5B1E024F2A11F13F004172ED /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B1E02542A11F13F004172ED /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B1E02632A11F140004172ED /* Preview Assets.xcassets in Resources */,
+				5B1E026F2A11F819004172ED /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5B1F0F582A03984D00C387EE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				5B1F0F842A039AEA00C387EE /* Preview Assets.xcassets in Resources */,
+				5B1E026E2A11F819004172ED /* Assets.xcassets in Resources */,
 				5B1F0F622A03984E00C387EE /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -198,6 +327,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		5B1E02522A11F13F004172ED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5B1E025E2A11F13F004172ED /* ContentView.swift in Sources */,
+				5B1E025C2A11F13F004172ED /* PopupWatchExampleApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5B1F0F562A03984D00C387EE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -217,7 +355,107 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		5B1E02592A11F13F004172ED /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5B1E02552A11F13F004172ED /* PopupWatchExample Watch App */;
+			targetProxy = 5B1E02582A11F13F004172ED /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		5B1E02642A11F140004172ED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_KEY_CFBundleDisplayName = PopupWatchExample;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = exyte.PopupWatchExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		5B1E02652A11F140004172ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_KEY_CFBundleDisplayName = PopupWatchExample;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = exyte.PopupWatchExample;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		5B1E02672A11F140004172ED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"PopupWatchExample Watch App/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = PopupWatchExample;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKWatchOnly = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = exyte.PopupWatchExample.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.4;
+			};
+			name = Debug;
+		};
+		5B1E02682A11F140004172ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"PopupWatchExample Watch App/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = PopupWatchExample;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKWatchOnly = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = exyte.PopupWatchExample.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 9.4;
+			};
+			name = Release;
+		};
 		5B1F0F672A03984E00C387EE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -406,6 +644,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		5B1E02692A11F140004172ED /* Build configuration list for PBXNativeTarget "PopupWatchExample Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5B1E02672A11F140004172ED /* Debug */,
+				5B1E02682A11F140004172ED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5B1E026A2A11F140004172ED /* Build configuration list for PBXNativeTarget "PopupWatchExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5B1E02642A11F140004172ED /* Debug */,
+				5B1E02652A11F140004172ED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		5B1F0F552A03984D00C387EE /* Build configuration list for PBXProject "PopupExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -427,6 +683,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		5B1E026B2A11F5D4004172ED /* PopupView */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PopupView;
+		};
 		5B1F0F862A039B9300C387EE /* PopupView */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = PopupView;
