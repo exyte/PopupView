@@ -27,6 +27,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
         self.type = params.type
         self.position = params.position
+        self.appearFrom = params.appearFrom
         self.animation = params.animation
         self.dragToDismiss = params.dragToDismiss
         self.closeOnTap = params.closeOnTap
@@ -51,10 +52,19 @@ public struct Popup<PopupContent: View>: ViewModifier {
         case bottom
     }
 
+    public enum AppearFrom {
+        case top
+        case bottom
+        case left
+        case right
+    }
+
     public struct PopupParameters {
         var type: PopupType = .default
 
         var position: Position = .bottom
+
+        var appearFrom: AppearFrom?
 
         var animation: Animation = .easeOut(duration: 0.3)
 
@@ -90,6 +100,12 @@ public struct Popup<PopupContent: View>: ViewModifier {
         public func position(_ position: Position) -> PopupParameters {
             var params = self
             params.position = position
+            return params
+        }
+
+        public func appearFrom(_ appearFrom: AppearFrom) -> PopupParameters {
+            var params = self
+            params.appearFrom = appearFrom
             return params
         }
 
@@ -183,6 +199,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     var type: PopupType
     var position: Position
+    var appearFrom: AppearFrom?
 
     var animation: Animation
 
@@ -228,7 +245,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
     @State private var lastDragPosition: CGFloat = 0
     
     /// The offset when the popup is displayed
-    private var displayedOffset: CGFloat {
+    private var displayedOffsetY: CGFloat {
         if opaqueBackground {
             switch type {
             case .`default`:
@@ -267,23 +284,36 @@ public struct Popup<PopupContent: View>: ViewModifier {
     }
 
     /// The offset when the popup is hidden
-    private var hiddenOffset: CGFloat {
-        if position == .top {
+    private var hiddenOffset: CGPoint {
+        let from: AppearFrom
+        if let appearFrom = appearFrom {
+            from = appearFrom
+        }
+        else {
+            from = position == .top ? .top : .bottom
+        }
+
+        switch from {
+        case .top:
             if sheetContentRect.isEmpty {
-                return -1000
+                return CGPoint(x: 0, y: -screenHeight * 2)
             }
-            return -presenterContentRect.minY - safeAreaInsets.top - sheetContentRect.height
-        } else {
+            return CGPoint(x: 0, y: -presenterContentRect.minY - safeAreaInsets.top - sheetContentRect.height)
+        case .bottom:
             if sheetContentRect.isEmpty {
-                return screenHeight * 2
+                return CGPoint(x: 0, y: screenHeight * 2)
             }
-            return screenHeight
+            return CGPoint(x: 0, y: screenHeight)
+        case .left:
+            return CGPoint(x: -screenSize.width, y: displayedOffsetY)
+        case .right:
+            return CGPoint(x: screenSize.width, y: displayedOffsetY)
         }
     }
 
     /// The current offset, based on the **presented** property
-    private var currentOffset: CGFloat {
-        return shouldShowContent ? displayedOffset : hiddenOffset
+    private var currentOffset: CGPoint {
+        return shouldShowContent ? CGPoint(x: 0, y: displayedOffsetY) : hiddenOffset
     }
 
     private var screenSize: CGSize {
@@ -322,10 +352,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
                     dismissCallback(.tapInside)
                 }
                 .frameGetter($sheetContentRect)
-                .position(x: (screenSize.width - safeAreaInsets.leading - safeAreaInsets.trailing)/2, y: sheetContentRect.height/2 + currentOffset)
-                .onAnimationCompleted(for: currentOffset) {
+                .position(x: (screenSize.width - safeAreaInsets.leading - safeAreaInsets.trailing)/2 + currentOffset.x, y: sheetContentRect.height/2 + currentOffset.y)
+                //.onAnimationCompleted(for: currentOffset) {
                     //animationCompletedCallback() TEMP: need to fix
-                }
+                //}
                 .animation(animation, value: currentOffset)
         }
 
