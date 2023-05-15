@@ -121,6 +121,7 @@ use `customize` closure in popup modifier:
 - `useSafeAreaInset` - whether to include safe area insets in floater padding      
 
 `position` - top or bottom (for default case it just determines animation direction)  
+`appearFrom` - `top, bottom, left, right`: determines the direction of appearing animation. If left empty it copies `position` parameter: so appears from .top edge, if `position` is set to .top
 `animation` - custom animation for popup sliding onto screen  
 `autohideIn` - time after which popup should disappear    
 `dragToDismiss` - true by default: enable/disable drag to dismiss (upwards for .top popup types, downwards for .bottom and default type)    
@@ -181,7 +182,7 @@ github "Exyte/PopupView"
 
 ## Requirements
 
-* iOS 14+
+* iOS 14.0+ / macOS 11.0+ / tvOS 14.0+ / watchOS 7.0+
 * Xcode 12+ 
 
 ## Our other open source SwiftUI libraries
