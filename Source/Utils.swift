@@ -86,8 +86,8 @@ struct FrameGetter: ViewModifier {
     }
 }
 
-extension View {
-    public func frameGetter(_ frame: Binding<CGRect>) -> some View {
+internal extension View {
+    func frameGetter(_ frame: Binding<CGRect>) -> some View {
         modifier(FrameGetter(frame: frame))
     }
 }
