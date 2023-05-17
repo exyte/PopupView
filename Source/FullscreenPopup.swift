@@ -129,8 +129,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                         self.tempItem = newValue
                     }
                     appearAction(sheetPresented: newValue != nil)
-                }.onAppear {
+                }
+                .onAppear {
                     if item != nil {
+                        self.tempItem = item
                         appearAction(sheetPresented: true)
                     }
                 }
