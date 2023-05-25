@@ -276,7 +276,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
             }
         case .floater(let verticalPadding, let useSafeAreaInset):
             if position == .bottom {
-                return presenterContentRect.height - sheetContentRect.height + safeAreaInsets.bottom + verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0) - 28
+                return presenterContentRect.height - sheetContentRect.height + safeAreaInsets.bottom + verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0)
             } else {
                 return verticalPadding + (useSafeAreaInset ? 0 : -safeAreaInsets.top)
             }
