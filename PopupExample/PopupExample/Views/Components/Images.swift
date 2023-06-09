@@ -26,11 +26,11 @@ private struct AlertImageView<Content> : View where Content : View {
     }
 }
 
-struct FloatsImage: View {
-    let position: Position
+struct SmallFloatsImage: View {
+    let alignment: Alignment
     
     var body: some View {
-        AlertImageView(hex: "9265F8", alignment: position.toAligment()) { color in
+        AlertImageView(hex: "9265F8", alignment: alignment) { color in
             Rectangle()
                 .fill(color)
                 .frame(width: 24, height: 4)
@@ -38,17 +38,18 @@ struct FloatsImage: View {
                 .padding(.all, 8)
         }
     }
-    
-    enum Position {
-        case top, bottom
-        
-        func toAligment() -> Alignment {
-            switch self {
-            case .top:
-                return .top
-            case .bottom:
-                return .bottom
-            }
+}
+
+struct BigFloatsImage: View {
+    let alignment: Alignment
+
+    var body: some View {
+        AlertImageView(hex: "9265F8", alignment: alignment) { color in
+            Rectangle()
+                .fill(color)
+                .frame(width: 12, height: 4)
+                .cornerRadius(12)
+                .padding(.all, 8)
         }
     }
 }

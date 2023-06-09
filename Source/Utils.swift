@@ -190,7 +190,6 @@ struct AnimatableModifierDouble: AnimatableModifier {
         let delta = 0.1
         if animatableData > targetValue - delta &&
             animatableData < targetValue + delta {
-            //print("check", animatableData, targetValue)
             AnimatableModifierDouble.done = true
             DispatchQueue.main.async {
                 self.completion()

@@ -85,7 +85,7 @@ struct ContentView : View {
                 .type(.floater())
                 .position(.top)
                 .animation(.spring())
-                //.autohideIn(2)
+                .autohideIn(2)
         }
 
     }

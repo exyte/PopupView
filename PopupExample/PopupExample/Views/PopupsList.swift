@@ -37,7 +37,7 @@ private struct SectionHeader: View {
 
 private struct PopupTypeView<Content> : View where Content : View {
     let title: String
-    let detail: String
+    var detail: String = ""
     @ViewBuilder let icon: () -> Content
     
     var body: some View {
@@ -64,160 +64,43 @@ private struct PopupTypeView<Content> : View where Content : View {
 }
 
 struct PopupsList: View {
-    @Binding var showingTopFirstFloat: Bool
-    @Binding var showingTopSecondFloat: Bool
-    @Binding var showingBottomFirstFloat: Bool
-    @Binding var showingBottomSecondFloat: Bool
-    
-    @Binding var showingTopFirstToast: Bool
-    @Binding var showingTopSecondToast: Bool
-    @Binding var showingBottomFirstToast: Bool
-    @Binding var showingBottomSecondToast: Bool
-    
-    @Binding var middleItem: SomeItem?
-    @Binding var showingBottomFirstPopup: Bool
-    @Binding var showingBottomSecondPopup: Bool
-#if os(iOS)
-    @Binding var showingFirstActionSheet: Bool
-    @Binding var showingSecondActionSheet: Bool
-#endif
-    
+    @Binding var floatsBig: FloatsStateBig
+    @Binding var floatsSmall: FloatsStateSmall
+    @Binding var toasts: ToastsState
+    @Binding var popups: PopupsState
+    @Binding var actionSheets: ActionSheetsState
+
+    let hideAll: () -> ()
+
     var body: some View {
-        let hideAll: () -> () = {
-            self.showingTopFirstFloat = false
-            self.showingTopSecondFloat = false
-            self.showingBottomFirstFloat = false
-            self.showingBottomSecondFloat = false
-            
-            self.showingTopFirstToast = false
-            self.showingTopSecondToast = false
-            self.showingBottomFirstToast = false
-            self.showingBottomSecondToast = false
-            
-            self.middleItem = nil
-            self.showingBottomFirstPopup = false
-            self.showingBottomSecondPopup = false
-            
-#if os(iOS)
-            self.showingFirstActionSheet = false
-            self.showingSecondActionSheet = false
-#endif
-        }
-        
-        return ZStack {
+        ZStack {
             Rectangle()
                 .fill(Color(hex: "F7F7F9"))
                 .ignoresSafeArea()
             
             ScrollView {
                 LazyVStack(spacing: 12) {
-#if os(macOS)
-                    Color.clear.padding(.bottom, 40)
-#endif
+                    safeSpaceForMac()
+
                     Group {
                         SectionHeader(name: "Floats", count: 4)
                             .padding(.bottom, 12)
                         
-                        PopupButton(isShowing: $showingTopFirstFloat, hideAll: hideAll) {
-                            PopupTypeView(
-                                title: "Top version 1",
-                                detail: "Top float with a picture and one button"
-                            ) {
-                                FloatsImage(position: .top)
-                            }
-                        }
-                        PopupButton(isShowing: $showingTopSecondFloat, hideAll: hideAll) {
-                            PopupTypeView(
-                                title: "Top version 2",
-                                detail: "Top float with a picture"
-                            ) {
-                                FloatsImage(position: .top)
-                            }
-                        }
-                        PopupButton(isShowing: $showingBottomFirstFloat, hideAll: hideAll) {
-                            PopupTypeView(
-                                title: "Bottom version 1",
-                                detail: "Bottom float with a picture"
-                            ) {
-                                FloatsImage(position: .bottom)
-                            }
-                        }
-                        PopupButton(isShowing: $showingBottomSecondFloat, hideAll: hideAll) {
-                            PopupTypeView(
-                                title: "Bottom version 2",
-                                detail: "Bottom float with a picture"
-                            ) {
-                                FloatsImage(position: .bottom)
-                            }
-                        }
+                        floatsSection()
                     }
                     
                     Group {
                         SectionHeader(name: "Toasts", count: 4)
                             .padding(EdgeInsets(top: 20, leading: 0, bottom: 12, trailing: 0))
                         
-                        PopupButton(isShowing: $showingTopFirstToast, hideAll: hideAll) {
-                            PopupTypeView(
-                                title: "Top version 1",
-                                detail: "Top toast only text"
-                            ) {
-                                ToastImage(position: .top)
-                            }
-                        }
-                        PopupButton(isShowing: $showingTopSecondToast, hideAll: hideAll) {
-                            PopupTypeView(
-                            title: "Top version 2",
-                            detail: "Top float with picture"
-                        ) {
-                            ToastImage(position: .top)
-                        }
-                        }
-                        PopupButton(isShowing: $showingBottomFirstToast, hideAll: hideAll) {
-                            PopupTypeView(
-                                title: "Bottom version 1",
-                                detail: "Bottom float with a picture and two buttons"
-                            ) {
-                                ToastImage(position: .bottom)
-                            }
-                        }
-                        PopupButton(isShowing: $showingBottomSecondToast, hideAll: hideAll) {
-                            PopupTypeView(
-                                title: "Bottom version 2",
-                                detail: "Bottom float with a picture"
-                            ) {
-                                ToastImage(position: .bottom)
-                            }
-                        }
+                        toastsSection()
                     }
                     
                     Group {
                         SectionHeader(name: "Popups", count: 3)
                             .padding(EdgeInsets(top: 20, leading: 0, bottom: 12, trailing: 0))
 
-                        ItemPopupButton(item: $middleItem, hideAll: hideAll) {
-                            PopupTypeView(
-                                title: "Middle",
-                                detail: "Popup in the middle of the screen with a picture"
-                            ) {
-                                PopupImage(style: .default)
-                            }
-                        }
-                        PopupButton(isShowing: $showingBottomFirstPopup, hideAll: hideAll) {
-                            PopupTypeView(
-                                title: "Bottom version 1",
-                                detail: "Popup bottom"
-                            ) {
-                                PopupImage(style: .bottomFirst)
-                            }
-                        }
-                        PopupButton(isShowing: $showingBottomSecondPopup, hideAll: hideAll) {
-                            PopupTypeView(
-                                title: "Bottom version 2",
-                                detail: "Popup bottom"
-                            ) {
-                                PopupImage(style: .bottomSecond)
-                            }
-                        }
+                        popupsSection()
                     }
                     
 #if os(iOS)
@@ -225,34 +108,203 @@ struct PopupsList: View {
                         SectionHeader(name: "Action sheets", count: 2)
                             .padding(EdgeInsets(top: 20, leading: 0, bottom: 12, trailing: 0))
                         
-                        PopupButton(isShowing: $showingFirstActionSheet, hideAll: hideAll) {
-                            PopupTypeView(
-                                title: "Version 1",
-                                detail: "Action sheets"
-                            ) {
-                                ActionSheetImage()
-                            }
-                        }
-                        PopupButton(isShowing: $showingSecondActionSheet, hideAll: hideAll) {
-                            PopupTypeView(
-                                title: "Version 2",
-                                detail: "Action sheets"
-                            ) {
-                                ActionSheetImage()
-                            }
-                        }
+                        actionSheetsSection()
                     }
 #endif
-#if os(macOS)
-                    Color.clear.padding(.bottom, 40)
-#endif
+                    safeSpaceForMac()
                 }
             }
             .padding(.top, 1)
         }
     }
-}
 
+    func safeSpaceForMac() -> some View {
+#if os(macOS)
+        Color.clear.padding(.bottom, 40)
+#else
+        EmptyView()
+#endif
+    }
+
+    @ViewBuilder
+    func floatsSection() -> some View {
+#if os(iOS)
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            floatsSectionSmall()
+        } else {
+            floatsSectionBig()
+        }
+#else
+        floatsSectionBig()
+#endif
+    }
+
+    @ViewBuilder
+    func floatsSectionSmall() -> some View {
+        PopupButton(isShowing: $floatsSmall.showingTopFirst, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Top version 1",
+                detail: "Top float with a picture and one button"
+            ) {
+                SmallFloatsImage(alignment: .top)
+            }
+        }
+        PopupButton(isShowing: $floatsSmall.showingTopSecond, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Top version 2",
+                detail: "Top float with a picture"
+            ) {
+                SmallFloatsImage(alignment: .top)
+            }
+        }
+        PopupButton(isShowing: $floatsSmall.showingBottomFirst, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Bottom version 1",
+                detail: "Bottom float with a picture"
+            ) {
+                SmallFloatsImage(alignment: .bottom)
+            }
+        }
+        PopupButton(isShowing: $floatsSmall.showingBottomSecond, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Bottom version 2",
+                detail: "Bottom float with a picture"
+            ) {
+                SmallFloatsImage(alignment: .bottom)
+            }
+        }
+    }
+
+    @ViewBuilder
+    func floatsSectionBig() -> some View {
+        PopupButton(isShowing: $floatsBig.showingTopLeading, hideAll: hideAll) {
+            PopupTypeView(title: "Top Leading") {
+                BigFloatsImage(alignment: .topLeading)
+            }
+        }
+        PopupButton(isShowing: $floatsBig.showingTop, hideAll: hideAll) {
+            PopupTypeView(title: "Top Center") {
+                BigFloatsImage(alignment: .top)
+            }
+        }
+        PopupButton(isShowing: $floatsBig.showingTopTrailing, hideAll: hideAll) {
+            PopupTypeView(title: "Top Trailing") {
+                BigFloatsImage(alignment: .topTrailing)
+            }
+        }
+
+        PopupButton(isShowing: $floatsBig.showingLeading, hideAll: hideAll) {
+            PopupTypeView(title: "Center Leading") {
+                BigFloatsImage(alignment: .leading)
+            }
+        }
+        PopupButton(isShowing: $floatsBig.showingTrailing, hideAll: hideAll) {
+            PopupTypeView(title: "Center Trailing") {
+                BigFloatsImage(alignment: .trailing)
+            }
+        }
+
+        PopupButton(isShowing: $floatsBig.showingBottomLeading, hideAll: hideAll) {
+            PopupTypeView(title: "Bottom Leading") {
+                BigFloatsImage(alignment: .bottomLeading)
+            }
+        }
+        PopupButton(isShowing: $floatsBig.showingBottom, hideAll: hideAll) {
+            PopupTypeView(title: "Bottom Center") {
+                BigFloatsImage(alignment: .bottom)
+            }
+        }
+        PopupButton(isShowing: $floatsBig.showingBottomTrailing, hideAll: hideAll) {
+            PopupTypeView(title: "Bottom Trailing") {
+                BigFloatsImage(alignment: .bottomTrailing)
+            }
+        }
+    }
+
+    @ViewBuilder
+    func toastsSection() -> some View {
+        PopupButton(isShowing: $toasts.showingTopFirst, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Top version 1",
+                detail: "Top toast only text"
+            ) {
+                ToastImage(position: .top)
+            }
+        }
+        PopupButton(isShowing: $toasts.showingTopSecond, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Top version 2",
+                detail: "Top float with picture"
+            ) {
+                ToastImage(position: .top)
+            }
+        }
+        PopupButton(isShowing: $toasts.showingBottomFirst, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Bottom version 1",
+                detail: "Bottom float with a picture and two buttons"
+            ) {
+                ToastImage(position: .bottom)
+            }
+        }
+        PopupButton(isShowing: $toasts.showingBottomSecond, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Bottom version 2",
+                detail: "Bottom float with a picture"
+            ) {
+                ToastImage(position: .bottom)
+            }
+        }
+    }
+
+    @ViewBuilder
+    func popupsSection() -> some View {
+        ItemPopupButton(item: $popups.middleItem, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Middle",
+                detail: "Popup in the middle of the screen with a picture"
+            ) {
+                PopupImage(style: .default)
+            }
+        }
+        PopupButton(isShowing: $popups.showingBottomFirst, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Bottom version 1",
+                detail: "Popup bottom"
+            ) {
+                PopupImage(style: .bottomFirst)
+            }
+        }
+        PopupButton(isShowing: $popups.showingBottomSecond, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Bottom version 2",
+                detail: "Popup bottom"
+            ) {
+                PopupImage(style: .bottomSecond)
+            }
+        }
+    }
+
+    @ViewBuilder
+    func actionSheetsSection() -> some View {
+        PopupButton(isShowing: $actionSheets.showingFirst, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Version 1",
+                detail: "Action sheets"
+            ) {
+                ActionSheetImage()
+            }
+        }
+        PopupButton(isShowing: $actionSheets.showingSecond, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Version 2",
+                detail: "Action sheets"
+            ) {
+                ActionSheetImage()
+            }
+        }
+    }
+}
 
 struct PopupsList_Previews: PreviewProvider {
     static var previews: some View {
@@ -265,7 +317,7 @@ struct PopupsList_Previews: PreviewProvider {
                 title: "Top version 1",
                 detail: "Top float with a picture and one button"
             ) {
-                FloatsImage(position: .top)
+                BigFloatsImage(alignment: .top)
             }
         }
     }

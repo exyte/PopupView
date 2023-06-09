@@ -16,17 +16,21 @@
 		5B1E026F2A11F819004172ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B1E026D2A11F819004172ED /* Assets.xcassets */; };
 		5B1F0F5E2A03984D00C387EE /* PopupExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1F0F5D2A03984D00C387EE /* PopupExampleApp.swift */; };
 		5B1F0F602A03984D00C387EE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1F0F5F2A03984D00C387EE /* ContentView.swift */; };
-		5B1F0F622A03984E00C387EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B1F0F612A03984E00C387EE /* Assets.xcassets */; };
 		5B1F0F702A039A5900C387EE /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1F0F6F2A039A5900C387EE /* Utils.swift */; };
 		5B1F0F7B2A039A7500C387EE /* PopupsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1F0F722A039A7500C387EE /* PopupsList.swift */; };
 		5B1F0F7C2A039A7500C387EE /* PopupButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1F0F742A039A7500C387EE /* PopupButton.swift */; };
 		5B1F0F7D2A039A7500C387EE /* Images.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1F0F752A039A7500C387EE /* Images.swift */; };
-		5B1F0F7E2A039A7500C387EE /* Floats.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1F0F772A039A7500C387EE /* Floats.swift */; };
+		5B1F0F7E2A039A7500C387EE /* FloatsSmall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1F0F772A039A7500C387EE /* FloatsSmall.swift */; };
 		5B1F0F7F2A039A7500C387EE /* Toasts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1F0F782A039A7500C387EE /* Toasts.swift */; };
 		5B1F0F802A039A7500C387EE /* ActionSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1F0F792A039A7500C387EE /* ActionSheets.swift */; };
 		5B1F0F812A039A7500C387EE /* Popups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1F0F7A2A039A7500C387EE /* Popups.swift */; };
 		5B1F0F842A039AEA00C387EE /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B1F0F832A039AEA00C387EE /* Preview Assets.xcassets */; };
 		5B1F0F872A039B9300C387EE /* PopupView in Frameworks */ = {isa = PBXBuildFile; productRef = 5B1F0F862A039B9300C387EE /* PopupView */; };
+		5B86760B2A32FC39006289C8 /* FloatsBig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B86760A2A32FC39006289C8 /* FloatsBig.swift */; };
+		5B8676112A330543006289C8 /* NunitoSans_7pt-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5B86760D2A330543006289C8 /* NunitoSans_7pt-Medium.ttf */; };
+		5B8676122A330543006289C8 /* NunitoSans_7pt-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5B86760E2A330543006289C8 /* NunitoSans_7pt-Light.ttf */; };
+		5B8676132A330543006289C8 /* NunitoSans_7pt-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5B86760F2A330543006289C8 /* NunitoSans_7pt-Regular.ttf */; };
+		5B8676142A330543006289C8 /* NunitoSans_7pt-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5B8676102A330543006289C8 /* NunitoSans_7pt-Bold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,18 +67,23 @@
 		5B1F0F5A2A03984D00C387EE /* PopupExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PopupExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B1F0F5D2A03984D00C387EE /* PopupExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupExampleApp.swift; sourceTree = "<group>"; };
 		5B1F0F5F2A03984D00C387EE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		5B1F0F612A03984E00C387EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5B1F0F632A03984E00C387EE /* PopupExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PopupExample.entitlements; sourceTree = "<group>"; };
 		5B1F0F6C2A03989100C387EE /* PopupView */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = PopupView; path = ..; sourceTree = "<group>"; };
 		5B1F0F6F2A039A5900C387EE /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		5B1F0F722A039A7500C387EE /* PopupsList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopupsList.swift; sourceTree = "<group>"; };
 		5B1F0F742A039A7500C387EE /* PopupButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopupButton.swift; sourceTree = "<group>"; };
 		5B1F0F752A039A7500C387EE /* Images.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Images.swift; sourceTree = "<group>"; };
-		5B1F0F772A039A7500C387EE /* Floats.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Floats.swift; sourceTree = "<group>"; };
+		5B1F0F772A039A7500C387EE /* FloatsSmall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FloatsSmall.swift; sourceTree = "<group>"; };
 		5B1F0F782A039A7500C387EE /* Toasts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Toasts.swift; sourceTree = "<group>"; };
 		5B1F0F792A039A7500C387EE /* ActionSheets.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionSheets.swift; sourceTree = "<group>"; };
 		5B1F0F7A2A039A7500C387EE /* Popups.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Popups.swift; sourceTree = "<group>"; };
 		5B1F0F832A039AEA00C387EE /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		5B86760A2A32FC39006289C8 /* FloatsBig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatsBig.swift; sourceTree = "<group>"; };
+		5B86760D2A330543006289C8 /* NunitoSans_7pt-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NunitoSans_7pt-Medium.ttf"; sourceTree = "<group>"; };
+		5B86760E2A330543006289C8 /* NunitoSans_7pt-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NunitoSans_7pt-Light.ttf"; sourceTree = "<group>"; };
+		5B86760F2A330543006289C8 /* NunitoSans_7pt-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NunitoSans_7pt-Regular.ttf"; sourceTree = "<group>"; };
+		5B8676102A330543006289C8 /* NunitoSans_7pt-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NunitoSans_7pt-Bold.ttf"; sourceTree = "<group>"; };
+		5B8676152A33156D006289C8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,11 +149,12 @@
 		5B1F0F5C2A03984D00C387EE /* PopupExample */ = {
 			isa = PBXGroup;
 			children = (
+				5B8676152A33156D006289C8 /* Info.plist */,
+				5B86760C2A330543006289C8 /* Font */,
 				5B1F0F712A039A7500C387EE /* Views */,
 				5B1F0F5D2A03984D00C387EE /* PopupExampleApp.swift */,
 				5B1F0F5F2A03984D00C387EE /* ContentView.swift */,
 				5B1F0F6F2A039A5900C387EE /* Utils.swift */,
-				5B1F0F612A03984E00C387EE /* Assets.xcassets */,
 				5B1F0F632A03984E00C387EE /* PopupExample.entitlements */,
 				5B1F0F822A039AEA00C387EE /* Preview Content */,
 			);
@@ -173,7 +183,8 @@
 		5B1F0F762A039A7500C387EE /* Examples */ = {
 			isa = PBXGroup;
 			children = (
-				5B1F0F772A039A7500C387EE /* Floats.swift */,
+				5B1F0F772A039A7500C387EE /* FloatsSmall.swift */,
+				5B86760A2A32FC39006289C8 /* FloatsBig.swift */,
 				5B1F0F782A039A7500C387EE /* Toasts.swift */,
 				5B1F0F792A039A7500C387EE /* ActionSheets.swift */,
 				5B1F0F7A2A039A7500C387EE /* Popups.swift */,
@@ -195,6 +206,17 @@
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
+		};
+		5B86760C2A330543006289C8 /* Font */ = {
+			isa = PBXGroup;
+			children = (
+				5B86760D2A330543006289C8 /* NunitoSans_7pt-Medium.ttf */,
+				5B86760E2A330543006289C8 /* NunitoSans_7pt-Light.ttf */,
+				5B86760F2A330543006289C8 /* NunitoSans_7pt-Regular.ttf */,
+				5B8676102A330543006289C8 /* NunitoSans_7pt-Bold.ttf */,
+			);
+			path = Font;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
@@ -319,8 +341,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				5B1F0F842A039AEA00C387EE /* Preview Assets.xcassets in Resources */,
+				5B8676142A330543006289C8 /* NunitoSans_7pt-Bold.ttf in Resources */,
+				5B8676132A330543006289C8 /* NunitoSans_7pt-Regular.ttf in Resources */,
+				5B8676122A330543006289C8 /* NunitoSans_7pt-Light.ttf in Resources */,
 				5B1E026E2A11F819004172ED /* Assets.xcassets in Resources */,
-				5B1F0F622A03984E00C387EE /* Assets.xcassets in Resources */,
+				5B8676112A330543006289C8 /* NunitoSans_7pt-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,8 +371,9 @@
 				5B1F0F7D2A039A7500C387EE /* Images.swift in Sources */,
 				5B1F0F5E2A03984D00C387EE /* PopupExampleApp.swift in Sources */,
 				5B1F0F7B2A039A7500C387EE /* PopupsList.swift in Sources */,
-				5B1F0F7E2A039A7500C387EE /* Floats.swift in Sources */,
+				5B1F0F7E2A039A7500C387EE /* FloatsSmall.swift in Sources */,
 				5B1F0F7F2A039A7500C387EE /* Toasts.swift in Sources */,
+				5B86760B2A32FC39006289C8 /* FloatsBig.swift in Sources */,
 				5B1F0F7C2A039A7500C387EE /* PopupButton.swift in Sources */,
 				5B1F0F702A039A5900C387EE /* Utils.swift in Sources */,
 			);
@@ -576,6 +602,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"PopupExample/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PopupExample/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -586,7 +613,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.1;
@@ -614,6 +641,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"PopupExample/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PopupExample/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -624,7 +652,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.1;

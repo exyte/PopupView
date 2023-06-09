@@ -25,9 +25,11 @@ public struct Popup<PopupContent: View>: ViewModifier {
          animationCompletedCallback: @escaping () -> (),
          dismissCallback: @escaping (DismissSource)->()) {
 
-        self.type = params.type
-        self.position = params.position
+        self.position = params.position ?? params.type.defaultPosition
         self.appearFrom = params.appearFrom
+        self.verticalPadding = params.type.verticalPadding
+        self.horizontalPadding = params.type.horizontalPadding
+        self.useSafeAreaInset = params.type.useSafeAreaInset
         self.animation = params.animation
         self.dragToDismiss = params.dragToDismiss
         self.closeOnTap = params.closeOnTap
@@ -44,12 +46,73 @@ public struct Popup<PopupContent: View>: ViewModifier {
     public enum PopupType {
         case `default`
         case toast
-        case floater(verticalPadding: CGFloat = 10, useSafeAreaInset: Bool = true)
+        case floater(verticalPadding: CGFloat = 10, horizontalPadding: CGFloat = 10, useSafeAreaInset: Bool = true)
+
+        var defaultPosition: Position {
+            if case .default = self {
+                return .center
+            }
+            return .bottom
+        }
+
+        var verticalPadding: CGFloat {
+            if case let .floater(verticalPadding, _, _) = self {
+                return verticalPadding
+            }
+            return 0
+        }
+
+        var horizontalPadding: CGFloat {
+            if case let .floater(_, horizontalPadding, _) = self {
+                return horizontalPadding
+            }
+            return 0
+        }
+
+        var useSafeAreaInset: Bool {
+            if case let .floater(_, _, use) = self {
+                return use
+            }
+            return false
+        }
     }
 
     public enum Position {
+        case topLeading
         case top
+        case topTrailing
+
+        case leading
+        case center // usual popup
+        case trailing
+
+        case bottomLeading
         case bottom
+        case bottomTrailing
+
+        var isTop: Bool {
+            [.topLeading, .top, .topTrailing].contains(self)
+        }
+
+        var isVerticalCenter: Bool {
+            [.leading, .center, .trailing].contains(self)
+        }
+
+        var isBottom: Bool {
+            [.bottomLeading, .bottom, .bottomTrailing].contains(self)
+        }
+
+        var isLeading: Bool {
+            [.topLeading, .leading, .bottomLeading].contains(self)
+        }
+
+        var isHorizontalCenter: Bool {
+            [.top, .center, .bottom].contains(self)
+        }
+
+        var isTrailing: Bool {
+            [.topTrailing, .trailing, .bottomTrailing].contains(self)
+        }
     }
 
     public enum AppearFrom {
@@ -62,7 +125,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
     public struct PopupParameters {
         var type: PopupType = .default
 
-        var position: Position = .bottom
+        var position: Position?
 
         var appearFrom: AppearFrom?
 
@@ -197,9 +260,11 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     // MARK: - Public Properties
 
-    var type: PopupType
     var position: Position
     var appearFrom: AppearFrom?
+    var verticalPadding: CGFloat
+    var horizontalPadding: CGFloat
+    var useSafeAreaInset: Bool
 
     var animation: Animation
 
@@ -238,6 +303,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     @State private var safeAreaInsets: EdgeInsets = EdgeInsets()
 
+    /// Variable used to control what is animated and what is not
+    @State var actualCurrentOffset: CGPoint = .zero
+
     /// Drag to dismiss gesture state
     @GestureState private var dragState = DragState.inactive
 
@@ -247,40 +315,40 @@ public struct Popup<PopupContent: View>: ViewModifier {
     /// The offset when the popup is displayed
     private var displayedOffsetY: CGFloat {
         if opaqueBackground {
-            switch type {
-            case .`default`:
-                return (screenHeight - sheetContentRect.height)/2 - safeAreaInsets.top
-            case .toast:
-                if position == .bottom {
-                    return screenHeight - sheetContentRect.height - keyboardHeightHelper.keyboardHeight - safeAreaInsets.top
-                } else {
-                    return -safeAreaInsets.top
-                }
-            case .floater(let verticalPadding, let useSafeAreaInset):
-                if position == .bottom {
-                    return screenHeight - sheetContentRect.height - keyboardHeightHelper.keyboardHeight - verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0) - safeAreaInsets.top
-                } else {
-                    return verticalPadding + (useSafeAreaInset ? 0 :  -safeAreaInsets.top)
-                }
+            if position.isTop {
+                return verticalPadding + (useSafeAreaInset ? 0 :  -safeAreaInsets.top)
+            }
+            if position.isVerticalCenter {
+                return (screenHeight - sheetContentRect.height)/2 + (useSafeAreaInset ? 0 :  -safeAreaInsets.top)
+            }
+            if position.isBottom {
+                return screenHeight - sheetContentRect.height - keyboardHeightHelper.keyboardHeight - verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0) - safeAreaInsets.top
             }
         }
 
-        switch type {
-        case .`default`:
-            return (presenterContentRect.height - sheetContentRect.height)/2
-        case .toast:
-            if position == .bottom {
-                return presenterContentRect.height - sheetContentRect.height + safeAreaInsets.bottom + (keyboardHeightHelper.keyboardDisplayed ? -safeAreaInsets.bottom : 0)
-            } else {
-                return -safeAreaInsets.top
-            }
-        case .floater(let verticalPadding, let useSafeAreaInset):
-            if position == .bottom {
-                return presenterContentRect.height - sheetContentRect.height + safeAreaInsets.bottom + verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0)
-            } else {
-                return verticalPadding + (useSafeAreaInset ? 0 : -safeAreaInsets.top)
-            }
+        if position.isTop {
+            return verticalPadding + (useSafeAreaInset ? 0 : -safeAreaInsets.top)
         }
+        if position.isVerticalCenter {
+            return (presenterContentRect.height - sheetContentRect.height)/2
+        }
+        if position.isBottom {
+            return presenterContentRect.height - sheetContentRect.height + safeAreaInsets.bottom - verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0)
+        }
+        return 0
+    }
+
+    private var displayedOffsetX: CGFloat {
+        if position.isLeading {
+            return horizontalPadding + (useSafeAreaInset ? safeAreaInsets.leading : 0)
+        }
+        if position.isHorizontalCenter {
+            return (screenSize.width - sheetContentRect.width)/2 - (useSafeAreaInset ? safeAreaInsets.leading : 0)
+        }
+        if position.isTrailing {
+            return screenSize.width - sheetContentRect.width - horizontalPadding - (useSafeAreaInset ? safeAreaInsets.trailing : 0)
+        }
+        return 0
     }
 
     /// The offset when the popup is hidden
@@ -288,22 +356,24 @@ public struct Popup<PopupContent: View>: ViewModifier {
         let from: AppearFrom
         if let appearFrom = appearFrom {
             from = appearFrom
-        }
-        else {
-            from = position == .top ? .top : .bottom
+        } else if position.isLeading {
+            from = .left
+        } else if position.isTrailing {
+            from = .right
+        } else if position == .top {
+            from = .top
+        } else {
+            from = .bottom
         }
 
+        if sheetContentRect.isEmpty {
+            return .zero
+        }
         switch from {
         case .top:
-            if sheetContentRect.isEmpty {
-                return CGPoint(x: 0, y: -screenHeight * 2)
-            }
-            return CGPoint(x: 0, y: -presenterContentRect.minY - safeAreaInsets.top - sheetContentRect.height)
+            return CGPoint(x: displayedOffsetX, y: -presenterContentRect.minY - safeAreaInsets.top - sheetContentRect.height)
         case .bottom:
-            if sheetContentRect.isEmpty {
-                return CGPoint(x: 0, y: screenHeight * 2)
-            }
-            return CGPoint(x: 0, y: screenHeight)
+            return CGPoint(x: displayedOffsetX, y: screenHeight)
         case .left:
             return CGPoint(x: -screenSize.width, y: displayedOffsetY)
         case .right:
@@ -311,9 +381,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
         }
     }
 
-    /// The current offset, based on the **presented** property
-    private var currentOffset: CGPoint {
-        return shouldShowContent ? CGPoint(x: 0, y: displayedOffsetY) : hiddenOffset
+    /// Passes the desired position to actualCurrentOffset allowing to animate selectively
+    private var targetCurrentOffset: CGPoint {
+        return shouldShowContent ? CGPoint(x: displayedOffsetX, y: displayedOffsetY) : hiddenOffset
     }
 
     private var screenSize: CGSize {
@@ -353,11 +423,19 @@ public struct Popup<PopupContent: View>: ViewModifier {
                     dismissCallback(.tapInside)
                 }
                 .frameGetter($sheetContentRect)
-                .position(x: (screenSize.width - safeAreaInsets.leading - safeAreaInsets.trailing)/2 + currentOffset.x, y: sheetContentRect.height/2 + currentOffset.y)
+                .position(x: sheetContentRect.width/2 + actualCurrentOffset.x, y: sheetContentRect.height/2 + actualCurrentOffset.y)
                 //.onAnimationCompleted(for: currentOffset) {
                     //animationCompletedCallback() TEMP: need to fix
                 //}
-                .animation(animation, value: currentOffset)
+                .onChange(of: targetCurrentOffset) { newValue in
+                    if !shouldShowContent, newValue == hiddenOffset { // don't animate initial positioning outside the screen
+                        actualCurrentOffset = newValue
+                    } else {
+                        withAnimation(animation) {
+                            actualCurrentOffset = newValue
+                        }
+                    }
+                }
         }
 
 #if !os(tvOS)

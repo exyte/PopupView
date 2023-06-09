@@ -22,6 +22,27 @@ class SomeItem: Equatable {
     }
 }
 
+struct FloatsStateBig {
+    var showingTopLeading = false
+    var showingTop = false
+    var showingTopTrailing = false
+
+    var showingLeading = false
+    // center is a regular popup
+    var showingTrailing = false
+
+    var showingBottomLeading = false
+    var showingBottom = false
+    var showingBottomTrailing = false
+}
+
+struct FloatsStateSmall {
+    var showingTopFirst = false
+    var showingTopSecond = false
+    var showingBottomFirst = false
+    var showingBottomSecond = false
+}
+
 struct ToastsState {
     var showingTopFirst = false
     var showingTopSecond = false
@@ -41,18 +62,94 @@ struct ActionSheetsState {
 }
 
 struct ContentView : View {
-    @State var floats = ToastsState()
+    @State var floatsSmall = FloatsStateSmall()
+    @State var floatsBig = FloatsStateBig()
     @State var toasts = ToastsState()
     @State var popups = PopupsState()
     @State var actionSheets = ActionSheetsState()
 
     var body: some View {
         let commonView = createPopupsList()
-        
-        // MARK: - Designed floats
 
-            .popup(isPresented: $floats.showingTopFirst) {
-                FloatTopFirst(isShowing: $floats.showingTopFirst)
+        // MARK: - Designed floats big screen
+
+            .popup(isPresented: $floatsBig.showingTopLeading) {
+                FloatTopLeading()
+            } customize: {
+                $0
+                    .type(.floater())
+                    .position(.topLeading)
+                    .animation(.spring())
+            }
+
+            .popup(isPresented: $floatsBig.showingTop) {
+                FloatTop()
+            } customize: {
+                $0
+                    .type(.floater())
+                    .position(.top)
+                    .animation(.spring())
+            }
+
+            .popup(isPresented: $floatsBig.showingTopTrailing) {
+                FloatTopTrailing()
+            } customize: {
+                $0
+                    .type(.floater())
+                    .position(.topTrailing)
+                    .animation(.spring())
+            }
+
+            .popup(isPresented: $floatsBig.showingLeading) {
+                FloatLeading()
+            } customize: {
+                $0
+                    .type(.floater())
+                    .position(.leading)
+                    .animation(.spring())
+            }
+
+            .popup(isPresented: $floatsBig.showingTrailing) {
+                FloatTrailing()
+            } customize: {
+                $0
+                    .type(.floater())
+                    .position(.trailing)
+                    .animation(.spring())
+            }
+
+            .popup(isPresented: $floatsBig.showingBottomLeading) {
+                FloatBottomLeading()
+            } customize: {
+                $0
+                    .type(.floater())
+                    .position(.bottomLeading)
+                    .appearFrom(.bottom)
+                    .animation(.spring())
+            }
+
+            .popup(isPresented: $floatsBig.showingBottom) {
+                FloatBottom()
+            } customize: {
+                $0
+                    .type(.floater())
+                    .position(.bottom)
+                    .animation(.spring())
+            }
+
+            .popup(isPresented: $floatsBig.showingBottomTrailing) {
+                FloatBottomTrailing()
+            } customize: {
+                $0
+                    .type(.floater())
+                    .position(.bottomTrailing)
+                    .animation(.spring())
+            }
+
+        // MARK: - Designed floats small screen
+
+            .popup(isPresented: $floatsSmall.showingTopFirst) {
+                FloatTopFirst(isShowing: $floatsSmall.showingTopFirst)
             } customize: {
                 $0
                     .type(.floater())
@@ -63,7 +160,7 @@ struct ContentView : View {
                     }
             }
 
-            .popup(isPresented: $floats.showingTopSecond) {
+            .popup(isPresented: $floatsSmall.showingTopSecond) {
                 FloatTopSecond()
             } customize: {
                 $0
@@ -73,7 +170,7 @@ struct ContentView : View {
                     .autohideIn(3)
             }
 
-            .popup(isPresented: $floats.showingBottomFirst) {
+            .popup(isPresented: $floatsSmall.showingBottomFirst) {
                 FloatBottomFirst()
             } customize: {
                 $0
@@ -83,7 +180,7 @@ struct ContentView : View {
                     .autohideIn(2)
             }
 
-            .popup(isPresented: $floats.showingBottomSecond) {
+            .popup(isPresented: $floatsSmall.showingBottomSecond) {
                 FloatBottomSecond()
             } customize: {
                 $0
@@ -92,7 +189,7 @@ struct ContentView : View {
                     .animation(.spring())
                     .autohideIn(5)
             }
-        
+
         // MARK: - Designed toasts
 
             .popup(isPresented: $toasts.showingTopFirst) {
@@ -187,39 +284,15 @@ struct ContentView : View {
         return commonView
 #endif
     }
-    
+
     func createPopupsList() -> PopupsList {
-#if os(iOS)
-        PopupsList(
-            showingTopFirstFloat: $floats.showingTopFirst,
-            showingTopSecondFloat: $floats.showingTopSecond,
-            showingBottomFirstFloat: $floats.showingBottomFirst,
-            showingBottomSecondFloat: $floats.showingBottomSecond,
-            showingTopFirstToast: $toasts.showingTopFirst,
-            showingTopSecondToast: $toasts.showingTopSecond,
-            showingBottomFirstToast: $toasts.showingBottomFirst,
-            showingBottomSecondToast: $toasts.showingBottomSecond,
-            middleItem: $popups.middleItem,
-            showingBottomFirstPopup: $popups.showingBottomFirst,
-            showingBottomSecondPopup: $popups.showingBottomSecond,
-            showingFirstActionSheet: $actionSheets.showingFirst,
-            showingSecondActionSheet: $actionSheets.showingSecond
-        )
-#else
-        PopupsList(
-            showingTopFirstFloat: $floats.showingTopFirst,
-            showingTopSecondFloat: $floats.showingTopSecond,
-            showingBottomFirstFloat: $floats.showingBottomFirst,
-            showingBottomSecondFloat: $floats.showingBottomSecond,
-            showingTopFirstToast: $toasts.showingTopFirst,
-            showingTopSecondToast: $toasts.showingTopSecond,
-            showingBottomFirstToast: $toasts.showingBottomFirst,
-            showingBottomSecondToast: $toasts.showingBottomSecond,
-            middleItem: $popups.middleItem,
-            showingBottomFirstPopup: $popups.showingBottomFirst,
-            showingBottomSecondPopup: $popups.showingBottomSecond
-        )
-#endif
+        PopupsList(floatsBig: $floatsBig, floatsSmall: $floatsSmall, toasts: $toasts, popups: $popups, actionSheets: $actionSheets) {
+            floatsBig = FloatsStateBig()
+            floatsSmall = FloatsStateSmall()
+            toasts = ToastsState()
+            popups = PopupsState()
+            actionSheets = ActionSheetsState()
+        }
     }
 }
 
