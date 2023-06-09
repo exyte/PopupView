@@ -117,10 +117,11 @@ struct ContentView: View {
 use `customize` closure in popup modifier:
 
 `type` - toast, float or default. Floater has parameters of its own:     
-- `verticalPadding`  - padding which will define padding from the top or will be added to safe area if `useSafeAreaInset` is true     
+- `verticalPadding`  - padding which will define padding from the relative vertical edge or will be added to safe area if `useSafeAreaInset` is true   
+- `vhorizontalPadding`  - padding which will define padding from the relative horizontal edge or will be added to safe area if `useSafeAreaInset` is true      
 - `useSafeAreaInset` - whether to include safe area insets in floater padding      
 
-`position` - top or bottom (for default case it just determines animation direction)  
+`position` - topLeading, top, topTrailing, leading, center, trailing, bottomLeading, bottom, bottomTrailing 
 `appearFrom` - `top, bottom, left, right`: determines the direction of appearing animation. If left empty it copies `position` parameter: so appears from .top edge, if `position` is set to .top
 `animation` - custom animation for popup sliding onto screen  
 `autohideIn` - time after which popup should disappear    
