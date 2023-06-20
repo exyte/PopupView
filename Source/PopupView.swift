@@ -319,7 +319,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 return verticalPadding + (useSafeAreaInset ? 0 :  -safeAreaInsets.top)
             }
             if position.isVerticalCenter {
-                return (screenHeight - sheetContentRect.height)/2 + (useSafeAreaInset ? 0 :  -safeAreaInsets.top)
+                return (screenHeight - sheetContentRect.height)/2 - safeAreaInsets.top
             }
             if position.isBottom {
                 return screenHeight - sheetContentRect.height - keyboardHeightHelper.keyboardHeight - verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0) - safeAreaInsets.top
@@ -343,7 +343,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
             return horizontalPadding + (useSafeAreaInset ? safeAreaInsets.leading : 0)
         }
         if position.isHorizontalCenter {
-            return 0
+            return (screenSize.width - sheetContentRect.width)/2 - safeAreaInsets.leading
         }
         if position.isTrailing {
             return screenSize.width - sheetContentRect.width - horizontalPadding - (useSafeAreaInset ? safeAreaInsets.trailing : 0)
