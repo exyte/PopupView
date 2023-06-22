@@ -339,14 +339,26 @@ public struct Popup<PopupContent: View>: ViewModifier {
     }
 
     private var displayedOffsetX: CGFloat {
+        if opaqueBackground {
+            if position.isLeading {
+                return horizontalPadding + (useSafeAreaInset ? safeAreaInsets.leading : 0)
+            }
+            if position.isHorizontalCenter {
+                return (screenSize.width - sheetContentRect.width)/2 - safeAreaInsets.leading
+            }
+            if position.isTrailing {
+                return screenSize.width - sheetContentRect.width - horizontalPadding - (useSafeAreaInset ? safeAreaInsets.trailing : 0)
+            }
+        }
+
         if position.isLeading {
             return horizontalPadding + (useSafeAreaInset ? safeAreaInsets.leading : 0)
         }
         if position.isHorizontalCenter {
-            return (screenSize.width - sheetContentRect.width)/2 - safeAreaInsets.leading
+            return (presenterContentRect.width - sheetContentRect.width)/2
         }
         if position.isTrailing {
-            return screenSize.width - sheetContentRect.width - horizontalPadding - (useSafeAreaInset ? safeAreaInsets.trailing : 0)
+            return presenterContentRect.width - sheetContentRect.width - horizontalPadding - (useSafeAreaInset ? safeAreaInsets.trailing : 0)
         }
         return 0
     }
