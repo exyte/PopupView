@@ -304,7 +304,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
     @State private var safeAreaInsets: EdgeInsets = EdgeInsets()
 
     /// Variable used to control what is animated and what is not
-    @State var actualCurrentOffset: CGPoint = .zero
+    @State var actualCurrentOffset = CGPoint.pointFarAwayFromScreen
 
     /// Drag to dismiss gesture state
     @GestureState private var dragState = DragState.inactive
@@ -344,10 +344,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 return horizontalPadding + (useSafeAreaInset ? safeAreaInsets.leading : 0)
             }
             if position.isHorizontalCenter {
-                return (screenSize.width - sheetContentRect.width)/2 - safeAreaInsets.leading
+                return (screenWidth - sheetContentRect.width)/2 - safeAreaInsets.leading
             }
             if position.isTrailing {
-                return screenSize.width - sheetContentRect.width - horizontalPadding - (useSafeAreaInset ? safeAreaInsets.trailing : 0)
+                return screenWidth - sheetContentRect.width - horizontalPadding - (useSafeAreaInset ? safeAreaInsets.trailing : 0)
             }
         }
 
@@ -379,17 +379,18 @@ public struct Popup<PopupContent: View>: ViewModifier {
         }
 
         if sheetContentRect.isEmpty {
-            return .zero
+            return CGPoint.pointFarAwayFromScreen
         }
+
         switch from {
         case .top:
             return CGPoint(x: displayedOffsetX, y: -presenterContentRect.minY - safeAreaInsets.top - sheetContentRect.height)
         case .bottom:
             return CGPoint(x: displayedOffsetX, y: screenHeight)
         case .left:
-            return CGPoint(x: -screenSize.width, y: displayedOffsetY)
+            return CGPoint(x: -screenWidth, y: displayedOffsetY)
         case .right:
-            return CGPoint(x: screenSize.width, y: displayedOffsetY)
+            return CGPoint(x: screenWidth, y: displayedOffsetY)
         }
     }
 
@@ -398,7 +399,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         return shouldShowContent ? CGPoint(x: displayedOffsetX, y: displayedOffsetY) : hiddenOffset
     }
 
-    private var screenSize: CGSize {
+    var screenSize: CGSize {
 #if os(iOS)
         return UIScreen.main.bounds.size
 #elseif os(watchOS)
@@ -406,6 +407,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
 #else
         return CGSize(width: presenterContentRect.size.width, height: presenterContentRect.size.height - presenterContentRect.minY)
 #endif
+    }
+
+    private var screenWidth: CGFloat {
+        screenSize.width
     }
 
     private var screenHeight: CGFloat {

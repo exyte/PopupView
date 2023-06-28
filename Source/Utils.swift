@@ -313,3 +313,23 @@ class KeyboardHeightHelper: ObservableObject {
 }
 
 #endif
+
+extension CGPoint {
+
+    static var pointFarAwayFromScreen: CGPoint {
+        CGPoint(x: 2*CGSize.screenSize.width, y: 2*CGSize.screenSize.height)
+    }
+}
+
+extension CGSize {
+
+    static var screenSize: CGSize {
+#if os(iOS) || os(tvOS)
+        return UIScreen.main.bounds.size
+#elseif os(watchOS)
+        return WKInterfaceDevice.current().screenBounds.size
+#elseif os(macOS)
+        return NSScreen.main?.frame.size ?? .zero
+#endif
+    }
+}
