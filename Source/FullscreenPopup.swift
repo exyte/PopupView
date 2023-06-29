@@ -114,7 +114,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         if isBoolMode {
             main(content: content)
                 .onChange(of: isPresented) { newValue in
-                    appearAction(sheetPresented: newValue)
+                    // minimum time to represent
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
+                        appearAction(sheetPresented: newValue)
+                    }
                 }
                 .onAppear {
                     if isPresented {
@@ -124,11 +127,13 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         } else {
             main(content: content)
                 .onChange(of: item) { newValue in
-                    if let newValue {
-                        /// copying `item`
-                        self.tempItem = newValue
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
+                        if let newValue {
+                            /// copying `item`
+                            self.tempItem = newValue
+                        }
+                        appearAction(sheetPresented: newValue != nil)
                     }
-                    appearAction(sheetPresented: newValue != nil)
                 }
                 .onAppear {
                     if item != nil {
