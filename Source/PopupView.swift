@@ -310,7 +310,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
     @GestureState private var dragState = DragState.inactive
 
     /// Last position for drag gesture
-    @State private var lastDragPosition: CGFloat = 0
+    @State private var lastDragPosition: CGSize = .zero
     
     /// The offset when the popup is displayed
     private var displayedOffsetY: CGFloat {
@@ -365,24 +365,11 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     /// The offset when the popup is hidden
     private var hiddenOffset: CGPoint {
-        let from: AppearFrom
-        if let appearFrom = appearFrom {
-            from = appearFrom
-        } else if position.isLeading {
-            from = .left
-        } else if position.isTrailing {
-            from = .right
-        } else if position == .top {
-            from = .top
-        } else {
-            from = .bottom
-        }
-
         if sheetContentRect.isEmpty {
             return CGPoint.pointFarAwayFromScreen
         }
 
-        switch from {
+        switch calculatedAppearFrom {
         case .top:
             return CGPoint(x: displayedOffsetX, y: -presenterContentRect.minY - safeAreaInsets.top - sheetContentRect.height)
         case .bottom:
@@ -397,6 +384,22 @@ public struct Popup<PopupContent: View>: ViewModifier {
     /// Passes the desired position to actualCurrentOffset allowing to animate selectively
     private var targetCurrentOffset: CGPoint {
         return shouldShowContent ? CGPoint(x: displayedOffsetX, y: displayedOffsetY) : hiddenOffset
+    }
+
+    private var calculatedAppearFrom: AppearFrom {
+        let from: AppearFrom
+        if let appearFrom = appearFrom {
+            from = appearFrom
+        } else if position.isLeading {
+            from = .left
+        } else if position.isTrailing {
+            from = .right
+        } else if position == .top {
+            from = .top
+        } else {
+            from = .bottom
+        }
+        return from
     }
 
     var screenSize: CGSize {
@@ -464,7 +467,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
         return sheet
             .applyIf(dragToDismiss) {
-                $0.offset(y: dragOffset())
+                $0.offset(dragOffset())
                     .simultaneousGesture(drag)
             }
 #else
@@ -473,23 +476,66 @@ public struct Popup<PopupContent: View>: ViewModifier {
     }
 
 #if !os(tvOS)
-    func dragOffset() -> CGFloat {
-        if (position == .bottom && dragState.translation.height > 0) ||
-            (position == .top && dragState.translation.height < 0) {
-            return dragState.translation.height
+    func dragOffset() -> CGSize {
+        if dragState.translation == .zero {
+            return lastDragPosition
         }
-        return lastDragPosition
+
+        switch calculatedAppearFrom {
+        case .top:
+            if dragState.translation.height < 0 {
+                return CGSize(width: 0, height: dragState.translation.height)
+            }
+        case .bottom:
+            if dragState.translation.height > 0 {
+                return CGSize(width: 0, height: dragState.translation.height)
+            }
+        case .left:
+            if dragState.translation.width < 0 {
+                return CGSize(width: dragState.translation.width, height: 0)
+            }
+        case .right:
+            if dragState.translation.width > 0 {
+                return CGSize(width: dragState.translation.width, height: 0)
+            }
+        }
+        return .zero
     }
 
     private func onDragEnded(drag: DragGesture.Value) {
-        let reference = sheetContentRect.height / 3
-        if (position == .bottom && drag.translation.height > reference) ||
-            (position == .top && drag.translation.height < -reference) {
-            lastDragPosition = drag.translation.height
-            withAnimation {
-                lastDragPosition = 0
+        let referenceX = sheetContentRect.width / 3
+        let referenceY = sheetContentRect.height / 3
+
+        var shouldDismiss = false
+        switch calculatedAppearFrom {
+        case .top:
+            lastDragPosition = CGSize(width: 0, height: drag.translation.height)
+            if drag.translation.height < -referenceY {
+                shouldDismiss = true
             }
+        case .bottom:
+            lastDragPosition = CGSize(width: 0, height: drag.translation.height)
+            if drag.translation.height > referenceY {
+                shouldDismiss = true
+            }
+        case .left:
+            lastDragPosition = CGSize(width: drag.translation.width, height: 0)
+            if drag.translation.width < -referenceX {
+                shouldDismiss = true
+            }
+        case .right:
+            lastDragPosition = CGSize(width: drag.translation.width, height: 0)
+            if drag.translation.width > referenceX {
+                shouldDismiss = true
+            }
+        }
+
+        if shouldDismiss {
             dismissCallback(.drag)
+        } else {
+            withAnimation {
+                lastDragPosition = .zero
+            }
         }
     }
 #endif
