@@ -509,22 +509,30 @@ public struct Popup<PopupContent: View>: ViewModifier {
         var shouldDismiss = false
         switch calculatedAppearFrom {
         case .top:
-            lastDragPosition = CGSize(width: 0, height: drag.translation.height)
+            if drag.translation.height < 0 {
+                lastDragPosition = CGSize(width: 0, height: drag.translation.height)
+            }
             if drag.translation.height < -referenceY {
                 shouldDismiss = true
             }
         case .bottom:
-            lastDragPosition = CGSize(width: 0, height: drag.translation.height)
+            if drag.translation.height > 0 {
+                lastDragPosition = CGSize(width: 0, height: drag.translation.height)
+            }
             if drag.translation.height > referenceY {
                 shouldDismiss = true
             }
         case .left:
-            lastDragPosition = CGSize(width: drag.translation.width, height: 0)
+            if drag.translation.width < 0 {
+                lastDragPosition = CGSize(width: drag.translation.width, height: 0)
+            }
             if drag.translation.width < -referenceX {
                 shouldDismiss = true
             }
         case .right:
-            lastDragPosition = CGSize(width: drag.translation.width, height: 0)
+            if drag.translation.width > 0 {
+                lastDragPosition = CGSize(width: drag.translation.width, height: 0)
+            }
             if drag.translation.width > referenceX {
                 shouldDismiss = true
             }
