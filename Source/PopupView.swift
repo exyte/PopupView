@@ -50,7 +50,16 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
         var defaultPosition: Position {
             if case .default = self {
+#if os(iOS)
+    #if targetEnvironment(macCatalyst)
+                return .leading
+    #else
                 return .center
+    #endif
+
+#else
+                return .center
+#endif
             }
             return .bottom
         }
