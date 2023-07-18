@@ -240,7 +240,7 @@ private struct TransparentNonAnimatableFullScreenModifier<FullScreenContent: Vie
                     fullScreenContent()
                 }
                 .background(FullScreenCoverBackgroundRemovalView())
-                .preferredColorScheme(colorScheme)
+                //.preferredColorScheme(colorScheme)
                 .onAppear {
                     if !UIView.areAnimationsEnabled {
                         UIView.setAnimationsEnabled(true)

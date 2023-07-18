@@ -177,6 +177,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                 backgroundColor
             }
         }
+        .preferredColorScheme(statusBarColor.colorScheme)
         .opacity(opacity)
         .applyIf(closeOnTapOutside) { view in
             view.contentShape(Rectangle())
