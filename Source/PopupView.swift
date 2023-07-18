@@ -16,6 +16,11 @@ public enum DismissSource {
     case autohide
 }
 
+public enum StatusBarColor {
+    case light
+    case dark
+}
+
 public struct Popup<PopupContent: View>: ViewModifier {
 
     init(params: Popup<PopupContent>.PopupParameters,
@@ -151,6 +156,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
         /// If true taps do not pass through popup's background and the popup is displayed on top of navbar. Always opaque if closeOnTapOutside is true
         var isOpaque: Bool = false
+        
+        /// Used when `isQpaque == true`. Sets the color of the status bar.
+        var statusBarColor: StatusBarColor = .dark
 
         var dismissCallback: (DismissSource) -> () = {_ in}
 
@@ -217,6 +225,12 @@ public struct Popup<PopupContent: View>: ViewModifier {
         public func isOpaque(_ isOpaque: Bool) -> PopupParameters {
             var params = self
             params.isOpaque = isOpaque
+            return params
+        }
+        
+        public func statusBarColor(_ statusBarColor: StatusBarColor) -> PopupParameters {
+            var params = self
+            params.statusBarColor = statusBarColor
             return params
         }
 

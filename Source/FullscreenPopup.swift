@@ -37,6 +37,9 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     /// If opaque taps do not pass through popup's background color. Always opaque if closeOnTapOutside is true
     var isOpaque: Bool
+    
+    /// Used when `isQpaque == true`. Sets the color of the status bar.
+    var statusBarColor: StatusBarColor
 
     /// Is called on any close action
     var userDismissCallback: (DismissSource) -> ()
@@ -97,6 +100,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         self.backgroundColor = params.backgroundColor
         self.backgroundView = params.backgroundView
         self.isOpaque = params.isOpaque
+        self.statusBarColor = params.statusBarColor
         self.userDismissCallback = params.dismissCallback
 
         if let view = view {
@@ -148,7 +152,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     public func main(content: Content) -> some View {
         if opaqueBackground {
 #if os(iOS)
-            content.transparentNonAnimatingFullScreenCover(isPresented: $showSheet) {
+            content.transparentNonAnimatingFullScreenCover(isPresented: $showSheet, colorScheme: statusBarColor.colorScheme) {
                 constructPopup()
             }
 #else
@@ -276,4 +280,13 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         }
     }
 
+}
+
+extension StatusBarColor {
+    fileprivate var colorScheme: ColorScheme {
+        switch self {
+        case .light: return .dark
+        case .dark: return .light
+        }
+    }
 }
