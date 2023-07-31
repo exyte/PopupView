@@ -314,6 +314,18 @@ public struct Popup<PopupContent: View>: ViewModifier {
     
     /// The offset when the popup is displayed
     private var displayedOffsetY: CGFloat {
+        #if os(macOS)
+            if position.isTop {
+                return verticalPadding
+            }
+            if position.isVerticalCenter {
+                return (screenHeight - sheetContentRect.height) / 2
+            }
+            if position.isBottom {
+                return screenHeight - sheetContentRect.height - verticalPadding
+            }
+
+        #else 
         if opaqueBackground {
             if position.isTop {
                 return verticalPadding + (useSafeAreaInset ? 0 :  -safeAreaInsets.top)
@@ -335,6 +347,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         if position.isBottom {
             return presenterContentRect.height - sheetContentRect.height - keyboardHeightHelper.keyboardHeight + safeAreaInsets.bottom - verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0)
         }
+        #endif
         return 0
     }
 
@@ -408,7 +421,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 #elseif os(watchOS)
         return WKInterfaceDevice.current().screenBounds.size
 #else
-        return CGSize(width: presenterContentRect.size.width, height: presenterContentRect.size.height - presenterContentRect.minY)
+        return CGSize(width: presenterContentRect.size.width, height: presenterContentRect.size.height)
 #endif
     }
 
