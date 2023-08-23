@@ -30,6 +30,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         self.verticalPadding = params.type.verticalPadding
         self.horizontalPadding = params.type.horizontalPadding
         self.useSafeAreaInset = params.type.useSafeAreaInset
+        self.useKeyboardSafeArea = params.useKeyboardSafeArea
         self.animation = params.animation
         self.dragToDismiss = params.dragToDismiss
         self.closeOnTap = params.closeOnTap
@@ -152,6 +153,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
         /// If true taps do not pass through popup's background and the popup is displayed on top of navbar. Always opaque if closeOnTapOutside is true
         var isOpaque: Bool = false
 
+        /// move up for keyboardHeight when it is displayed
+        var useKeyboardSafeArea: Bool = false
+
         var dismissCallback: (DismissSource) -> () = {_ in}
 
         public func type(_ type: PopupType) -> PopupParameters {
@@ -220,6 +224,12 @@ public struct Popup<PopupContent: View>: ViewModifier {
             return params
         }
 
+        public func useKeyboardSafeArea(_ useKeyboardSafeArea: Bool) -> PopupParameters {
+            var params = self
+            params.useKeyboardSafeArea = useKeyboardSafeArea
+            return params
+        }
+
         public func dismissSourceCallback(_ dismissCallback: @escaping (DismissSource) -> ()) -> PopupParameters {
             var params = self
             params.dismissCallback = dismissCallback
@@ -265,6 +275,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
     var verticalPadding: CGFloat
     var horizontalPadding: CGFloat
     var useSafeAreaInset: Bool
+    var useKeyboardSafeArea: Bool
 
     var animation: Animation
 
@@ -322,7 +333,11 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 return (screenHeight - sheetContentRect.height)/2 - safeAreaInsets.top
             }
             if position.isBottom {
-                return screenHeight - sheetContentRect.height - keyboardHeightHelper.keyboardHeight - verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0) - safeAreaInsets.top
+                return screenHeight - sheetContentRect.height
+                - (useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0)
+                - verticalPadding
+                - (useSafeAreaInset ? safeAreaInsets.bottom : 0)
+                - safeAreaInsets.top
             }
         }
 
@@ -333,7 +348,12 @@ public struct Popup<PopupContent: View>: ViewModifier {
             return (presenterContentRect.height - sheetContentRect.height)/2
         }
         if position.isBottom {
-            return presenterContentRect.height - sheetContentRect.height - keyboardHeightHelper.keyboardHeight + safeAreaInsets.bottom - verticalPadding + (useSafeAreaInset ? -safeAreaInsets.bottom : 0)
+            return presenterContentRect.height
+            - sheetContentRect.height
+            - (useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0)
+            - verticalPadding
+            + safeAreaInsets.bottom
+            - (useSafeAreaInset ? safeAreaInsets.bottom : 0)
         }
         return 0
     }
