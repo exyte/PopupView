@@ -20,8 +20,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     init(params: Popup<PopupContent>.PopupParameters,
          view: @escaping () -> PopupContent,
-         shouldShowContent: Bool = true,
-         showContent: Bool = true,
+         shouldShowContent: Bool,
+         showContent: Bool,
+         positionIsCalculatedCallback: @escaping () -> (),
          animationCompletedCallback: @escaping () -> (),
          dismissCallback: @escaping (DismissSource)->()) {
 
@@ -40,6 +41,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
         self.shouldShowContent = shouldShowContent
         self.showContent = showContent
+        self.positionIsCalculatedCallback = positionIsCalculatedCallback
         self.animationCompletedCallback = animationCompletedCallback
         self.dismissCallback = dismissCallback
     }
@@ -294,6 +296,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
     /// ... once hiding animation is finished remove popup from the memory using this flag
     var showContent: Bool
 
+    /// called when all the offsets are calculated, so everything is ready for animation
+    var positionIsCalculatedCallback: () -> ()
+
     /// called on showing/hiding sliding animation completed
     var animationCompletedCallback: () -> ()
 
@@ -403,7 +408,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     /// Passes the desired position to actualCurrentOffset allowing to animate selectively
     private var targetCurrentOffset: CGPoint {
-        return shouldShowContent ? CGPoint(x: displayedOffsetX, y: displayedOffsetY) : hiddenOffset
+        shouldShowContent ? CGPoint(x: displayedOffsetX, y: displayedOffsetY) : hiddenOffset
     }
 
     private var calculatedAppearFrom: AppearFrom {
@@ -475,6 +480,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
                             actualCurrentOffset = newValue
                         }
                     }
+                }
+                .onChange(of: sheetContentRect.size) { sheetContentRect in
+                    positionIsCalculatedCallback()
                 }
         }
 

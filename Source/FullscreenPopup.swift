@@ -208,6 +208,11 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             view: viewForItem != nil ? viewForItem! : view,
             shouldShowContent: shouldShowContent,
             showContent: showContent,
+            positionIsCalculatedCallback: {
+                shouldShowContent = true // this will cause currentOffset change thus triggering the sliding showing animation
+                opacity = 1 // this will cause cross disolving animation for background color
+                setupAutohide()
+            },
             animationCompletedCallback: onAnimationCompleted,
             dismissCallback: { source in
                 dismissSource = source
@@ -222,11 +227,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             dismissSource = nil
             showSheet = true // show transparent fullscreen sheet
             showContent = true // immediately load popup body
-            performWithDelay(0.1) {
-                shouldShowContent = true // this will cause currentOffset change thus triggering the sliding showing animation
-                opacity = 1 // this will cause cross disolving animation for background color
-                setupAutohide()
-            }
+            // shouldShowContent is set after popup's frame is calculated, see positionIsCalculatedCallback
         } else {
             dispatchWorkHolder.work?.cancel()
             shouldShowContent = false // this will cause currentOffset change thus triggering the sliding hiding animation
