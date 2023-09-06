@@ -127,9 +127,8 @@ use `customize` closure in popup modifier:
 `closeOnTapOutside` - false by default: enable/disable closing on tap on outside of popup     
 `backgroundColor` - Color.clear by default: change background color of outside area     
 `backgroundView` - custom background builder for outside area (if this one is set `backgroundColor` is ignored)    
-`isOpaque` - false by default: if true taps do not pass through popup's background and the popup is displayed on top of navbar. Always opaque if    
-`useKeyboardSafeArea` - false by default: if true popup goes up for keyboardHeight when kyeboard is displayed
-`closeOnTapOutside` is true. For more see section "Show over navbar"       
+`isOpaque` - false by default: if true taps do not pass through popup's background and the popup is displayed on top of navbar. For more see section "Show over navbar"     
+`useKeyboardSafeArea` - false by default: if true popup goes up for keyboardHeight when keyboard is displayed
 `dismissCallback` - custom callback to call once the popup is dismissed      
 
 ### Draggable card - sheet

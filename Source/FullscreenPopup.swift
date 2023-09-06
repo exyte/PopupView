@@ -35,7 +35,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     /// Custom background view for outside area
     var backgroundView: AnyView?
 
-    /// If opaque taps do not pass through popup's background color. Always opaque if closeOnTapOutside is true
+    /// If opaque - taps do not pass through popup's background color
     var isOpaque: Bool
 
     /// Is called on any close action
@@ -76,10 +76,6 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     /// Set dismiss souce to pass to dismiss callback
     @State private var dismissSource: DismissSource?
-    
-    var opaqueBackground: Bool {
-        isOpaque || closeOnTapOutside
-    }
 
     init(isPresented: Binding<Bool> = .constant(false),
          item: Binding<Item?> = .constant(nil),
@@ -146,7 +142,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     @ViewBuilder
     public func main(content: Content) -> some View {
-        if opaqueBackground {
+        if isOpaque {
 #if os(iOS)
             content.transparentNonAnimatingFullScreenCover(isPresented: $showSheet) {
                 constructPopup()

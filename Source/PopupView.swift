@@ -35,7 +35,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         self.animation = params.animation
         self.dragToDismiss = params.dragToDismiss
         self.closeOnTap = params.closeOnTap
-        self.opaqueBackground = params.isOpaque || params.closeOnTapOutside
+        self.isOpaque = params.isOpaque
 
         self.view = view
 
@@ -152,7 +152,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         /// Custom background view for outside area
         var backgroundView: AnyView?
 
-        /// If true taps do not pass through popup's background and the popup is displayed on top of navbar. Always opaque if closeOnTapOutside is true
+        /// If true - taps do not pass through popup's background and the popup is displayed on top of navbar
         var isOpaque: Bool = false
 
         /// move up for keyboardHeight when it is displayed
@@ -287,8 +287,8 @@ public struct Popup<PopupContent: View>: ViewModifier {
     /// Should allow dismiss by dragging
     var dragToDismiss: Bool
 
-    /// If opaque taps do not pass through popup's background color. True if either closeOnTapOutside or isOpaque is true
-    var opaqueBackground: Bool
+    /// If opaque - taps do not pass through popup's background color
+    var isOpaque: Bool
 
     /// Trigger popup showing/hiding animations and...
     var shouldShowContent: Bool
@@ -330,7 +330,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
     
     /// The offset when the popup is displayed
     private var displayedOffsetY: CGFloat {
-        if opaqueBackground {
+        if isOpaque {
             if position.isTop {
                 return verticalPadding + (useSafeAreaInset ? 0 :  -safeAreaInsets.top)
             }
@@ -364,7 +364,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
     }
 
     private var displayedOffsetX: CGFloat {
-        if opaqueBackground {
+        if isOpaque {
             if position.isLeading {
                 return horizontalPadding + (useSafeAreaInset ? safeAreaInsets.leading : 0)
             }
