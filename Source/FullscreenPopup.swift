@@ -26,7 +26,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     /// If nil - never hides on its own
     var autohideIn: Double?
 
-    /// Should close on tap outside - default is `true`
+    /// Should close on tap outside - default is `false`
     var closeOnTapOutside: Bool
 
     /// Background color for outside area - default is `Color.clear`

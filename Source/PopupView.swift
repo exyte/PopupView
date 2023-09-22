@@ -143,7 +143,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         /// Should close on tap - default is `true`
         var closeOnTap: Bool = true
 
-        /// Should close on tap outside - default is `true`
+        /// Should close on tap outside - default is `false`
         var closeOnTapOutside: Bool = false
 
         /// Background color for outside area
