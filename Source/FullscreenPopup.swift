@@ -51,6 +51,8 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     /// Trigger popup showing/hiding animations and...
     @State private var shouldShowContent = false
 
+    @State private var shouldClosePopup = false
+
     /// ... once hiding animation is finished remove popup from the memory using this flag
     @State private var showContent = false
 
@@ -110,6 +112,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         if isBoolMode {
             main(content: content)
                 .onChange(of: isPresented) { newValue in
+                    shouldClosePopup = !newValue
                     // minimum time to represent
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
                         appearAction(sheetPresented: newValue)
@@ -205,9 +208,11 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             shouldShowContent: shouldShowContent,
             showContent: showContent,
             positionIsCalculatedCallback: {
-                shouldShowContent = true // this will cause currentOffset change thus triggering the sliding showing animation
-                opacity = 1 // this will cause cross disolving animation for background color
-                setupAutohide()
+                if !shouldClosePopup {
+                    shouldShowContent = true // this will cause currentOffset change thus triggering the sliding showing animation
+                    opacity = 1 // this will cause cross disolving animation for background color
+                    setupAutohide()
+                }
             },
             animationCompletedCallback: onAnimationCompleted,
             dismissCallback: { source in
@@ -225,6 +230,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             showContent = true // immediately load popup body
             // shouldShowContent is set after popup's frame is calculated, see positionIsCalculatedCallback
         } else {
+            shouldClosePopup = true
             dispatchWorkHolder.work?.cancel()
             shouldShowContent = false // this will cause currentOffset change thus triggering the sliding hiding animation
             opacity = 0

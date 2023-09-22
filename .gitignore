@@ -126,3 +126,4 @@ fastlane/test_output
 iOSInjectionProject/
 
 # End of https://www.gitignore.io/api/swift,macos,carthage,cocoapods
+.idea/
