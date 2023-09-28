@@ -69,6 +69,7 @@ struct PopupsList: View {
     @Binding var toasts: ToastsState
     @Binding var popups: PopupsState
     @Binding var actionSheets: ActionSheetsState
+    @Binding var inputSheets: InputSheetsState
 
     let hideAll: () -> ()
 
@@ -88,14 +89,14 @@ struct PopupsList: View {
                         
                         floatsSection()
                     }
-                    
+
                     Group {
                         SectionHeader(name: "Toasts", count: 4)
                             .padding(EdgeInsets(top: 20, leading: 0, bottom: 12, trailing: 0))
                         
                         toastsSection()
                     }
-                    
+
                     Group {
                         SectionHeader(name: "Popups", count: 3)
                             .padding(EdgeInsets(top: 20, leading: 0, bottom: 12, trailing: 0))
@@ -111,6 +112,14 @@ struct PopupsList: View {
                         actionSheetsSection()
                     }
 #endif
+
+                    Group {
+                        SectionHeader(name: "Inputs", count: 1)
+                            .padding(.bottom, 12)
+
+                        inputsSection()
+                    }
+
                     safeSpaceForMac()
                 }
             }
@@ -301,6 +310,18 @@ struct PopupsList: View {
                 detail: "Action sheets"
             ) {
                 ActionSheetImage()
+            }
+        }
+    }
+
+    @ViewBuilder
+    func inputsSection() -> some View {
+        PopupButton(isShowing: $inputSheets.showingFirst, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Middle",
+                detail: "Popup in the middle of the screen with a input"
+            ) {
+                InputSheetImage()
             }
         }
     }

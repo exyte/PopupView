@@ -139,3 +139,13 @@ struct ActionSheetImage: View {
         }
     }
 }
+
+struct InputSheetImage: View {
+    var body: some View {
+        AlertImageView(hex: "B03A31", alignment: .center) { color in
+            RoundedRectangle(cornerRadius: 4)
+                .fill(color)
+                .frame(width: 24, height: 20)
+        }
+    }
+}

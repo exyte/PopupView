@@ -61,15 +61,20 @@ struct ActionSheetsState {
     var showingSecond = false
 }
 
+struct InputSheetsState {
+    var showingFirst = false
+}
+
 struct ContentView : View {
     @State var floatsSmall = FloatsStateSmall()
     @State var floatsBig = FloatsStateBig()
     @State var toasts = ToastsState()
     @State var popups = PopupsState()
     @State var actionSheets = ActionSheetsState()
+    @State var inputSheets = InputSheetsState()
 
     var body: some View {
-        let commonView = createPopupsList()
+        createPopupsList()
 
         // MARK: - Designed floats big screen
 
@@ -261,7 +266,6 @@ struct ContentView : View {
 
 #if os(iOS)
         // MARK: - Designed action sheets
-        return commonView
             .popup(isPresented: $actionSheets.showingFirst) {
                 ActionSheetFirst()
             } customize: {
@@ -280,19 +284,37 @@ struct ContentView : View {
                     .closeOnTap(false)
                     .backgroundColor(.black.opacity(0.4))
             }
-#else
-        return commonView
 #endif
+
+        // MARK: - !Undesigned! input sheets
+            .popup(isPresented: $inputSheets.showingFirst) {
+                InputSheetMiddle(isShowing: $inputSheets.showingFirst)
+            } customize: {
+                $0
+                    .position(.center)
+                    .closeOnTap(false)
+                    .backgroundColor(.black.opacity(0.4))
+                    .isOpaque(true)
+            }
     }
 
     func createPopupsList() -> PopupsList {
-        PopupsList(floatsBig: $floatsBig, floatsSmall: $floatsSmall, toasts: $toasts, popups: $popups, actionSheets: $actionSheets) {
-            floatsBig = FloatsStateBig()
-            floatsSmall = FloatsStateSmall()
-            toasts = ToastsState()
-            popups = PopupsState()
-            actionSheets = ActionSheetsState()
-        }
+        PopupsList(
+            floatsBig: $floatsBig,
+            floatsSmall: $floatsSmall,
+            toasts: $toasts,
+            popups: $popups,
+            actionSheets: $actionSheets,
+            inputSheets: $inputSheets,
+            hideAll: {
+                floatsBig = FloatsStateBig()
+                floatsSmall = FloatsStateSmall()
+                toasts = ToastsState()
+                popups = PopupsState()
+                actionSheets = ActionSheetsState()
+                inputSheets = InputSheetsState()
+            }
+        )
     }
 }
 
