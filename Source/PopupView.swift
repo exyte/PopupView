@@ -503,7 +503,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
                     if !shouldShowContent, newValue == hiddenOffset { // don't animate initial positioning outside the screen
                         actualCurrentOffset = newValue
                     } else {
-                        if #available(iOS 17.0, *) {
+                        if #available(iOS 17.0, tvOS 17.0, macOS 14.0, watchOS 10.0, *) {
                             withAnimation(animation) {
                                 actualCurrentOffset = newValue
                             } completion: {
