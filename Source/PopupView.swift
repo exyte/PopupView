@@ -499,15 +499,20 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 }
                 .frameGetter($sheetContentRect)
                 .position(x: sheetContentRect.width/2 + actualCurrentOffset.x, y: sheetContentRect.height/2 + actualCurrentOffset.y)
-                //.onAnimationCompleted(for: currentOffset) {
-                    //animationCompletedCallback() TEMP: need to fix
-                //}
                 .onChange(of: targetCurrentOffset) { newValue in
                     if !shouldShowContent, newValue == hiddenOffset { // don't animate initial positioning outside the screen
                         actualCurrentOffset = newValue
                     } else {
-                        withAnimation(animation) {
-                            actualCurrentOffset = newValue
+                        if #available(iOS 17.0, *) {
+                            withAnimation(animation) {
+                                actualCurrentOffset = newValue
+                            } completion: {
+                                animationCompletedCallback()
+                            }
+                        } else {
+                            withAnimation(animation) {
+                                actualCurrentOffset = newValue
+                            }
                         }
                     }
                 }
