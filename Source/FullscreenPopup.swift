@@ -38,7 +38,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     /// If opaque - taps do not pass through popup's background color
     var isOpaque: Bool
 
-    /// Is called on any close action
+    /// called when when dismiss animation starts
+    var userWillDismissCallback: (DismissSource) -> ()
+
+    /// called when when dismiss animation ends
     var userDismissCallback: (DismissSource) -> ()
 
     var params: Popup<PopupContent>.PopupParameters
@@ -97,6 +100,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         self.backgroundView = params.backgroundView
         self.isOpaque = params.isOpaque
         self.userDismissCallback = params.dismissCallback
+        self.userWillDismissCallback = params.willDismissCallback
 
         if let view = view {
             self.view = view
@@ -204,7 +208,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     }
 
     private func getModifier() -> Popup<PopupContent> {
-        return Popup(
+        Popup(
             params: params,
             view: viewForItem != nil ? viewForItem! : view,
             shouldShowContent: shouldShowContent,
@@ -234,6 +238,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             // shouldShowContent is set after popup's frame is calculated, see positionIsCalculatedCallback
         } else {
             closingIsInProcess = true
+            userWillDismissCallback(dismissSource ?? .binding)
             dispatchWorkHolder.work?.cancel()
             shouldShowContent = false // this will cause currentOffset change thus triggering the sliding hiding animation
             opacity = 0

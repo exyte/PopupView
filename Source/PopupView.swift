@@ -137,7 +137,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         /// If nil - never hides on its own
         var autohideIn: Double?
 
-        /// Should allow dismiss by dragging
+        /// Should allow dismiss by dragging - default is `true`
         var dragToDismiss: Bool = true
 
         /// Should close on tap - default is `true`
@@ -158,6 +158,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
         /// move up for keyboardHeight when it is displayed
         var useKeyboardSafeArea: Bool = false
 
+        /// called when when dismiss animation starts
+        var willDismissCallback: (DismissSource) -> () = {_ in}
+
+        /// called when when dismiss animation ends
         var dismissCallback: (DismissSource) -> () = {_ in}
 
         public func type(_ type: PopupType) -> PopupParameters {
@@ -190,18 +194,21 @@ public struct Popup<PopupContent: View>: ViewModifier {
             return params
         }
 
+        /// Should allow dismiss by dragging - default is `true`
         public func dragToDismiss(_ dragToDismiss: Bool) -> PopupParameters {
             var params = self
             params.dragToDismiss = dragToDismiss
             return params
         }
 
+        /// Should close on tap - default is `true`
         public func closeOnTap(_ closeOnTap: Bool) -> PopupParameters {
             var params = self
             params.closeOnTap = closeOnTap
             return params
         }
 
+        /// Should close on tap outside - default is `false`
         public func closeOnTapOutside(_ closeOnTapOutside: Bool) -> PopupParameters {
             var params = self
             params.closeOnTapOutside = closeOnTapOutside
@@ -232,7 +239,30 @@ public struct Popup<PopupContent: View>: ViewModifier {
             return params
         }
 
+        // MARK: - dismiss callbacks
+
+        public func willDismissCallback(_ dismissCallback: @escaping (DismissSource) -> ()) -> PopupParameters {
+            var params = self
+            params.willDismissCallback = dismissCallback
+            return params
+        }
+
+        public func willDismissCallback(_ dismissCallback: @escaping () -> ()) -> PopupParameters {
+            var params = self
+            params.willDismissCallback = { _ in
+                dismissCallback()
+            }
+            return params
+        }
+
+        @available(*, deprecated, renamed: "dismissCallback")
         public func dismissSourceCallback(_ dismissCallback: @escaping (DismissSource) -> ()) -> PopupParameters {
+            var params = self
+            params.dismissCallback = dismissCallback
+            return params
+        }
+
+        public func dismissCallback(_ dismissCallback: @escaping (DismissSource) -> ()) -> PopupParameters {
             var params = self
             params.dismissCallback = dismissCallback
             return params

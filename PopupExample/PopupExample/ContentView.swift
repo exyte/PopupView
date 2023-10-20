@@ -155,8 +155,13 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.top)
                     .animation(.spring())
-                    .dismissSourceCallback {
-                        print($0)
+                    .closeOnTapOutside(true)
+                    .autohideIn(3)
+                    .dismissCallback {
+                        print("did", $0)
+                    }
+                    .willDismissCallback {
+                        print("will", $0)
                     }
             }
 

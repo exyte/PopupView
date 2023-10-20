@@ -34,6 +34,8 @@
 
 <p><h4>Toasts, alerts and popups library written with SwiftUI</h4></p>
 
+<a href="https://exyte.com/blog/swiftui-tutorial-popupview-library">Read Article »</a>
+
 ![](https://img.shields.io/github/v/tag/exyte/popupView?label=Version)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fexyte%2FPopupView%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/exyte/PopupView)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fexyte%2FPopupView%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/exyte/PopupView)
