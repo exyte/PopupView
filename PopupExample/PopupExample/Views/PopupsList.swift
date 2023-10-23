@@ -318,8 +318,8 @@ struct PopupsList: View {
     func inputsSection() -> some View {
         PopupButton(isShowing: $inputSheets.showingFirst, hideAll: hideAll) {
             PopupTypeView(
-                title: "Middle",
-                detail: "Popup in the middle of the screen with a input"
+                title: "Bottom Input",
+                detail: "Popup in the bottom of the screen with a input text field"
             ) {
                 InputSheetImage()
             }

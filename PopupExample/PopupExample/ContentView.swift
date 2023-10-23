@@ -286,15 +286,15 @@ struct ContentView : View {
             }
 #endif
 
-        // MARK: - !Undesigned! input sheets
             .popup(isPresented: $inputSheets.showingFirst) {
-                InputSheetMiddle(isShowing: $inputSheets.showingFirst)
+                InputSheetBottom(isShowing: $inputSheets.showingFirst)
             } customize: {
                 $0
-                    .position(.center)
+                    .position(.bottom)
                     .closeOnTap(false)
                     .backgroundColor(.black.opacity(0.4))
                     .isOpaque(true)
+                    .useKeyboardSafeArea(true)
             }
     }
 

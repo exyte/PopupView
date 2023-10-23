@@ -7,69 +7,63 @@
 
 import SwiftUI
 
-struct InputSheetMiddle: View {
+struct InputSheetBottom: View {
     @Binding var isShowing: Bool
 
-    @State var firstName: String = ""
-    @State var secondName: String = ""
+    @State var nickname: String = ""
 
     var body: some View {
-        VStack(spacing: 12) {
-            Text("Fill fields")
+        VStack(spacing: 0) {
+            Text("Nickname")
                 .foregroundColor(.black)
-                .font(.system(size: 24))
-                .padding(.top, 12)
+                .font(.system(size: 20, weight: .bold))
+                .kerning(0.38)
 
-            Text("We need to know")
-                .foregroundColor(.black)
-                .font(.system(size: 16))
-                .opacity(0.6)
-                .multilineTextAlignment(.center)
-                .padding(.bottom, 30)
+            Text("Usernames can only use letters, numbers, ., - and _ ")
+                .font(.system(size: 14))
+                .foregroundColor(Color(red: 1, green: 0.23, blue: 0.19))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color(red: 0.98, green: 0.92, blue: 0.92))
+                }
+                .padding(.top, 16)
 
-            TextField("First name", text: $firstName)
+            TextField("Nickname", text: $nickname)
                 .padding()
+                .frame(height: 44)
                 .background {
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(.black)
+                        .stroke(Color(red: 1, green: 0.23, blue: 0.19), lineWidth: 0.5)
                 }
+                .padding(.top, 6)
 
-            TextField("Second name", text: $secondName)
-                .padding()
-                .background {
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(.black)
-                }
-
-            Button("Done") {
+            Button {
                 isShowing = false
+            } label: {
+                Text("Save changes")
+                    .buttonStyle(.plain)
+                    .font(.system(size: 17))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                    .background {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color(red: 0.29, green: 0.38, blue: 1))
+                    }
             }
             .buttonStyle(.plain)
-            .font(.system(size: 18, weight: .bold))
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 18)
-            .padding(.horizontal, 24)
             .foregroundColor(.white)
-            .background(Color(hex: "9265F8"))
-            .cornerRadius(12)
-            .padding(.top, 30)
+            .padding(.top, 12)
         }
-        .padding(EdgeInsets(top: 37, leading: 24, bottom: 40, trailing: 24))
-        .background(Color.white.cornerRadius(20))
+        .padding(16)
+        .background(Color.white.cornerRadius(18))
         .shadowedStyle()
-        .padding(.horizontal, 40)
-        .toolbar {
-            ToolbarItem(placement: .keyboard) {
-                Button("Done") {
-                    isShowing = false
-                }
-                .foregroundColor(.red)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-            }
-        }
+        .padding(.horizontal, 8)
+        .padding(.bottom, 30)
     }
 }
 
 #Preview {
-    InputSheetMiddle(isShowing: .constant(true))
+    InputSheetBottom(isShowing: .constant(true))
 }
