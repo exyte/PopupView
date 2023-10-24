@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		13A1CD202AC5415200CB2143 /* InputSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A1CD1F2AC5415200CB2143 /* InputSheets.swift */; };
 		5B1E02572A11F13F004172ED /* PopupWatchExample Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 5B1E02562A11F13F004172ED /* PopupWatchExample Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5B1E025C2A11F13F004172ED /* PopupWatchExampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1E025B2A11F13F004172ED /* PopupWatchExampleApp.swift */; };
 		5B1E025E2A11F13F004172ED /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1E025D2A11F13F004172ED /* ContentView.swift */; };
@@ -58,6 +59,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		13A1CD1F2AC5415200CB2143 /* InputSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputSheets.swift; sourceTree = "<group>"; };
 		5B1E02512A11F13F004172ED /* PopupWatchExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PopupWatchExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B1E02562A11F13F004172ED /* PopupWatchExample Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PopupWatchExample Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B1E025B2A11F13F004172ED /* PopupWatchExampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupWatchExampleApp.swift; sourceTree = "<group>"; };
@@ -188,6 +190,7 @@
 				5B1F0F782A039A7500C387EE /* Toasts.swift */,
 				5B1F0F792A039A7500C387EE /* ActionSheets.swift */,
 				5B1F0F7A2A039A7500C387EE /* Popups.swift */,
+				13A1CD1F2AC5415200CB2143 /* InputSheets.swift */,
 			);
 			path = Examples;
 			sourceTree = "<group>";
@@ -365,6 +368,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				13A1CD202AC5415200CB2143 /* InputSheets.swift in Sources */,
 				5B1F0F602A03984D00C387EE /* ContentView.swift in Sources */,
 				5B1F0F802A039A7500C387EE /* ActionSheets.swift in Sources */,
 				5B1F0F812A039A7500C387EE /* Popups.swift in Sources */,
