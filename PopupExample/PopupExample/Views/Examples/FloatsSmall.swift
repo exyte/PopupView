@@ -124,18 +124,3 @@ struct Floats_Previews: PreviewProvider {
         }
     }
 }
-
-//struct ExampleWithToolbarView: View
-//{
-//    var body: some View
-//    {
-//        test()
-//            .toolbar {
-//                ToolbarItem(placement: .keyboard) {
-//                    Button("Done") { }
-//                        .foregroundColor(.red)
-//                        .frame(maxWidth: .infinity, alignment: .trailing)
-//            }
-//        }
-//    }
-//}

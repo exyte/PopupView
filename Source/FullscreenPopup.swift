@@ -80,7 +80,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     // MARK: - Internal
 
-    /// Set dismiss souce to pass to dismiss callback
+    /// Set dismiss source to pass to dismiss callback
     @State private var dismissSource: DismissSource?
 
     init(isPresented: Binding<Bool> = .constant(false),
