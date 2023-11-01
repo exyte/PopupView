@@ -504,7 +504,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
                         actualCurrentOffset = newValue
                     } else {
                         if #available(iOS 17.0, tvOS 17.0, macOS 14.0, watchOS 10.0, *) {
-#if swift(>=5.8.1)
+#if swift(>=5.9)
                             withAnimation(animation) {
                                 actualCurrentOffset = newValue
                             } completion: {
