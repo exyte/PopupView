@@ -215,14 +215,20 @@ extension View {
 
 extension View {
 
-    func transparentNonAnimatingFullScreenCover<Content: View>(isPresented: Binding<Bool>, content: @escaping () -> Content) -> some View {
-        modifier(TransparentNonAnimatableFullScreenModifier(isPresented: isPresented, fullScreenContent: content))
+    func transparentNonAnimatingFullScreenCover<Content: View>(
+        isPresented: Binding<Bool>,
+        dismissSource: DismissSource?,
+        userDismissCallback: @escaping (DismissSource) -> (),
+        content: @escaping () -> Content) -> some View {
+            modifier(TransparentNonAnimatableFullScreenModifier(isPresented: isPresented, dismissSource: dismissSource, userDismissCallback: userDismissCallback, fullScreenContent: content))
     }
 }
 
 private struct TransparentNonAnimatableFullScreenModifier<FullScreenContent: View>: ViewModifier {
 
     @Binding var isPresented: Bool
+    var dismissSource: DismissSource?
+    var userDismissCallback: (DismissSource) -> ()
     let fullScreenContent: () -> (FullScreenContent)
 
     func body(content: Content) -> some View {
@@ -241,6 +247,7 @@ private struct TransparentNonAnimatableFullScreenModifier<FullScreenContent: Vie
                     }
                 }
                 .onDisappear {
+                    userDismissCallback(dismissSource ?? .binding)
                     if !UIView.areAnimationsEnabled {
                         UIView.setAnimationsEnabled(true)
                     }

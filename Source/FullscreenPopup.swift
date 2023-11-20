@@ -153,7 +153,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     public func main(content: Content) -> some View {
         if isOpaque {
 #if os(iOS)
-            content.transparentNonAnimatingFullScreenCover(isPresented: $showSheet) {
+            content.transparentNonAnimatingFullScreenCover(isPresented: $showSheet, dismissSource: dismissSource, userDismissCallback: userDismissCallback) {
                 constructPopup()
             }
 #else
@@ -258,11 +258,13 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             return
         }
         showContent = false // unload popup body after hiding animation is done
+        tempItem = nil
         performWithDelay(0.01) {
             showSheet = false
         }
-        tempItem = nil
-        userDismissCallback(dismissSource ?? .binding)
+        if !isOpaque { // for opaque this callback is called in fullScreenCover's onDisappear
+            userDismissCallback(dismissSource ?? .binding)
+        }
     }
 
     func setupAutohide() {
