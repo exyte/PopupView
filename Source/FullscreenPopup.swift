@@ -237,7 +237,6 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             showContent = true // immediately load popup body
             // shouldShowContent is set after popup's frame is calculated, see positionIsCalculatedCallback
         } else {
-            hideKeyboard()
             closingIsInProcess = true
             userWillDismissCallback(dismissSource ?? .binding)
             dispatchWorkHolder.work?.cancel()
