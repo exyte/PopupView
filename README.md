@@ -183,7 +183,7 @@ github "Exyte/PopupView"
 
 ## Requirements
 
-* iOS 15.0+ / macOS 11.0+ / tvOS 14.0+ / watchOS 7.0+
+* iOS 14.0+ / macOS 11.0+ / tvOS 14.0+ / watchOS 7.0+
 * Xcode 12+ 
 
 ## Our other open source SwiftUI libraries
