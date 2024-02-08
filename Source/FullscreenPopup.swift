@@ -65,9 +65,9 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     /// opacity of background color
     @State private var opacity = 0.0
-    
-    /// A temporary variable to hold a copy of the `item` when the item is nil (to complete `itemView`'s dismiss animation)
-    @State private var tempItem: Item?
+
+    /// A temporary variable to hold a copy of the `itemView` when the item is nil (to complete `itemView`'s dismiss animation)
+    @State private var tempItemView: PopupContent?
 
     // MARK: - Autohide
 
@@ -134,15 +134,15 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
                         self.closingIsInProcess = newValue == nil
                         if let newValue {
-                            /// copying `item`
-                            self.tempItem = newValue
+                            /// copying `itemView`
+                            self.tempItemView = itemView(newValue)
                         }
                         appearAction(sheetPresented: newValue != nil)
                     }
                 }
                 .onAppear {
-                    if item != nil {
-                        self.tempItem = item
+                    if let item {
+                        self.tempItemView = itemView(item)
                         appearAction(sheetPresented: true)
                     }
                 }
@@ -201,8 +201,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     }
     
     var viewForItem: (() -> PopupContent)? {
-        if let item = item ?? tempItem {
+        if let item = item {
             return { itemView(item) }
+        } else if let tempItemView {
+            return { tempItemView }
         }
         return nil
     }
@@ -257,7 +259,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             return
         }
         showContent = false // unload popup body after hiding animation is done
-        tempItem = nil
+        tempItemView = nil
         performWithDelay(0.01) {
             showSheet = false
         }
