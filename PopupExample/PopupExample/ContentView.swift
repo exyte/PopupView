@@ -284,11 +284,12 @@ struct ContentView : View {
                 ActionSheetSecond()
             } customize: {
                 $0
-                    .type(.toast)
+                    .type(.scroll)
                     .position(.bottom)
                     .closeOnTap(false)
                     .backgroundColor(.black.opacity(0.4))
             }
+
 #endif
 
             .popup(isPresented: $inputSheets.showingFirst) {

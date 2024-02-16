@@ -56,12 +56,12 @@ private struct ActivityView: View {
         HStack(spacing: 12) {
             Text(emoji)
                 .font(.system(size: 24))
-            
+
             Text(name.uppercased())
                 .font(.system(size: 13, weight: isSelected ? .regular : .light))
-            
+
             Spacer()
-            
+
             if isSelected {
                 Image(systemName: "checkmark")
                     .foregroundColor(Color(hex: "9265F8"))
@@ -93,20 +93,26 @@ struct ActionSheetFirst: View {
 }
 
 struct ActionSheetSecond: View {
+
     var body: some View {
-        ActionSheetView(bgColor: .white) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("Privacy Policy")
-                        .font(.system(size: 24))
-                    
-                    Text(Constants.privacyPolicy)
-                        .font(.system(size: 14))
-                        .opacity(0.6)
-                }
-                .padding(.horizontal, 24)
-            }
+        VStack(alignment: .center, spacing: 16) {
+            Color.black
+                .opacity(0.2)
+                .frame(width: 30, height: 6)
+                .clipShape(Capsule())
+                .padding(.top, 15)
+                .padding(.bottom, 10)
+
+            Text("Privacy Policy")
+                .font(.system(size: 24))
+
+            Text(Constants.privacyPolicy)
+                .font(.system(size: 14))
+                .opacity(0.6)
         }
+        .padding(.horizontal, 24)
+        .padding(.vertical, 16)
+        .background(.white)
     }
 }
 
@@ -117,7 +123,7 @@ struct ActionSheets_Previews: PreviewProvider {
                 .ignoresSafeArea()
             ActionSheetFirst()
         }
-        
+
         ZStack {
             Rectangle()
                 .ignoresSafeArea()

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import SwiftUIIntrospect
 
 public enum DismissSource {
     case binding // set isPresented to false ot item to nil
@@ -26,6 +27,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
          animationCompletedCallback: @escaping () -> (),
          dismissCallback: @escaping (DismissSource)->()) {
 
+        self.type = params.type
         self.position = params.position ?? params.type.defaultPosition
         self.appearFrom = params.appearFrom
         self.verticalPadding = params.type.verticalPadding
@@ -45,11 +47,12 @@ public struct Popup<PopupContent: View>: ViewModifier {
         self.animationCompletedCallback = animationCompletedCallback
         self.dismissCallback = dismissCallback
     }
-    
-    public enum PopupType {
+
+    public enum PopupType: Equatable {
         case `default`
         case toast
         case floater(verticalPadding: CGFloat = 10, horizontalPadding: CGFloat = 10, useSafeAreaInset: Bool = true)
+        case scroll
 
         var defaultPosition: Position {
             if case .default = self {
@@ -303,6 +306,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
     // MARK: - Public Properties
 
     var position: Position
+    var type: PopupType
     var appearFrom: AppearFrom?
     var verticalPadding: CGFloat
     var horizontalPadding: CGFloat
@@ -341,6 +345,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     @StateObject var keyboardHeightHelper = KeyboardHeightHelper()
 
+    /// UIScrollView delegate, needed for calling didEndDragging
+    @StateObject private var scrollViewDelegate = PopupScrollViewDelegate()
+
     /// The rect and safe area of the hosting controller
     @State private var presenterContentRect: CGRect = .zero
 
@@ -357,7 +364,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     /// Last position for drag gesture
     @State private var lastDragPosition: CGSize = .zero
-    
+
     /// The offset when the popup is displayed
     private var displayedOffsetY: CGFloat {
         if isOpaque {
@@ -457,6 +464,14 @@ public struct Popup<PopupContent: View>: ViewModifier {
         return from
     }
 
+    private func configure(scrollView: UIScrollView) {
+        scrollView.delegate = scrollViewDelegate
+
+        scrollViewDelegate.didEndDragging = {
+            dismissCallback(.drag)
+        }
+    }
+
     var screenSize: CGSize {
 #if os(iOS)
         return UIScreen.main.bounds.size
@@ -492,8 +507,18 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     /// This is the builder for the sheet content
     func sheet() -> some View {
+        let scrollView =
+        ScrollView {
+            view()
+        }
+        .introspect(.scrollView, on: .iOS(.v15, .v16, .v17), customize: { scrollView in
+            configure(scrollView: scrollView)
+        })
+
+        let contentView = type != .scroll ? AnyView(view()) : AnyView(scrollView)
+
         let sheet = ZStack {
-            self.view()
+            contentView
                 .addTapIfNotTV(if: closeOnTap) {
                     dismissCallback(.tapInside)
                 }
