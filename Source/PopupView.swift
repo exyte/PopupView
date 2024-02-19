@@ -305,8 +305,8 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     // MARK: - Public Properties
 
-    var position: Position
     var type: PopupType
+    var position: Position
     var appearFrom: AppearFrom?
     var verticalPadding: CGFloat
     var horizontalPadding: CGFloat
@@ -505,20 +505,29 @@ public struct Popup<PopupContent: View>: ViewModifier {
             )
     }
 
-    /// This is the builder for the sheet content
-    func sheet() -> some View {
+
+    private func contentView() -> some View {
         let scrollView =
         ScrollView {
             view()
         }
-        .introspect(.scrollView, on: .iOS(.v15, .v16, .v17), customize: { scrollView in
+        .introspect(.scrollView, on: .iOS(.v15, .v16, .v17)) { scrollView in
             configure(scrollView: scrollView)
-        })
+        }
 
-        let contentView = type != .scroll ? AnyView(view()) : AnyView(scrollView)
+        return Group {
+            if type != .scroll {
+                view()
+            } else {
+                scrollView
+            }
+        }
+    }
 
+    /// This is the builder for the sheet content
+    func sheet() -> some View {
         let sheet = ZStack {
-            contentView
+            contentView()
                 .addTapIfNotTV(if: closeOnTap) {
                     dismissCallback(.tapInside)
                 }
