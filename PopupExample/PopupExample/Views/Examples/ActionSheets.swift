@@ -95,14 +95,7 @@ struct ActionSheetFirst: View {
 struct ActionSheetSecond: View {
 
     var body: some View {
-        VStack(alignment: .center, spacing: 16) {
-            Color.black
-                .opacity(0.2)
-                .frame(width: 30, height: 6)
-                .clipShape(Capsule())
-                .padding(.top, 15)
-                .padding(.bottom, 10)
-
+        VStack(alignment: .leading, spacing: 16) {
             Text("Privacy Policy")
                 .font(.system(size: 24))
 

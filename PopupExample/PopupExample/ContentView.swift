@@ -285,6 +285,8 @@ struct ContentView : View {
             } customize: {
                 $0
                     .type(.scroll)
+                    .scrollViewColor(.white)
+                    .scrollViewHeaderView { scrollViewHeader() }
                     .position(.bottom)
                     .closeOnTap(false)
                     .backgroundColor(.black.opacity(0.4))
@@ -321,6 +323,18 @@ struct ContentView : View {
                 inputSheets = InputSheetsState()
             }
         )
+    }
+
+    func scrollViewHeader() -> some View {
+        return ZStack {
+            Color(.white).cornerRadius(40, corners: [.topLeft, .topRight])
+
+            Color.black
+                .opacity(0.2)
+                .frame(width: 30, height: 6)
+                .clipShape(Capsule())
+                .padding(.vertical, 20)
+        }
     }
 }
 
