@@ -9,17 +9,17 @@ import UIKit
 
 final class PopupScrollViewDelegate: NSObject, ObservableObject, UIScrollViewDelegate {
 
-    var didEndDragging = {}
+    var scrollView: UIScrollView?
 
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if scrollView.contentOffset.y < -50 {
-            didEndDragging()
-        }
+    func enableGestures(_ isEnable: Bool) {
+        self.scrollView?.gestureRecognizers?.forEach({ gesture in
+            gesture.isEnabled = isEnable
+        })
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView.contentOffset.y <= -10 {
-            didEndDragging()
+        if scrollView.contentOffset.y <= 0 {
+           enableGestures(false)
         }
     }
 }

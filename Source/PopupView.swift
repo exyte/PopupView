@@ -387,6 +387,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
     /// Last position for drag gesture
     @State private var lastDragPosition: CGSize = .zero
 
+    @State private var scrollViewOffset: CGSize = .zero
+
+    @State private var scrollViewDragGestureIsActive = true
+
     /// The offset when the popup is displayed
     private var displayedOffsetY: CGFloat {
         if isOpaque {
@@ -489,8 +493,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
     private func configure(scrollView: UIScrollView) {
         scrollView.delegate = scrollViewDelegate
 
-        scrollViewDelegate.didEndDragging = {
-            dismissCallback(.drag)
+        scrollViewDelegate.scrollView = scrollView
+
+        if !scrollViewDragGestureIsActive {
+            scrollViewDelegate.enableGestures(true)
         }
     }
 
@@ -538,12 +544,18 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 ScrollView {
                     view()
                 }
+                .gesture(scrollViewDragGestureIsActive ? DragGesture().onChanged { value in
+                    if value.translation.height >= 0 {
+                        scrollViewOffset = CGSize(width: 0, height: value.translation.height * 0.3)
+                    }
+                } : nil)
                 .background(scrollViewColor)
                 .introspect(.scrollView, on: .iOS(.v15, .v16, .v17)) { scrollView in
                     configure(scrollView: scrollView)
                 }
                 .layoutPriority(1)
             }
+            .offset(CGSize(width: 0, height: scrollViewOffset.height))
         }
     }
 
@@ -669,6 +681,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         } else {
             withAnimation {
                 lastDragPosition = .zero
+                scrollViewDragGestureIsActive = false
             }
         }
     }
