@@ -20,6 +20,8 @@ final class PopupScrollViewDelegate: NSObject, ObservableObject, UIScrollViewDel
 
     var scrollView: UIScrollView?
 
+    var gestureIsCreated = false
+
     var dragGesture: UIPanGestureRecognizer {
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         return panGesture
@@ -41,20 +43,20 @@ final class PopupScrollViewDelegate: NSObject, ObservableObject, UIScrollViewDel
             scrollView?.contentOffset.y = 0
             didReachTop(contentOffset - translation.y)
         }
-        
+
         if gesture.state == .ended && contentOffset - translation.y < 0 {
             scrollEnded(contentOffset - translation.y)
         }
     }
 
     func addGestureIfNeeded() {
-        guard let gestures = scrollView?.gestureRecognizers,
-              let gesture = gestures.last else { return }
-
-
-        if !(gesture is UIPanGestureRecognizer) {
-            scrollView?.addGestureRecognizer(dragGesture)
+        guard let gestures = scrollView?.gestureRecognizers else { return }
+        
+        if !gestureIsCreated {
+            let panGesture = gestures[1] as? UIPanGestureRecognizer
+            panGesture?.addTarget(self, action: #selector(handlePan))
+            scrollView?.bounces = false
+            gestureIsCreated = true
         }
     }
-
 }

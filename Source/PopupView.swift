@@ -476,9 +476,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
         let referenceY = sheetContentRect.height / 3
 
         scrollViewDelegate.didReachTop = { value in
-            if -value >= referenceY {
-                dismissCallback(.drag)
-            }
             scrollViewOffset = CGSize(width: 0, height: -value)
         }
 
