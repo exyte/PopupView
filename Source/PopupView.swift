@@ -38,8 +38,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
         self.dragToDismiss = params.dragToDismiss
         self.closeOnTap = params.closeOnTap
         self.isOpaque = params.isOpaque
-        self.scrollViewHeaderView = params.scrollViewHeaderView
-        self.scrollViewColor = params.scrollViewColor
 
         self.view = view
 
@@ -51,10 +49,19 @@ public struct Popup<PopupContent: View>: ViewModifier {
     }
 
     public enum PopupType: Equatable {
+        
+        public static func == (lhs: Popup<PopupContent>.PopupType, rhs: Popup<PopupContent>.PopupType) -> Bool {
+            return lhs.id == rhs.id
+        }
+        
         case `default`
         case toast
         case floater(verticalPadding: CGFloat = 10, horizontalPadding: CGFloat = 10, useSafeAreaInset: Bool = true)
-        case scroll
+        case scroll(scrollViewColor: Color = .white, headerView: AnyView)
+
+        var id: UUID {
+            UUID()
+        }
 
         var defaultPosition: Position {
             if case .default = self {
@@ -157,10 +164,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
         /// Custom background view for outside area
         var backgroundView: AnyView?
 
-        var scrollViewHeaderView: AnyView?
-
-        var scrollViewColor: Color = .clear
-
         /// If true - taps do not pass through popup's background and the popup is displayed on top of navbar
         var isOpaque: Bool = false
 
@@ -245,18 +248,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
         public func useKeyboardSafeArea(_ useKeyboardSafeArea: Bool) -> PopupParameters {
             var params = self
             params.useKeyboardSafeArea = useKeyboardSafeArea
-            return params
-        }
-
-        public func scrollViewHeaderView<HeaderView: View>(_ headerView: ()->(HeaderView)) -> PopupParameters {
-            var params = self
-            params.scrollViewHeaderView = AnyView(headerView())
-            return params
-        }
-
-        public func scrollViewColor(_ color: Color) -> PopupParameters {
-            var params = self
-            params.scrollViewColor = color
             return params
         }
 
@@ -358,10 +349,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
     var dismissCallback: (DismissSource)->()
 
     var view: () -> PopupContent
-
-    var scrollViewHeaderView: AnyView?
-
-    var scrollViewColor: Color = .clear
 
     // MARK: - Private Properties
 
@@ -535,11 +522,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     @ViewBuilder
     private func contentView() -> some View {
-        if type != .scroll {
-            view()
-        } else {
+        switch type {
+        case .scroll(let scrollViewColor, let headerView):
             VStack(spacing: 0) {
-                scrollViewHeaderView
+                headerView
 
                 ScrollView {
                     view()
@@ -556,6 +542,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 .layoutPriority(1)
             }
             .offset(CGSize(width: 0, height: scrollViewOffset.height))
+
+        default:
+            view()
         }
     }
 
