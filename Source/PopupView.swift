@@ -48,20 +48,12 @@ public struct Popup<PopupContent: View>: ViewModifier {
         self.dismissCallback = dismissCallback
     }
 
-    public enum PopupType: Equatable {
-        
-        public static func == (lhs: Popup<PopupContent>.PopupType, rhs: Popup<PopupContent>.PopupType) -> Bool {
-            return lhs.id == rhs.id
-        }
-        
+    public enum PopupType {
+
         case `default`
         case toast
         case floater(verticalPadding: CGFloat = 10, horizontalPadding: CGFloat = 10, useSafeAreaInset: Bool = true)
         case scroll(scrollViewColor: Color = .white, headerView: AnyView)
-
-        var id: UUID {
-            UUID()
-        }
 
         var defaultPosition: Position {
             if case .default = self {
@@ -374,9 +366,8 @@ public struct Popup<PopupContent: View>: ViewModifier {
     /// Last position for drag gesture
     @State private var lastDragPosition: CGSize = .zero
 
+    /// Position when the scroll content offset became less than 0
     @State private var scrollViewOffset: CGSize = .zero
-
-    @State private var scrollViewDragGestureIsActive = true
 
     /// The offset when the popup is displayed
     private var displayedOffsetY: CGFloat {
@@ -481,9 +472,24 @@ public struct Popup<PopupContent: View>: ViewModifier {
         scrollView.delegate = scrollViewDelegate
 
         scrollViewDelegate.scrollView = scrollView
+        scrollViewDelegate.addGestureIfNeeded()
+        let referenceY = sheetContentRect.height / 3
 
-        if !scrollViewDragGestureIsActive {
-            scrollViewDelegate.enableGestures(true)
+        scrollViewDelegate.didReachTop = { value in
+            if -value >= referenceY {
+                dismissCallback(.drag)
+            }
+            scrollViewOffset = CGSize(width: 0, height: -value)
+        }
+
+        scrollViewDelegate.scrollEnded = { value in
+            if -value >= referenceY {
+                dismissCallback(.drag)
+            } else {
+                withAnimation {
+                    scrollViewOffset = .zero
+                }
+            }
         }
     }
 
@@ -530,11 +536,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 ScrollView {
                     view()
                 }
-                .gesture(scrollViewDragGestureIsActive ? DragGesture().onChanged { value in
-                    if value.translation.height >= 0 {
-                        scrollViewOffset = CGSize(width: 0, height: value.translation.height * 0.3)
-                    }
-                } : nil)
                 .background(scrollViewColor)
                 .introspect(.scrollView, on: .iOS(.v15, .v16, .v17)) { scrollView in
                     configure(scrollView: scrollView)
@@ -670,7 +671,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
         } else {
             withAnimation {
                 lastDragPosition = .zero
-                scrollViewDragGestureIsActive = false
             }
         }
     }
