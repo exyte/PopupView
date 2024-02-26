@@ -153,7 +153,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         var backgroundView: AnyView?
 
         /// If true - taps do not pass through popup's background and the popup is displayed on top of navbar
-        var isOpaque: Bool = false
+        var isOpaque: Bool = true
 
         /// move up for keyboardHeight when it is displayed
         var useKeyboardSafeArea: Bool = false
