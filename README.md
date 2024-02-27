@@ -115,10 +115,19 @@ struct ContentView: View {
 ### Available customizations - optional parameters
 use `customize` closure in popup modifier:
 
-`type` - toast, float or default. Floater has parameters of its own:     
-- `verticalPadding`  - padding which will define padding from the relative vertical edge or will be added to safe area if `useSafeAreaInset` is true   
-- `vhorizontalPadding`  - padding which will define padding from the relative horizontal edge or will be added to safe area if `useSafeAreaInset` is true      
+`type`:
+- `default` - usual popup in the center of screen
+- toast - fitted to screen i.e. without padding and ignoring safe area
+- floater - has padding and can choose to use or ignore safe area
+- scroll - adds a scroll to your content, if you scroll to top of this scroll - the gesture will continue into popup's drag dismiss.
+
+floater parameters:     
+- `verticalPadding` - padding which will define padding from the relative vertical edge or will be added to safe area if `useSafeAreaInset` is true   
+- `horizontalPadding` - padding which will define padding from the relative horizontal edge or will be added to safe area if `useSafeAreaInset` is true      
 - `useSafeAreaInset` - whether to include safe area insets in floater padding      
+
+scroll parameters:   
+`headerView` - a view on top which won't be a part of the scroll (if you need one)
 
 `position` - topLeading, top, topTrailing, leading, center, trailing, bottomLeading, bottom, bottomTrailing 
 `appearFrom` - `top, bottom, left, right`: determines the direction of appearing animation. If left empty it copies `position` parameter: so appears from .top edge, if `position` is set to .top
