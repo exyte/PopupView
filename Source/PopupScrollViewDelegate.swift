@@ -22,11 +22,6 @@ final class PopupScrollViewDelegate: NSObject, ObservableObject, UIScrollViewDel
 
     var gestureIsCreated = false
 
-    var dragGesture: UIPanGestureRecognizer {
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
-        return panGesture
-    }
-
     var didReachTop: (Double) -> Void = {_ in }
     var scrollEnded: (Double) -> Void = {_ in }
 

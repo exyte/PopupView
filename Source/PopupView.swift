@@ -53,7 +53,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
         case `default`
         case toast
         case floater(verticalPadding: CGFloat = 10, horizontalPadding: CGFloat = 10, useSafeAreaInset: Bool = true)
-        case scroll(scrollViewColor: Color = .white, headerView: AnyView)
+#if os(iOS)
+        case scroll(headerView: AnyView)
+#endif
 
         var defaultPosition: Position {
             if case .default = self {
@@ -532,14 +534,13 @@ public struct Popup<PopupContent: View>: ViewModifier {
     @ViewBuilder
     private func contentView() -> some View {
         switch type {
-        case .scroll(let scrollViewColor, let headerView):
+        case .scroll(let headerView):
             VStack(spacing: 0) {
                 headerView
 
                 ScrollView {
                     view()
                 }
-                .background(scrollViewColor)
                 .introspect(.scrollView, on: .iOS(.v15, .v16, .v17)) { scrollView in
                     configure(scrollView: scrollView)
                 }
