@@ -323,6 +323,7 @@ struct ContentView : View {
         )
     }
 
+#if os(iOS)
     func scrollViewHeader() -> some View {
         ZStack {
             Color(.white).cornerRadius(40, corners: [.topLeft, .topRight])
@@ -334,6 +335,7 @@ struct ContentView : View {
                 .padding(.vertical, 20)
         }
     }
+#endif
 }
 
 struct ContentView_Previews: PreviewProvider {

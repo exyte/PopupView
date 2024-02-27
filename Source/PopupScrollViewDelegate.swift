@@ -5,6 +5,7 @@
 //  Created by vadim.vitkovskiy on 15.02.2024.
 //
 
+#if os(iOS)
 import UIKit
 
 extension UIScrollView {
@@ -55,3 +56,4 @@ final class PopupScrollViewDelegate: NSObject, ObservableObject, UIScrollViewDel
         }
     }
 }
+#endif
