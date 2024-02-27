@@ -346,9 +346,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     @StateObject var keyboardHeightHelper = KeyboardHeightHelper()
 
-    /// UIScrollView delegate, needed for calling didEndDragging
-    @StateObject private var scrollViewDelegate = PopupScrollViewDelegate()
-
     /// The rect and safe area of the hosting controller
     @State private var presenterContentRect: CGRect = .zero
 
@@ -360,14 +357,23 @@ public struct Popup<PopupContent: View>: ViewModifier {
     /// Variable used to control what is animated and what is not
     @State var actualCurrentOffset = CGPoint.pointFarAwayFromScreen
 
+    // MARK: - Drag to dismiss
+
     /// Drag to dismiss gesture state
     @GestureState private var dragState = DragState.inactive
 
     /// Last position for drag gesture
     @State private var lastDragPosition: CGSize = .zero
 
+    // MARK: - Drag to dismiss with scroll
+
+    /// UIScrollView delegate, needed for calling didEndDragging
+    @StateObject private var scrollViewDelegate = PopupScrollViewDelegate()
+
     /// Position when the scroll content offset became less than 0
     @State private var scrollViewOffset: CGSize = .zero
+
+    // MARK: - Position calculations
 
     /// The offset when the popup is displayed
     private var displayedOffsetY: CGFloat {
