@@ -22,4 +22,6 @@ Pod::Spec.new do |s|
      'Source/**/*.swift'
   ]
 
+  s.ios.dependency 'SwiftUIIntrospect'
+
 end

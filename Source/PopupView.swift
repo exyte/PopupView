@@ -7,7 +7,9 @@
 //
 
 import SwiftUI
+#if os(iOS)
 import SwiftUIIntrospect
+#endif
 
 public enum DismissSource {
     case binding // set isPresented to false ot item to nil
