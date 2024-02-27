@@ -284,7 +284,7 @@ struct ContentView : View {
                 ActionSheetSecond()
             } customize: {
                 $0
-                    .type(.scroll(scrollViewColor: .white, headerView: AnyView(scrollViewHeader())))
+                    .type(.scroll(headerView: AnyView(scrollViewHeader())))
                     .position(.bottom)
                     .closeOnTap(false)
                     .backgroundColor(.black.opacity(0.4))
@@ -323,6 +323,7 @@ struct ContentView : View {
         )
     }
 
+#if os(iOS)
     func scrollViewHeader() -> some View {
         ZStack {
             Color(.white).cornerRadius(40, corners: [.topLeft, .topRight])
@@ -334,6 +335,7 @@ struct ContentView : View {
                 .padding(.vertical, 20)
         }
     }
+#endif
 }
 
 struct ContentView_Previews: PreviewProvider {

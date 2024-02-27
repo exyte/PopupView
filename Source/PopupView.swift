@@ -53,7 +53,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
         case `default`
         case toast
         case floater(verticalPadding: CGFloat = 10, horizontalPadding: CGFloat = 10, useSafeAreaInset: Bool = true)
-        case scroll(scrollViewColor: Color = .white, headerView: AnyView)
+#if os(iOS)
+        case scroll(headerView: AnyView)
+#endif
 
         var defaultPosition: Position {
             if case .default = self {
@@ -366,9 +368,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
     @State private var lastDragPosition: CGSize = .zero
 
     // MARK: - Drag to dismiss with scroll
-
+#if os(iOS)
     /// UIScrollView delegate, needed for calling didEndDragging
     @StateObject private var scrollViewDelegate = PopupScrollViewDelegate()
+#endif
 
     /// Position when the scroll content offset became less than 0
     @State private var scrollViewOffset: CGSize = .zero
@@ -474,6 +477,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         return from
     }
 
+#if os(iOS)
     private func configure(scrollView: UIScrollView) {
         scrollView.delegate = scrollViewDelegate
 
@@ -495,6 +499,8 @@ public struct Popup<PopupContent: View>: ViewModifier {
             }
         }
     }
+
+#endif
 
     var screenSize: CGSize {
 #if os(iOS)
@@ -531,15 +537,15 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     @ViewBuilder
     private func contentView() -> some View {
+#if os(iOS)
         switch type {
-        case .scroll(let scrollViewColor, let headerView):
+        case .scroll(let headerView):
             VStack(spacing: 0) {
                 headerView
 
                 ScrollView {
                     view()
                 }
-                .background(scrollViewColor)
                 .introspect(.scrollView, on: .iOS(.v15, .v16, .v17)) { scrollView in
                     configure(scrollView: scrollView)
                 }
@@ -550,6 +556,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
         default:
             view()
         }
+#else
+        view()
+#endif
     }
 
     /// This is the builder for the sheet content

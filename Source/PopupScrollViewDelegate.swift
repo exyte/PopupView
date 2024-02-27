@@ -5,6 +5,7 @@
 //  Created by vadim.vitkovskiy on 15.02.2024.
 //
 
+#if os(iOS)
 import UIKit
 
 extension UIScrollView {
@@ -21,11 +22,6 @@ final class PopupScrollViewDelegate: NSObject, ObservableObject, UIScrollViewDel
     var scrollView: UIScrollView?
 
     var gestureIsCreated = false
-
-    var dragGesture: UIPanGestureRecognizer {
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
-        return panGesture
-    }
 
     var didReachTop: (Double) -> Void = {_ in }
     var scrollEnded: (Double) -> Void = {_ in }
@@ -60,3 +56,4 @@ final class PopupScrollViewDelegate: NSObject, ObservableObject, UIScrollViewDel
         }
     }
 }
+#endif
