@@ -378,6 +378,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
     /// Position when the scroll content offset became less than 0
     @State private var scrollViewOffset: CGSize = .zero
 
+    /// Maximum content height of scrollView (content + header) that will be displayed on the screen
+    @State var scrollViewHeight = 0.0
+
     // MARK: - Position calculations
 
     /// The offset when the popup is displayed
@@ -544,15 +547,33 @@ public struct Popup<PopupContent: View>: ViewModifier {
         case .scroll(let headerView):
             VStack(spacing: 0) {
                 headerView
+                    .background(
+                        GeometryReader { proxy in
+                            Color.clear
+                                .onAppear {
+                                    scrollViewHeight += proxy.size.height
+                                }
+                        }
+                    )
 
                 ScrollView {
                     view()
+                        .background(
+                            GeometryReader { proxy in
+                                Color.clear
+                                    .onAppear {
+                                        scrollViewHeight += proxy.size.height
+                                        scrollViewHeight = min(proxy.size.height, screenSize.height * 0.8)
+                                    }
+                            }
+                        )
                 }
                 .introspect(.scrollView, on: .iOS(.v15, .v16, .v17)) { scrollView in
                     configure(scrollView: scrollView)
                 }
                 .layoutPriority(1)
             }
+            .frame(height: scrollViewHeight)
             .offset(CGSize(width: 0, height: scrollViewOffset.height))
 
         default:
