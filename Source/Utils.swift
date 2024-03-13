@@ -23,6 +23,21 @@ final class ClassReference<T> {
 
 extension View {
 
+#if os(iOS)
+    func calculateHeight(screenSize: CGSize, scrollViewHeight: Binding<Double>) -> some View {
+        self
+            .background(
+                GeometryReader { proxy in
+                    Color.clear
+                        .onAppear {
+                            scrollViewHeight.wrappedValue += proxy.size.height
+                            scrollViewHeight.wrappedValue = min(scrollViewHeight.wrappedValue, screenSize.height)
+                        }
+                }
+            )
+    }
+#endif
+
     @ViewBuilder
     func valueChanged<T: Equatable>(value: T, onChange: @escaping (T) -> Void) -> some View {
         if #available(iOS 14.0, tvOS 14.0, macOS 11.0, watchOS 7.0, *) {

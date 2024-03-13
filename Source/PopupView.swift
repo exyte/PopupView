@@ -547,26 +547,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
         case .scroll(let headerView):
             VStack(spacing: 0) {
                 headerView
-                    .background(
-                        GeometryReader { proxy in
-                            Color.clear
-                                .onAppear {
-                                    scrollViewHeight += proxy.size.height
-                                }
-                        }
-                    )
-
+                    .calculateHeight(screenSize: screenSize, scrollViewHeight: $scrollViewHeight)
                 ScrollView {
                     view()
-                        .background(
-                            GeometryReader { proxy in
-                                Color.clear
-                                    .onAppear {
-                                        scrollViewHeight += proxy.size.height
-                                        scrollViewHeight = min(proxy.size.height, screenSize.height * 0.8)
-                                    }
-                            }
-                        )
+                        .calculateHeight(screenSize: screenSize, scrollViewHeight: $scrollViewHeight)
                 }
                 .introspect(.scrollView, on: .iOS(.v15, .v16, .v17)) { scrollView in
                     configure(scrollView: scrollView)
