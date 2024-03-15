@@ -23,6 +23,22 @@ final class ClassReference<T> {
 
 extension View {
 
+#if os(iOS)
+    func calculateHeight(height: Binding<Double>) -> some View {
+        self
+            .background(
+                GeometryReader { proxy in
+                    Color.clear
+                        .onAppear {
+                            height.wrappedValue += proxy.size.height
+                            height.wrappedValue = min(height.wrappedValue, UIScreen.main.bounds.height)
+                        }
+                }
+            )
+    }
+#endif
+    
+
     @ViewBuilder
     func valueChanged<T: Equatable>(value: T, onChange: @escaping (T) -> Void) -> some View {
         if #available(iOS 14.0, tvOS 14.0, macOS 11.0, watchOS 7.0, *) {
