@@ -24,19 +24,20 @@ final class ClassReference<T> {
 extension View {
 
 #if os(iOS)
-    func calculateHeight(screenSize: CGSize, scrollViewHeight: Binding<Double>) -> some View {
+    func calculateHeight(height: Binding<Double>) -> some View {
         self
             .background(
                 GeometryReader { proxy in
                     Color.clear
                         .onAppear {
-                            scrollViewHeight.wrappedValue += proxy.size.height
-                            scrollViewHeight.wrappedValue = min(scrollViewHeight.wrappedValue, screenSize.height)
+                            height.wrappedValue += proxy.size.height
+                            height.wrappedValue = min(height.wrappedValue, UIScreen.main.bounds.height)
                         }
                 }
             )
     }
 #endif
+    
 
     @ViewBuilder
     func valueChanged<T: Equatable>(value: T, onChange: @escaping (T) -> Void) -> some View {
