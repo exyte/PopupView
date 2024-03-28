@@ -7,7 +7,45 @@
 //
 
 import SwiftUI
+import PublishedObject // https://github.com/Amzd/PublishedObject
 import Combine
+
+/// A property wrapper type that instantiates an observable object.
+@propertyWrapper
+public struct StateObject<ObjectType: ObservableObject>: DynamicProperty
+where ObjectType.ObjectWillChangePublisher == ObservableObjectPublisher {
+    /// Wrapper that helps with initialising without actually having an ObservableObject yet
+    private class ObservedObjectWrapper: ObservableObject {
+        @PublishedObject var wrappedObject: ObjectType? = nil
+        init() {}
+    }
+    private var thunk: () -> ObjectType
+    @ObservedObject private var observedObject = ObservedObjectWrapper()
+    @State private var state = ObservedObjectWrapper()
+    public var wrappedValue: ObjectType {
+        if state.wrappedObject == nil {
+            // There is no State yet so we need to initialise the object
+            state.wrappedObject = thunk()
+            // and start observing it
+            observedObject.wrappedObject = state.wrappedObject
+        } else if observedObject.wrappedObject == nil {
+            // Retrieve the object from State and observe it in ObservedObject
+            observedObject.wrappedObject = state.wrappedObject
+        }
+        return state.wrappedObject!
+    }
+    public var projectedValue: ObservedObject<ObjectType>.Wrapper {
+        ObservedObject(wrappedValue: wrappedValue).projectedValue
+    }
+    public init(wrappedValue thunk: @autoclosure @escaping () -> ObjectType) {
+        self.thunk = thunk
+    }
+    public mutating func update() {
+        // Not sure what this does but we'll just forward it
+        _state.update()
+        _observedObject.update()
+    }
+}
 
 final class DispatchWorkHolder {
     var work: DispatchWorkItem?
@@ -47,6 +85,27 @@ extension View {
             self.onReceive(Just(value)) { value in
                 onChange(value)
             }
+        }
+    }
+    
+}
+
+extension View {
+    func compatibleFullScreen<Content: View>(isPresented: Binding<Bool>, @ViewBuilder content: @escaping () -> Content) -> some View {
+        self.modifier(FullScreenModifier(isPresented: isPresented, builder: content))
+    }
+}
+
+struct FullScreenModifier<V: View>: ViewModifier {
+    let isPresented: Binding<Bool>
+    let builder: () -> V
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 14.0, *) {
+            content.fullScreenCover(isPresented: isPresented, content: builder)
+        } else {
+            content.sheet(isPresented: isPresented, content: builder)
         }
     }
 }
@@ -249,10 +308,10 @@ private struct TransparentNonAnimatableFullScreenModifier<FullScreenContent: Vie
 
     func body(content: Content) -> some View {
         content
-            .onChange(of: isPresented) { isPresented in
+            .valueChanged(value: isPresented) { isPresented in
                 UIView.setAnimationsEnabled(false)
             }
-            .fullScreenCover(isPresented: $isPresented, content: {
+            .compatibleFullScreen(isPresented: $isPresented, content: {
                 ZStack {
                     fullScreenContent()
                 }
