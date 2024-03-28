@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "swiftui-introspect",
+        "repositoryURL": "https://github.com/siteline/swiftui-introspect",
+        "state": {
+          "branch": null,
+          "revision": "0cd2a5a5895306bc21d54a2254302d24a9a571e4",
+          "version": "1.1.3"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
