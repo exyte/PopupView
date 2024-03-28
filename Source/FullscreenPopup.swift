@@ -116,7 +116,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     public func body(content: Content) -> some View {
         if isBoolMode {
             main(content: content)
-                .onChange(of: isPresented) { newValue in
+                .valueChanged(value: isPresented) { newValue in
                     // minimum time to represent
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
                         closingIsInProcess = !newValue
@@ -130,7 +130,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                 }
         } else {
             main(content: content)
-                .onChange(of: item) { newValue in
+                .valueChanged(value: item) { newValue in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
                         self.closingIsInProcess = newValue == nil
                         if let newValue {

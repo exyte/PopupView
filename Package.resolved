@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "PublishedObject",
+        "repositoryURL": "https://github.com/Amzd/PublishedObject",
+        "state": {
+          "branch": null,
+          "revision": "e61bfde22832ba8dfe9f8be2561838a1512e38af",
+          "version": "0.2.0"
+        }
+      },
+      {
         "package": "swiftui-introspect",
         "repositoryURL": "https://github.com/siteline/swiftui-introspect",
         "state": {

@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Combine
 #if os(iOS)
 import SwiftUIIntrospect
 #endif
@@ -578,7 +579,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 }
                 .frameGetter($sheetContentRect)
                 .position(x: sheetContentRect.width/2 + actualCurrentOffset.x, y: sheetContentRect.height/2 + actualCurrentOffset.y)
-                .onChange(of: targetCurrentOffset) { newValue in
+                .valueChanged(value: targetCurrentOffset) { newValue in
                     if !shouldShowContent, newValue == hiddenOffset { // don't animate initial positioning outside the screen
                         actualCurrentOffset = newValue
                     } else {
@@ -601,7 +602,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
                         }
                     }
                 }
-                .onChange(of: sheetContentRect.size) { sheetContentRect in
+                .valueChanged(value: sheetContentRect.size) { sheetContentRect in
                     positionIsCalculatedCallback()
                 }
         }
