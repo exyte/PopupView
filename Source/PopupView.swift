@@ -490,6 +490,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
         scrollViewDelegate.addGestureIfNeeded()
         let referenceY = sheetContentRect.height / 3
 
+        DispatchQueue.main.async {
+            scrollViewContentHeight = scrollView.contentSize.height
+        }
+
         scrollViewDelegate.didReachTop = { value in
             scrollViewOffset = CGSize(width: 0, height: -value)
         }
@@ -547,17 +551,15 @@ public struct Popup<PopupContent: View>: ViewModifier {
         case .scroll(let headerView):
             VStack(spacing: 0) {
                 headerView
-                    .calculateHeight(height: $scrollViewContentHeight)
+                    .fixedSize(horizontal: false, vertical: true)
                 ScrollView {
                     view()
-                        .calculateHeight(height: $scrollViewContentHeight)
                 }
-                /// Max height of scrollView content that will be displayed on the screen
-                .frame(height: scrollViewContentHeight)
-                .introspect(.scrollView, on: .iOS(.v15, .v16, .v17)) { scrollView in
-                    configure(scrollView: scrollView)
-                }
-                .layoutPriority(1)
+                // no heigher than its contents
+                .frame(maxHeight: scrollViewContentHeight)
+            }
+            .introspect(.scrollView, on: .iOS(.v15, .v16, .v17)) { scrollView in
+                configure(scrollView: scrollView)
             }
             .offset(CGSize(width: 0, height: scrollViewOffset.height))
 
