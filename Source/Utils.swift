@@ -340,6 +340,8 @@ extension CGSize {
         return WKInterfaceDevice.current().screenBounds.size
 #elseif os(macOS)
         return NSScreen.main?.frame.size ?? .zero
+#elseif os(visionOS)
+        return .zero
 #endif
     }
 }
