@@ -17,11 +17,17 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/siteline/swiftui-introspect", from: "1.0.0")
+        .package(
+            url: "https://github.com/siteline/swiftui-introspect",
+            from: "1.0.0"
+        )
     ],
     targets: [
-        .target(name: "PopupView", dependencies: [
-            .product(name: "SwiftUIIntrospect", package: "swiftui-introspect"),
-        ], path: "Source")
+        .target(
+            name: "PopupView",
+            dependencies: [
+                .product(name: "SwiftUIIntrospect", package: "swiftui-introspect"),
+            ]
+        )
     ]
 )
