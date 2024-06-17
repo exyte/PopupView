@@ -513,7 +513,14 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     var screenSize: CGSize {
 #if os(iOS)
-        return UIScreen.main.bounds.size
+        if #available(iOS 15.0, *) {
+            return UIApplication.shared.connectedScenes
+                .compactMap({ scene -> UIWindow? in
+                    (scene as? UIWindowScene)?.keyWindow
+                }).first?.frame.size ?? .zero
+        } else {
+            return UIScreen.main.bounds.size
+        }
 #elseif os(watchOS)
         return WKInterfaceDevice.current().screenBounds.size
 #else
