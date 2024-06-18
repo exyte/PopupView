@@ -17,7 +17,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     var isBoolMode: Bool
 
-    var sheetPresented: Bool {
+    var popupPresented: Bool {
         item != nil || isPresented
     }
 
@@ -83,6 +83,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     /// Set dismiss source to pass to dismiss callback
     @State private var dismissSource: DismissSource?
 
+    /// Synchronize isPresented changes and animations
+    private let eventsQueue = DispatchQueue(label: "eventsQueue", qos: .utility)
+    @State private var eventsSemaphore = DispatchSemaphore(value: 1)
+
     init(isPresented: Binding<Bool> = .constant(false),
          item: Binding<Item?> = .constant(nil),
          isBoolMode: Bool,
@@ -117,15 +121,15 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         if isBoolMode {
             main(content: content)
                 .onChange(of: isPresented) { newValue in
-                    // minimum time to represent
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
+                    eventsQueue.async {
+                        eventsSemaphore.wait()
                         closingIsInProcess = !newValue
-                        appearAction(sheetPresented: newValue)
+                        appearAction(popupPresented: newValue)
                     }
                 }
                 .onAppear {
                     if isPresented {
-                        appearAction(sheetPresented: true)
+                        appearAction(popupPresented: true)
                     }
                 }
         } else {
@@ -137,13 +141,13 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                             /// copying `itemView`
                             self.tempItemView = itemView(newValue)
                         }
-                        appearAction(sheetPresented: newValue != nil)
+                        appearAction(popupPresented: newValue != nil)
                     }
                 }
                 .onAppear {
                     if let item {
                         self.tempItemView = itemView(item)
-                        appearAction(sheetPresented: true)
+                        appearAction(popupPresented: true)
                     }
                 }
         }
@@ -232,8 +236,8 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         )
     }
 
-    func appearAction(sheetPresented: Bool) {
-        if sheetPresented {
+    func appearAction(popupPresented: Bool) {
+        if popupPresented {
             dismissSource = nil
             showSheet = true // show transparent fullscreen sheet
             showContent = true // immediately load popup body
@@ -256,6 +260,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     func onAnimationCompleted() -> () {
         if shouldShowContent { // return if this was called on showing animation, only proceed if called on hiding
+            eventsSemaphore.signal()
             return
         }
         showContent = false // unload popup body after hiding animation is done
@@ -266,6 +271,8 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         if !isOpaque { // for opaque this callback is called in fullScreenCover's onDisappear
             userDismissCallback(dismissSource ?? .binding)
         }
+
+        eventsSemaphore.signal()
     }
 
     func setupAutohide() {
@@ -282,7 +289,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                 itemRef?.value.wrappedValue = nil
                 dispatchWorkHolder.work = nil
             })
-            if sheetPresented, let work = dispatchWorkHolder.work {
+            if popupPresented, let work = dispatchWorkHolder.work {
                 DispatchQueue.main.asyncAfter(deadline: .now() + autohideIn, execute: work)
             }
         }
