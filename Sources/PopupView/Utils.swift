@@ -51,7 +51,7 @@ extension View {
         self
 #else
         if condition {
-            self.gesture(
+            self.simultaneousGesture(
                 TapGesture().onEnded {
                     onTap()
                 }
