@@ -319,7 +319,7 @@ struct PopupsList: View {
         PopupButton(isShowing: $inputSheets.showingFirst, hideAll: hideAll) {
             PopupTypeView(
                 title: "Bottom Input",
-                detail: "Popup in the bottom of the screen with a input text field"
+                detail: "Popup in the bottom of the screen with an input text field"
             ) {
                 InputSheetImage()
             }

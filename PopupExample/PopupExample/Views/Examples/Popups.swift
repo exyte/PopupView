@@ -31,17 +31,19 @@ struct PopupMiddle: View {
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 20)
             
-            Button("Thanks") {
+            Button {
                 onClose()
+            } label: {
+                Text("Thanks")
+                    .font(.system(size: 18, weight: .bold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .padding(.horizontal, 24)
+                    .foregroundColor(.white)
+                    .background(Color(hex: "9265F8"))
+                    .cornerRadius(12)
             }
             .buttonStyle(.plain)
-            .font(.system(size: 18, weight: .bold))
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 18)
-            .padding(.horizontal, 24)
-            .foregroundColor(.white)
-            .background(Color(hex: "9265F8"))
-            .cornerRadius(12)
         }
         .padding(EdgeInsets(top: 37, leading: 24, bottom: 40, trailing: 24))
         .background(Color.white.cornerRadius(20))
@@ -67,16 +69,18 @@ struct PopupBottomFirst: View {
                 .multilineTextAlignment(.center)
                 .padding(.bottom, 12)
 
-            Button("Ok, I accept") {
+            Button {
                 isPresented = false
+            } label: {
+                Text("Ok, I accept")
+                    .font(.system(size: 18, weight: .bold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .foregroundColor(.white)
+                    .background(Color(hex: "FFB93D"))
+                    .cornerRadius(12)
             }
             .buttonStyle(.plain)
-            .font(.system(size: 18, weight: .bold))
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 18)
-            .foregroundColor(.white)
-            .background(Color(hex: "FFB93D"))
-            .cornerRadius(12)
         }
         .padding(EdgeInsets(top: 37, leading: 24, bottom: 40, trailing: 24))
         .background(Color.white.cornerRadius(20))

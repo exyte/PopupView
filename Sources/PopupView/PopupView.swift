@@ -23,6 +23,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     init(params: Popup<PopupContent>.PopupParameters,
          view: @escaping () -> PopupContent,
+         popupPresented: Bool,
          shouldShowContent: Bool,
          showContent: Bool,
          positionIsCalculatedCallback: @escaping () -> (),
@@ -32,6 +33,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         self.type = params.type
         self.position = params.position ?? params.type.defaultPosition
         self.appearFrom = params.appearFrom
+        self.disappearTo = params.disappearTo
         self.verticalPadding = params.type.verticalPadding
         self.horizontalPadding = params.type.horizontalPadding
         self.useSafeAreaInset = params.type.useSafeAreaInset
@@ -43,6 +45,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
         self.view = view
 
+        self.popupPresented = popupPresented
         self.shouldShowContent = shouldShowContent
         self.showContent = showContent
         self.positionIsCalculatedCallback = positionIsCalculatedCallback
@@ -126,11 +129,12 @@ public struct Popup<PopupContent: View>: ViewModifier {
         }
     }
 
-    public enum AppearFrom {
-        case top
-        case bottom
-        case left
-        case right
+    public enum AppearAnimation {
+        case topSlide
+        case bottomSlide
+        case leftSlide
+        case rightSlide
+        case centerScale
     }
 
     public struct PopupParameters {
@@ -138,7 +142,8 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
         var position: Position?
 
-        var appearFrom: AppearFrom?
+        var appearFrom: AppearAnimation?
+        var disappearTo: AppearAnimation?
 
         var animation: Animation = .easeOut(duration: 0.3)
 
@@ -184,9 +189,15 @@ public struct Popup<PopupContent: View>: ViewModifier {
             return params
         }
 
-        public func appearFrom(_ appearFrom: AppearFrom) -> PopupParameters {
+        public func appearFrom(_ appearFrom: AppearAnimation) -> PopupParameters {
             var params = self
             params.appearFrom = appearFrom
+            return params
+        }
+
+        public func disappearTo(_ disappearTo: AppearAnimation) -> PopupParameters {
+            var params = self
+            params.disappearTo = disappearTo
             return params
         }
 
@@ -312,7 +323,8 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     var type: PopupType
     var position: Position
-    var appearFrom: AppearFrom?
+    var appearFrom: AppearAnimation?
+    var disappearTo: AppearAnimation?
     var verticalPadding: CGFloat
     var horizontalPadding: CGFloat
     var useSafeAreaInset: Bool
@@ -328,6 +340,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     /// If opaque - taps do not pass through popup's background color
     var isOpaque: Bool
+
+    /// Variable showing changes in isPresented/item, used here to determine direction of animation (showing or hiding)
+    var popupPresented: Bool
 
     /// Trigger popup showing/hiding animations and...
     var shouldShowContent: Bool
@@ -358,8 +373,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     @State private var safeAreaInsets: EdgeInsets = EdgeInsets()
 
-    /// Variable used to control what is animated and what is not
+    /// Variables used to control what is animated and what is not
     @State var actualCurrentOffset = CGPoint.pointFarAwayFromScreen
+    @State var actualScale = 1.0
 
     // MARK: - Drag to dismiss
 
@@ -418,6 +434,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         return 0
     }
 
+    /// The offset when the popup is displayed
     private var displayedOffsetX: CGFloat {
         if isOpaque {
             if position.isLeading {
@@ -449,15 +466,28 @@ public struct Popup<PopupContent: View>: ViewModifier {
             return CGPoint.pointFarAwayFromScreen
         }
 
-        switch calculatedAppearFrom {
-        case .top:
+        // appearing animation
+        if popupPresented {
+            return hiddenOffset(calculatedAppearFrom)
+        }
+        // hiding animation
+        else {
+            return hiddenOffset(calculatedDisappearTo)
+        }
+    }
+
+    func hiddenOffset(_ appearAnimation: AppearAnimation) -> CGPoint {
+        switch appearAnimation {
+        case .topSlide:
             return CGPoint(x: displayedOffsetX, y: -presenterContentRect.minY - safeAreaInsets.top - sheetContentRect.height)
-        case .bottom:
+        case .bottomSlide:
             return CGPoint(x: displayedOffsetX, y: screenHeight)
-        case .left:
+        case .leftSlide:
             return CGPoint(x: -screenWidth, y: displayedOffsetY)
-        case .right:
+        case .rightSlide:
             return CGPoint(x: screenWidth, y: displayedOffsetY)
+        case .centerScale:
+            return CGPoint(x: displayedOffsetX, y: displayedOffsetY)
         }
     }
 
@@ -466,20 +496,63 @@ public struct Popup<PopupContent: View>: ViewModifier {
         shouldShowContent ? CGPoint(x: displayedOffsetX, y: displayedOffsetY) : hiddenOffset
     }
 
-    private var calculatedAppearFrom: AppearFrom {
-        let from: AppearFrom
+    // MARK: - Scale calculations
+
+    /// The scale when the popup is displayed
+    private var displayedScale: CGFloat {
+        1
+    }
+
+    /// The scale when the popup is hidden
+    private var hiddenScale: CGFloat {
+        if popupPresented, calculatedAppearFrom == .centerScale {
+            return 0
+        }
+        else if !popupPresented, calculatedDisappearTo == .centerScale {
+            return 0
+        }
+        return 1
+    }
+
+    /// Passes the desired scale to actualScale allowing to animate selectively
+    private var targetScale: CGFloat {
+        shouldShowContent ? displayedScale : hiddenScale
+    }
+
+    // MARK: - Appear position direction calculations
+
+    private var calculatedAppearFrom: AppearAnimation {
+        let from: AppearAnimation
         if let appearFrom = appearFrom {
             from = appearFrom
         } else if position.isLeading {
-            from = .left
+            from = .leftSlide
         } else if position.isTrailing {
-            from = .right
+            from = .rightSlide
         } else if position == .top {
-            from = .top
+            from = .topSlide
         } else {
-            from = .bottom
+            from = .bottomSlide
         }
         return from
+    }
+
+    private var calculatedDisappearTo: AppearAnimation {
+        let to: AppearAnimation
+        if let disappearTo = disappearTo {
+            to = disappearTo
+        } else if let appearFrom = appearFrom {
+            to = appearFrom
+        } else if position.isLeading {
+            to = .leftSlide
+        } else if position.isTrailing {
+            to = .rightSlide
+        } else if position == .top {
+            to = .topSlide
+        } else {
+            to = .bottomSlide
+        }
+        return to
     }
 
 #if os(iOS)
@@ -513,14 +586,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     var screenSize: CGSize {
 #if os(iOS)
-        if #available(iOS 15.0, *) {
-            return UIApplication.shared.connectedScenes
-                .compactMap({ scene -> UIWindow? in
-                    (scene as? UIWindowScene)?.keyWindow
-                }).first?.frame.size ?? .zero
-        } else {
-            return UIScreen.main.bounds.size
-        }
+        return UIApplication.shared.connectedScenes
+            .compactMap({ scene -> UIWindow? in
+                (scene as? UIWindowScene)?.keyWindow
+            }).first?.frame.size ?? .zero
 #elseif os(watchOS)
         return WKInterfaceDevice.current().screenBounds.size
 #else
@@ -581,38 +650,75 @@ public struct Popup<PopupContent: View>: ViewModifier {
     /// This is the builder for the sheet content
     func sheet() -> some View {
         let sheet = ZStack {
-            contentView()
-                .addTapIfNotTV(if: closeOnTap) {
-                    dismissCallback(.tapInside)
-                }
-                .frameGetter($sheetContentRect)
-                .position(x: sheetContentRect.width/2 + actualCurrentOffset.x, y: sheetContentRect.height/2 + actualCurrentOffset.y)
-                .onChange(of: targetCurrentOffset) { newValue in
-                    if !shouldShowContent, newValue == hiddenOffset { // don't animate initial positioning outside the screen
-                        actualCurrentOffset = newValue
-                    } else {
-                        if #available(iOS 17.0, tvOS 17.0, macOS 14.0, watchOS 10.0, *) {
+            VStack {
+                contentView()
+                    .addTapIfNotTV(if: closeOnTap) {
+                        dismissCallback(.tapInside)
+                    }
+                    .scaleEffect(actualScale) // scale is here to avoid it messing with frameGetter for sheetContentRect
+            }
+            .frameGetter($sheetContentRect)
+            .position(x: sheetContentRect.width/2 + actualCurrentOffset.x, y: sheetContentRect.height/2 + actualCurrentOffset.y)
+
+            .onChange(of: targetCurrentOffset) { newValue in
+                if !shouldShowContent, newValue == hiddenOffset { // don't animate initial positioning outside the screen
+                    actualCurrentOffset = newValue
+                    actualScale = targetScale
+                } else {
+                    if #available(iOS 17.0, tvOS 17.0, macOS 14.0, watchOS 10.0, *) {
 #if swift(>=5.9)
-                            withAnimation(animation) {
-                                actualCurrentOffset = newValue
-                            } completion: {
-                                animationCompletedCallback()
-                            }
+                        withAnimation(animation) {
+                            actualCurrentOffset = newValue
+                            actualScale = targetScale
+                        } completion: {
+                            animationCompletedCallback()
+                        }
 #else
-                            withAnimation(animation) {
-                                actualCurrentOffset = newValue
-                            }
+                        withAnimation(animation) {
+                            actualCurrentOffset = newValue
+                            actualScale = targetScale
+                        }
 #endif
-                        } else {
-                            withAnimation(animation) {
-                                actualCurrentOffset = newValue
-                            }
+                    } else {
+                        withAnimation(animation) {
+                            actualCurrentOffset = newValue
+                            actualScale = targetScale
                         }
                     }
                 }
-                .onChange(of: sheetContentRect.size) { sheetContentRect in
-                    positionIsCalculatedCallback()
+            }
+
+            .onChange(of: targetScale) { newValue in
+                if !shouldShowContent, newValue == hiddenScale { // don't animate initial positioning outside the screen
+                    actualCurrentOffset = targetCurrentOffset
+                    actualScale = newValue
+                } else {
+                    if #available(iOS 17.0, tvOS 17.0, macOS 14.0, watchOS 10.0, *) {
+#if swift(>=5.9)
+                        withAnimation(animation) {
+                            actualCurrentOffset = targetCurrentOffset
+                            actualScale = newValue
+                        } completion: {
+                            animationCompletedCallback()
+                        }
+#else
+                        withAnimation(animation) {
+                            actualCurrentOffset = targetCurrentOffset
+                            actualScale = newValue
+                        }
+#endif
+                    } else {
+                        withAnimation(animation) {
+                            actualCurrentOffset = targetCurrentOffset
+                            actualScale = newValue
+                        }
+                    }
                 }
+            }
+
+            .onChange(of: sheetContentRect.size) { sheetContentRect in
+                positionIsCalculatedCallback()
+            }
         }
 
 #if !os(tvOS)
@@ -639,22 +745,24 @@ public struct Popup<PopupContent: View>: ViewModifier {
         }
 
         switch calculatedAppearFrom {
-        case .top:
+        case .topSlide:
             if dragState.translation.height < 0 {
                 return CGSize(width: 0, height: dragState.translation.height)
             }
-        case .bottom:
+        case .bottomSlide:
             if dragState.translation.height > 0 {
                 return CGSize(width: 0, height: dragState.translation.height)
             }
-        case .left:
+        case .leftSlide:
             if dragState.translation.width < 0 {
                 return CGSize(width: dragState.translation.width, height: 0)
             }
-        case .right:
+        case .rightSlide:
             if dragState.translation.width > 0 {
                 return CGSize(width: dragState.translation.width, height: 0)
             }
+        case .centerScale:
+            return .zero
         }
         return .zero
     }
@@ -665,34 +773,36 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
         var shouldDismiss = false
         switch calculatedAppearFrom {
-        case .top:
+        case .topSlide:
             if drag.translation.height < 0 {
                 lastDragPosition = CGSize(width: 0, height: drag.translation.height)
             }
             if drag.translation.height < -referenceY {
                 shouldDismiss = true
             }
-        case .bottom:
+        case .bottomSlide:
             if drag.translation.height > 0 {
                 lastDragPosition = CGSize(width: 0, height: drag.translation.height)
             }
             if drag.translation.height > referenceY {
                 shouldDismiss = true
             }
-        case .left:
+        case .leftSlide:
             if drag.translation.width < 0 {
                 lastDragPosition = CGSize(width: drag.translation.width, height: 0)
             }
             if drag.translation.width < -referenceX {
                 shouldDismiss = true
             }
-        case .right:
+        case .rightSlide:
             if drag.translation.width > 0 {
                 lastDragPosition = CGSize(width: drag.translation.width, height: 0)
             }
             if drag.translation.width > referenceX {
                 shouldDismiss = true
             }
+        case .centerScale:
+            break
         }
 
         if shouldDismiss {

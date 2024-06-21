@@ -217,6 +217,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         Popup(
             params: params,
             view: viewForItem != nil ? viewForItem! : view,
+            popupPresented: popupPresented,
             shouldShowContent: shouldShowContent,
             showContent: showContent,
             positionIsCalculatedCallback: {

@@ -129,7 +129,7 @@ struct ContentView : View {
                 $0
                     .type(.floater())
                     .position(.bottomLeading)
-                    .appearFrom(.bottom)
+                    .appearFrom(.bottomSlide)
                     .animation(.spring())
             }
 
@@ -245,6 +245,7 @@ struct ContentView : View {
                 }
             } customize: {
                 $0
+                    .appearFrom(.centerScale)
                     .closeOnTap(false)
                     .backgroundColor(.black.opacity(0.4))
             }
@@ -254,6 +255,7 @@ struct ContentView : View {
             } customize: {
                 $0
                     .type(.floater())
+                    .disappearTo(.centerScale)
                     .position(.bottom)
                     .closeOnTap(false)
                     .backgroundColor(.black.opacity(0.4))
@@ -265,6 +267,7 @@ struct ContentView : View {
                 $0
                     .type(.floater(verticalPadding: 0, useSafeAreaInset: false))
                     .position(.bottom)
+                    .closeOnTap(true)
                     .closeOnTapOutside(true)
                     .backgroundColor(.black.opacity(0.4))
             }
