@@ -44,6 +44,33 @@
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-brightgreen.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](https://opensource.org/licenses/MIT)
 
+# What's new in version 3
+- zoom in/out appear/disappear animations
+- `disappearTo` parameter to specify disappearing animation direction - can be different from `appearFrom`
+
+# Update to version 3
+To include new .zoom type, `AppearFrom` enum cases were renamed.
+Instead of:
+```swift
+.popup(isPresented: $floats.showingTopFirst) {
+    FloatTopFirst()
+} customize: {
+    $0
+        .type(.floater())
+        .appearFrom(.top) // <-- here
+}
+```
+use:
+```swift
+.popup(isPresented: $floats.showingTopFirst) {
+    FloatTopFirst()
+} customize: {
+    $0
+        .type(.floater())
+        .appearFrom(.topSlide) // <-- here
+}
+```
+
 # Update to version 2
 
 Instead of:
@@ -130,7 +157,8 @@ scroll parameters:
 `headerView` - a view on top which won't be a part of the scroll (if you need one)
 
 `position` - topLeading, top, topTrailing, leading, center, trailing, bottomLeading, bottom, bottomTrailing 
-`appearFrom` - `top, bottom, left, right`: determines the direction of appearing animation. If left empty it copies `position` parameter: so appears from .top edge, if `position` is set to .top
+`appearFrom` - `topSlide, bottomSlide, leftSlide, rightSlide, centerScale`: determines the direction of appearing animation. If left empty it copies `position` parameter: so appears from .top edge, if `position` is set to .top
+`disappearTo` - same as `appearFrom`, but for disappearing animation. If left empty it copies `appearFrom`.
 `animation` - custom animation for popup sliding onto screen  
 `autohideIn` - time after which popup should disappear    
 `dragToDismiss` - true by default: enable/disable drag to dismiss (upwards for .top popup types, downwards for .bottom and default type)    
