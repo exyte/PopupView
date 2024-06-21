@@ -249,11 +249,11 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             shouldShowContent = false // this will cause currentOffset change thus triggering the sliding hiding animation
             opacity = 0
             // do the rest once the animation is finished (see onAnimationCompleted())
+        }
 
-            if #unavailable(iOS 17.0, tvOS 17.0, macOS 14.0, watchOS 10.0) {
-                performWithDelay(0.3) { // imitate onAnimationCompleted for older os
-                    onAnimationCompleted()
-                }
+        if #unavailable(iOS 17.0, tvOS 17.0, macOS 14.0, watchOS 10.0) {
+            performWithDelay(0.3) { // imitate onAnimationCompleted for older os
+                onAnimationCompleted()
             }
         }
     }
