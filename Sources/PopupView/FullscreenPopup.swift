@@ -48,7 +48,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     var view: (() -> PopupContent)!
     var itemView: ((Item) -> PopupContent)!
-    
+
     // MARK: - Presentation animation
 
     /// Trigger popup showing/hiding animations and...
@@ -116,7 +116,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         self.isPresentedRef = ClassReference(self.$isPresented)
         self.itemRef = ClassReference(self.$item)
     }
-    
+
     public func body(content: Content) -> some View {
         if isBoolMode {
             main(content: content)
@@ -203,7 +203,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             }
         }
     }
-    
+
     var viewForItem: (() -> PopupContent)? {
         if let item = item {
             return { itemView(item) }
@@ -223,8 +223,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             positionIsCalculatedCallback: {
                 // once the closing has been started, don't allow position recalculation to trigger popup shpwing again
                 if !closingIsInProcess {
-                    shouldShowContent = true // this will cause currentOffset change thus triggering the sliding showing animation
-                    opacity = 1 // this will cause cross disolving animation for background color
+                    DispatchQueue.main.async {
+                        shouldShowContent = true // this will cause currentOffset change thus triggering the sliding showing animation
+                        opacity = 1 // this will cause cross disolving animation for background color
+                    }
                     setupAutohide()
                 }
             },

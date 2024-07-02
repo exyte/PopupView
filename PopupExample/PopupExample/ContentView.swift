@@ -187,7 +187,6 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.bottom)
                     .animation(.spring())
-                    .autohideIn(2)
             }
 
             .popup(isPresented: $floatsSmall.showingBottomSecond) {
@@ -197,7 +196,6 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.bottom)
                     .animation(.spring())
-                    .autohideIn(5)
             }
 
         // MARK: - Designed toasts
@@ -290,6 +288,7 @@ struct ContentView : View {
                     .type(.scroll(headerView: AnyView(scrollViewHeader())))
                     .position(.bottom)
                     .closeOnTap(false)
+                    .closeOnTapOutside(true)
                     .backgroundColor(.black.opacity(0.4))
             }
 

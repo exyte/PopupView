@@ -80,7 +80,7 @@ struct PopupsList: View {
                 .ignoresSafeArea()
             
             ScrollView {
-                LazyVStack(spacing: 12) {
+                VStack(spacing: 12) {
                     safeSpaceForMac()
 
                     Group {
