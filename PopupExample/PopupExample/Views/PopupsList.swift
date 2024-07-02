@@ -135,7 +135,7 @@ struct PopupsList: View {
 #endif
     }
 
-    @ViewBuilder
+    @MainActor @ViewBuilder
     func floatsSection() -> some View {
 #if os(iOS)
         if UIDevice.current.userInterfaceIdiom == .phone {
