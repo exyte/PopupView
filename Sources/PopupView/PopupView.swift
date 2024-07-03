@@ -684,6 +684,16 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 }
             }
 
+            .onChange(of: keyboardHeightHelper.keyboardHeight) { _ in
+                if shouldShowContent {
+                    DispatchQueue.main.async {
+                        withAnimation(animation) {
+                            changeParamsWithAnimation(true)
+                        }
+                    }
+                }
+            }
+
             .onChange(of: sheetContentRect.size) { sheetContentRect in
                 positionIsCalculatedCallback()
             }
