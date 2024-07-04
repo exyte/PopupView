@@ -491,6 +491,11 @@ public struct Popup<PopupContent: View>: ViewModifier {
         }
     }
 
+    /// Passes the desired position to actualCurrentOffset allowing to animate selectively
+    private var targetCurrentOffset: CGPoint {
+        shouldShowContent ? CGPoint(x: displayedOffsetX, y: displayedOffsetY) : hiddenOffset
+    }
+
     // MARK: - Scale calculations
 
     /// The scale when the popup is displayed
@@ -507,6 +512,11 @@ public struct Popup<PopupContent: View>: ViewModifier {
             return 0
         }
         return 1
+    }
+
+    /// Passes the desired scale to actualScale allowing to animate selectively
+    private var targetScale: CGFloat {
+        shouldShowContent ? displayedScale : hiddenScale
     }
 
     // MARK: - Appear position direction calculations
@@ -604,7 +614,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
             .overlay(
                 Group {
                     if showContent, presenterContentRect != .zero {
-                        sheet()
+                        sheetWithDragGesture()
                     }
                 }
             )
@@ -642,29 +652,30 @@ public struct Popup<PopupContent: View>: ViewModifier {
 #endif
     }
 
-    /// This is the builder for the sheet content
-    func sheet() -> some View {
-        let sheet = ZStack {
-            VStack {
-                contentView()
-                    .addTapIfNotTV(if: closeOnTap) {
-                        dismissCallback(.tapInside)
-                    }
-                    .scaleEffect(actualScale) // scale is here to avoid it messing with frameGetter for sheetContentRect
-            }
-            .frameGetter($sheetContentRect)
-            .position(x: sheetContentRect.width/2 + actualCurrentOffset.x, y: sheetContentRect.height/2 + actualCurrentOffset.y)
-
-            .onChange(of: shouldShowContent) { newValue in
-                if actualCurrentOffset == CGPoint.pointFarAwayFromScreen { // don't animate initial positioning outside the screen
-                    DispatchQueue.main.async {
-                        actualCurrentOffset = hiddenOffset
-                        actualScale = hiddenScale
-                    }
-                }
-
-                if #available(iOS 17.0, tvOS 17.0, macOS 14.0, watchOS 10.0, *) {
 #if swift(>=5.9)
+    /// This is the builder for the sheet content
+    @ViewBuilder
+    func sheet() -> some View {
+        if #available(iOS 17.0, tvOS 17.0, macOS 14.0, watchOS 10.0, *) {
+            ZStack {
+                VStack {
+                    contentView()
+                        .addTapIfNotTV(if: closeOnTap) {
+                            dismissCallback(.tapInside)
+                        }
+                        .scaleEffect(actualScale) // scale is here to avoid it messing with frameGetter for sheetContentRect
+                }
+                .frameGetter($sheetContentRect)
+                .position(x: sheetContentRect.width/2 + actualCurrentOffset.x, y: sheetContentRect.height/2 + actualCurrentOffset.y)
+
+                .onChange(of: shouldShowContent) { newValue in
+                    if actualCurrentOffset == CGPoint.pointFarAwayFromScreen { // don't animate initial positioning outside the screen
+                        DispatchQueue.main.async {
+                            actualCurrentOffset = hiddenOffset
+                            actualScale = hiddenScale
+                        }
+                    }
+
                     DispatchQueue.main.async {
                         withAnimation(animation) {
                             changeParamsWithAnimation(newValue)
@@ -672,33 +683,69 @@ public struct Popup<PopupContent: View>: ViewModifier {
                             animationCompletedCallback()
                         }
                     }
-#else
-                    withAnimation(animation) {
-                        changeParamsWithAnimation(newValue)
-                    }
-#endif
-                } else {
-                    withAnimation(animation) {
-                        changeParamsWithAnimation(newValue)
-                    }
                 }
-            }
 
-            .onChange(of: keyboardHeightHelper.keyboardHeight) { _ in
-                if shouldShowContent {
-                    DispatchQueue.main.async {
-                        withAnimation(animation) {
-                            changeParamsWithAnimation(true)
+                .onChange(of: keyboardHeightHelper.keyboardHeight) { _ in
+                    if shouldShowContent {
+                        DispatchQueue.main.async {
+                            withAnimation(animation) {
+                                changeParamsWithAnimation(true)
+                            }
                         }
                     }
                 }
-            }
 
-            .onChange(of: sheetContentRect.size) { sheetContentRect in
-                positionIsCalculatedCallback()
+                .onChange(of: sheetContentRect.size) { sheetContentRect in
+                    positionIsCalculatedCallback()
+                }
+            }
+        } else { // ios 16
+            ZStack {
+                VStack {
+                    contentView()
+                        .addTapIfNotTV(if: closeOnTap) {
+                            dismissCallback(.tapInside)
+                        }
+                        .scaleEffect(actualScale) // scale is here to avoid it messing with frameGetter for sheetContentRect
+                }
+                .frameGetter($sheetContentRect)
+                .position(x: sheetContentRect.width/2 + actualCurrentOffset.x, y: sheetContentRect.height/2 + actualCurrentOffset.y)
+
+                .onChange(of: targetCurrentOffset) { newValue in
+                    if !shouldShowContent, newValue == hiddenOffset { // don't animate initial positioning outside the screen
+                        actualCurrentOffset = newValue
+                        actualScale = targetScale
+                    } else {
+                        withAnimation(animation) {
+                            actualCurrentOffset = newValue
+                            actualScale = targetScale
+                        }
+                    }
+                }
+
+                .onChange(of: targetScale) { newValue in
+                    if !shouldShowContent, newValue == hiddenScale { // don't animate initial positioning outside the screen
+                        actualCurrentOffset = targetCurrentOffset
+                        actualScale = newValue
+                    } else {
+                        withAnimation(animation) {
+                            actualCurrentOffset = targetCurrentOffset
+                            actualScale = newValue
+                        }
+                    }
+                }
+
+                .onChange(of: sheetContentRect.size) { sheetContentRect in
+                    positionIsCalculatedCallback()
+                }
             }
         }
+    }
+#else
+#error("This project requires Swift 5.9 or newer. Please update your Xcode to compile this project.")
+#endif
 
+    func sheetWithDragGesture() -> some View {
 #if !os(tvOS)
         let drag = DragGesture()
             .updating($dragState) { drag, state, _ in
@@ -706,13 +753,13 @@ public struct Popup<PopupContent: View>: ViewModifier {
             }
             .onEnded(onDragEnded)
 
-        return sheet
+        return sheet()
             .applyIf(dragToDismiss) {
                 $0.offset(dragOffset())
                     .simultaneousGesture(drag)
             }
 #else
-        return sheet
+        return sheet()
 #endif
     }
 
