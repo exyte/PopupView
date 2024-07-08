@@ -44,9 +44,6 @@
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-brightgreen.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](https://opensource.org/licenses/MIT)
 
-# iOS 18 support
-PopupView supports iOS 18 beta, however [SwiftUIIntrospect](https://github.com/siteline/swiftui-introspect) this library is using doesn't support it yet, so `.scroll` type popup unfortunately doesn't work on iOS 18 for now.
-
 # What's new in version 3
 - zoom in/out appear/disappear animations
 - `disappearTo` parameter to specify disappearing animation direction - can be different from `appearFrom`

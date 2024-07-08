@@ -11,10 +11,7 @@ let package = Package(
         .watchOS(.v7)
     ],
     products: [
-        .library(
-            name: "PopupView",
-            targets: ["PopupView"]
-        )
+        .library(name: "PopupView", targets: ["PopupView"]),
     ],
     dependencies: [
         .package(

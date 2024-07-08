@@ -58,7 +58,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         case `default`
         case toast
         case floater(verticalPadding: CGFloat = 10, horizontalPadding: CGFloat = 10, useSafeAreaInset: Bool = true)
-#if os(iOS) && swift(<6.0) // TODO: remove this when introspect adds support for ios 18
+#if os(iOS)
         case scroll(headerView: AnyView)
 #endif
 
@@ -623,29 +623,24 @@ public struct Popup<PopupContent: View>: ViewModifier {
     @ViewBuilder
     private func contentView() -> some View {
 #if os(iOS)
-        // TODO: remove this when introspect adds support for ios 18
-        if #available(iOS 18.0, *) {
-            view()
-        } else {
-            switch type {
-            case .scroll(let headerView):
-                VStack(spacing: 0) {
-                    headerView
-                        .fixedSize(horizontal: false, vertical: true)
-                    ScrollView {
-                        view()
-                    }
-                    // no heigher than its contents
-                    .frame(maxHeight: scrollViewContentHeight)
+        switch type {
+        case .scroll(let headerView):
+            VStack(spacing: 0) {
+                headerView
+                    .fixedSize(horizontal: false, vertical: true)
+                ScrollView {
+                    view()
                 }
-                .introspect(.scrollView, on: .iOS(.v15, .v16, .v17)) { scrollView in
-                    configure(scrollView: scrollView)
-                }
-                .offset(CGSize(width: 0, height: scrollViewOffset.height))
-
-            default:
-                view()
+                // no heigher than its contents
+                .frame(maxHeight: scrollViewContentHeight)
             }
+            .introspect(.scrollView, on: .iOS(.v15, .v16, .v17, .v18)) { scrollView in
+                configure(scrollView: scrollView)
+            }
+            .offset(CGSize(width: 0, height: scrollViewOffset.height))
+
+        default:
+            view()
         }
 #else
         view()
