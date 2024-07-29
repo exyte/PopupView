@@ -40,6 +40,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         self.useKeyboardSafeArea = params.useKeyboardSafeArea
         self.animation = params.animation
         self.dragToDismiss = params.dragToDismiss
+        self.dragToDismissDistance = params.dragToDismissDistance
         self.closeOnTap = params.closeOnTap
         self.isOpaque = params.isOpaque
 
@@ -152,6 +153,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
         /// Should allow dismiss by dragging - default is `true`
         var dragToDismiss: Bool = true
+        
+        /// Minimum distance to drag to dismiss
+        var dragToDismissDistance: CGFloat?
 
         /// Should close on tap - default is `true`
         var closeOnTap: Bool = true
@@ -217,6 +221,13 @@ public struct Popup<PopupContent: View>: ViewModifier {
         public func dragToDismiss(_ dragToDismiss: Bool) -> PopupParameters {
             var params = self
             params.dragToDismiss = dragToDismiss
+            return params
+        }
+        
+        /// Minimum distance to drag to dismiss
+        public func dragToDismissDistance(_ dragToDismissDistance: CGFloat) -> PopupParameters {
+            var params = self
+            params.dragToDismissDistance = dragToDismissDistance
             return params
         }
 
@@ -338,6 +349,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
     /// Should allow dismiss by dragging
     var dragToDismiss: Bool
 
+    /// Minimum distance to drag to dismiss
+    var dragToDismissDistance: CGFloat?
+    
     /// If opaque - taps do not pass through popup's background color
     var isOpaque: Bool
 
@@ -799,9 +813,14 @@ public struct Popup<PopupContent: View>: ViewModifier {
     }
 
     private func onDragEnded(drag: DragGesture.Value) {
-        let referenceX = sheetContentRect.width / 3
-        let referenceY = sheetContentRect.height / 3
-
+        var referenceX = sheetContentRect.width / 3
+        var referenceY = sheetContentRect.height / 3
+        
+        if let dragToDismissDistance = dragToDismissDistance {
+            referenceX = dragToDismissDistance
+            referenceY = dragToDismissDistance
+        }
+        
         var shouldDismiss = false
         switch calculatedAppearFrom {
         case .topSlide:
