@@ -64,4 +64,40 @@ extension View {
                     itemView: itemView)
             )
         }
+    
+    func onOrientationChange(isLandscape: Binding<Bool>, onOrientationChange: @escaping () -> Void) -> some View {
+        self.modifier(OrientationChangeModifier(isLandscape: isLandscape, onOrientationChange: onOrientationChange))
+    }
 }
+
+struct OrientationChangeModifier: ViewModifier {
+    @Binding var isLandscape: Bool
+    let onOrientationChange: () -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification, object: nil, queue: .main) { _ in
+                    updateOrientation()
+                }
+                updateOrientation()
+            }
+            .onDisappear {
+                NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
+            }
+            .onChange(of: isLandscape) { _ in
+                onOrientationChange()
+            }
+    }
+    
+    private func updateOrientation() {
+        DispatchQueue.main.async {
+            let newIsLandscape = UIDevice.current.orientation.isLandscape
+            if newIsLandscape != isLandscape {
+                isLandscape = newIsLandscape
+                onOrientationChange()
+            }
+        }
+    }
+}
+
