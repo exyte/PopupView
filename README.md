@@ -105,7 +105,7 @@ To display your popup over all other views including navbars please use:
 ```
 This will also mean that you won't be able to tap "through" the popup's background on any of the controls "behind it" (that's because this method actually uses transparent fullscreenSheet, which won't pass the touches to underlying view). Opaque popup uses screen size to calculate its position.   
 
-Unfortunately, if opaque is false (to allow "through-touches" if you need them), popup - even if forced to be fullscreen, will be displayed under the navbar (if you know how to pass over this restriction, please do let me know in the comments). Please keep in mind that in this case the popup calculates its position using the frame of the view you attach it to, to avoid being under the navbar. So you'll likely want to attach it to the root view of your screen.  
+Unfortunately, if opaque is false (to allow "through-touches" if you need them), popup - even if forced to be fullscreen, will be displayed under the navbar (if you know how to pass over this restriction, please do let me know in the comments). Please keep in mind that in this case the popup calculates its position using the frame of the view you attach it to, to avoid being under the navbar. So you'll likely want to attach it to the root view of your app.  
 
 # Usage
 1. Add a bool to control popup presentation state
