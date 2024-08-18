@@ -7,6 +7,17 @@
 
 import SwiftUI
 
+struct PopupDismissKey: EnvironmentKey {
+    static let defaultValue: (() -> Void)? = nil
+}
+
+public extension EnvironmentValues {
+    var popupDismiss: (() -> Void)? {
+        get { self[PopupDismissKey.self] }
+        set { self[PopupDismissKey.self] = newValue }
+    }
+}
+
 extension View {
 
     public func popup<PopupContent: View>(
@@ -22,6 +33,9 @@ extension View {
                     view: view,
                     itemView: nil)
             )
+            .environment(\.popupDismiss, {
+                isPresented.wrappedValue = false
+            })
         }
 
     public func popup<Item: Equatable, PopupContent: View>(
@@ -37,6 +51,9 @@ extension View {
                     view: nil,
                     itemView: itemView)
             )
+            .environment(\.popupDismiss, {
+                item.wrappedValue = nil
+            })
         }
 
     public func popup<PopupContent: View>(
@@ -50,6 +67,9 @@ extension View {
                     view: view,
                     itemView: nil)
             )
+            .environment(\.popupDismiss, {
+                isPresented.wrappedValue = false
+            })
         }
 
     public func popup<Item: Equatable, PopupContent: View>(
@@ -63,6 +83,9 @@ extension View {
                     view: nil,
                     itemView: itemView)
             )
+            .environment(\.popupDismiss, {
+                item.wrappedValue = nil
+            })
         }
     
     func onOrientationChange(isLandscape: Binding<Bool>, onOrientationChange: @escaping () -> Void) -> some View {
