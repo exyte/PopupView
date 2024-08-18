@@ -11,6 +11,7 @@ struct PopupMiddle: View {
 
     let item: SomeItem
     var onClose: () -> Void
+    @Environment(\.popupDismiss) var dismiss
 
     var body: some View {
         VStack(spacing: 12) {
@@ -32,7 +33,8 @@ struct PopupMiddle: View {
                 .padding(.bottom, 20)
             
             Button {
-                onClose()
+//                onClose()
+                dismiss?()
             } label: {
                 Text("Thanks")
                     .font(.system(size: 18, weight: .bold))
