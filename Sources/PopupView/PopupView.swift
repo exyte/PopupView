@@ -390,7 +390,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
     /// Variables used to control what is animated and what is not
     @State var actualCurrentOffset = CGPoint.pointFarAwayFromScreen
     @State var actualScale = 1.0
+    #if os(iOS)
     @State private var isLandscape: Bool = UIDevice.current.orientation.isLandscape
+    #endif
     // MARK: - Drag to dismiss
 
     /// Drag to dismiss gesture state
@@ -707,9 +709,11 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 .onChange(of: sheetContentRect.size) { sheetContentRect in
                     positionIsCalculatedCallback()
                 }
+#if os(iOS)
                 .onOrientationChange(isLandscape: $isLandscape) {
                     actualCurrentOffset = targetCurrentOffset
                 }
+#endif
             }
         } else { // ios 16
             ZStack {
@@ -750,9 +754,11 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 .onChange(of: sheetContentRect.size) { sheetContentRect in
                     positionIsCalculatedCallback()
                 }
+#if os(iOS)
                 .onOrientationChange(isLandscape: $isLandscape) {
                     actualCurrentOffset = targetCurrentOffset
                 }
+#endif
             }
         }
     }
