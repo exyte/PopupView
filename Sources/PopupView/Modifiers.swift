@@ -64,10 +64,14 @@ extension View {
                     itemView: itemView)
             )
         }
-    
-    func onOrientationChange(isLandscape: Binding<Bool>, onOrientationChange: @escaping () -> Void) -> some View {
-        self.modifier(OrientationChangeModifier(isLandscape: isLandscape, onOrientationChange: onOrientationChange))
-    }
+}
+
+#if os(iOS)
+
+extension View {
+  func onOrientationChange(isLandscape: Binding<Bool>, onOrientationChange: @escaping () -> Void) -> some View {
+    self.modifier(OrientationChangeModifier(isLandscape: isLandscape, onOrientationChange: onOrientationChange))
+  }
 }
 
 struct OrientationChangeModifier: ViewModifier {
@@ -101,3 +105,4 @@ struct OrientationChangeModifier: ViewModifier {
     }
 }
 
+#endif
