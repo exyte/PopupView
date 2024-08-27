@@ -708,6 +708,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
                 .onChange(of: sheetContentRect.size) { sheetContentRect in
                     positionIsCalculatedCallback()
+                    if shouldShowContent { // already displayed but the size has changed
+                        actualCurrentOffset = targetCurrentOffset
+                    }
                 }
 #if os(iOS)
                 .onOrientationChange(isLandscape: $isLandscape) {
