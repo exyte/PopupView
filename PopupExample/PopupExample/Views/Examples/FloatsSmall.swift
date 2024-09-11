@@ -10,6 +10,7 @@ import SwiftUI
 struct FloatTopFirst: View {
 
     @Binding var isShowing: Bool
+    @Environment(\.popupDismiss) var dismiss
 
     var body: some View {
         ZStack {
@@ -33,7 +34,8 @@ struct FloatTopFirst: View {
                     
                     Button {
                         debugPrint("Accepted!")
-                        isShowing = false
+//                        isShowing = false
+                        dismiss?()
                     } label: {
                         Text("Accept".uppercased())
                             .font(.system(size: 14, weight: .black))
