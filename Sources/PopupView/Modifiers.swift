@@ -33,9 +33,9 @@ extension View {
                     view: view,
                     itemView: nil)
             )
-            .environment(\.popupDismiss, {
+            .environment(\.popupDismiss) {
                 isPresented.wrappedValue = false
-            })
+            }
         }
 
     public func popup<Item: Equatable, PopupContent: View>(
@@ -51,9 +51,9 @@ extension View {
                     view: nil,
                     itemView: itemView)
             )
-            .environment(\.popupDismiss, {
+            .environment(\.popupDismiss) {
                 item.wrappedValue = nil
-            })
+            }
         }
 
     public func popup<PopupContent: View>(
@@ -67,9 +67,9 @@ extension View {
                     view: view,
                     itemView: nil)
             )
-            .environment(\.popupDismiss, {
+            .environment(\.popupDismiss) {
                 isPresented.wrappedValue = false
-            })
+            }
         }
 
     public func popup<Item: Equatable, PopupContent: View>(
@@ -83,9 +83,9 @@ extension View {
                     view: nil,
                     itemView: itemView)
             )
-            .environment(\.popupDismiss, {
+            .environment(\.popupDismiss) {
                 item.wrappedValue = nil
-            })
+            }
         }
 }
 
@@ -120,9 +120,9 @@ struct OrientationChangeModifier: ViewModifier {
                 onOrientationChange()
             }
     }
-    
+
+#if os(iOS)
     private func updateOrientation() {
-        #if os(iOS)
         DispatchQueue.main.async {
             let newIsLandscape = UIDevice.current.orientation.isLandscape
             if newIsLandscape != isLandscape {
@@ -130,8 +130,8 @@ struct OrientationChangeModifier: ViewModifier {
                 onOrientationChange()
             }
         }
-        #endif
     }
+#endif
 }
 
 #endif

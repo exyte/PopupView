@@ -154,7 +154,7 @@ struct ContentView : View {
         // MARK: - Designed floats small screen
 
             .popup(isPresented: $floatsSmall.showingTopFirst) {
-                FloatTopFirst(isShowing: $floatsSmall.showingTopFirst)
+                FloatTopFirst()
             } customize: {
                 $0
                     .type(.floater())
@@ -238,9 +238,7 @@ struct ContentView : View {
         // MARK: - Designed popups
 
             .popup(item: $popups.middleItem) { item in
-                PopupMiddle(item: item) {
-                    popups.middleItem = nil
-                }
+                PopupMiddle(item: item)
             } customize: {
                 $0
                     .appearFrom(.centerScale)

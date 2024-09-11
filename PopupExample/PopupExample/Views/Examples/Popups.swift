@@ -9,9 +9,8 @@ import SwiftUI
 
 struct PopupMiddle: View {
 
-    let item: SomeItem
-    var onClose: () -> Void
     @Environment(\.popupDismiss) var dismiss
+    let item: SomeItem
 
     var body: some View {
         VStack(spacing: 12) {
@@ -33,7 +32,6 @@ struct PopupMiddle: View {
                 .padding(.bottom, 20)
             
             Button {
-//                onClose()
                 dismiss?()
             } label: {
                 Text("Thanks")
@@ -137,7 +135,7 @@ struct Popups_Previews: PreviewProvider {
         ZStack {
             Rectangle()
                 .ignoresSafeArea()
-            PopupMiddle(item: SomeItem(value: "item"), onClose: {})
+            PopupMiddle(item: SomeItem(value: "item"))
         }
         
         ZStack {

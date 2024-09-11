@@ -9,7 +9,6 @@ import SwiftUI
 
 struct FloatTopFirst: View {
 
-    @Binding var isShowing: Bool
     @Environment(\.popupDismiss) var dismiss
 
     var body: some View {
@@ -34,7 +33,6 @@ struct FloatTopFirst: View {
                     
                     Button {
                         debugPrint("Accepted!")
-//                        isShowing = false
                         dismiss?()
                     } label: {
                         Text("Accept".uppercased())
@@ -118,7 +116,7 @@ struct Floats_Previews: PreviewProvider {
             Rectangle()
                 .ignoresSafeArea()
             VStack {
-                FloatTopFirst(isShowing: .constant(true))
+                FloatTopFirst()
                 FloatTopSecond()
                 FloatBottomFirst()
                 FloatBottomSecond()
