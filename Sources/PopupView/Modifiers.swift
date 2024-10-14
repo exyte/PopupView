@@ -7,12 +7,14 @@
 
 import SwiftUI
 
+public typealias SendableClosure = @Sendable @MainActor () -> Void
+
 struct PopupDismissKey: EnvironmentKey {
-    static let defaultValue: (() -> Void)? = nil
+    static let defaultValue: SendableClosure? = nil
 }
 
 public extension EnvironmentValues {
-    var popupDismiss: (() -> Void)? {
+    var popupDismiss: SendableClosure? {
         get { self[PopupDismissKey.self] }
         set { self[PopupDismissKey.self] = newValue }
     }
@@ -106,7 +108,9 @@ struct OrientationChangeModifier: ViewModifier {
             .onAppear {
 #if os(iOS)
                 NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification, object: nil, queue: .main) { _ in
-                    updateOrientation()
+                    DispatchQueue.main.async {
+                        updateOrientation()
+                    }
                 }
                 updateOrientation()
 #endif

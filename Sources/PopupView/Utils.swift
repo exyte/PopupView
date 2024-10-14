@@ -119,96 +119,6 @@ extension View {
     }
 }
 
-// MARK: - AnimationCompletionObserver
-
-struct AnimationCompletionObserverModifier<Value>: AnimatableModifier where Value: VectorArithmetic, Value: Comparable {
-
-    /// While animating, SwiftUI changes the old input value to the new target value using this property. This value is set to the old value until the animation completes.
-    var animatableData: Value {
-        didSet {
-            notifyCompletionIfFinished()
-        }
-    }
-
-    /// The target value for which we're observing. This value is directly set once the animation starts. During animation, `animatableData` will hold the oldValue and is only updated to the target value once the animation completes.
-    private var targetValue: Value
-
-    /// The completion callback which is called once the animation completes.
-    private var completion: () -> Void
-
-    init(observedValue: Value, completion: @escaping () -> Void) {
-        self.completion = completion
-        self.animatableData = observedValue
-        targetValue = observedValue
-    }
-
-    /// Verifies whether the current animation is finished and calls the completion callback if true.
-    private func notifyCompletionIfFinished() {
-        guard animatableData == targetValue else { return }
-
-        /// Dispatching is needed to take the next runloop for the completion callback.
-        /// This prevents errors like "Modifying state during view update, this will cause undefined behavior."
-        DispatchQueue.main.async {
-            self.completion()
-        }
-    }
-
-    func body(content: Content) -> some View {
-        /// We're not really modifying the view so we can directly return the original input value.
-        return content
-    }
-}
-
-struct AnimatableModifierDouble: AnimatableModifier {
-
-    var targetValue: Double
-    static var done = false
-
-    // SwiftUI gradually varies it from old value to the new value
-    var animatableData: Double {
-        didSet {
-            checkIfFinished()
-        }
-    }
-    var completion: () -> ()
-
-    // Re-created every time the control argument changes
-    init(bindedValue: Double, completion: @escaping () -> ()) {
-        self.completion = completion
-
-        // Set animatableData to the new value. But SwiftUI again directly
-        // and gradually varies the value while the body
-        // is being called to animate. Following line serves the purpose of
-        // associating the extenal argument with the animatableData.
-        self.animatableData = bindedValue
-        targetValue = bindedValue
-        AnimatableModifierDouble.done = false
-    }
-
-    func checkIfFinished() -> () {
-        if AnimatableModifierDouble.done { return }
-        let delta = 0.1
-        if animatableData > targetValue - delta &&
-            animatableData < targetValue + delta {
-            AnimatableModifierDouble.done = true
-            DispatchQueue.main.async {
-                self.completion()
-            }
-        }
-    }
-
-    func body(content: Content) -> some View {
-        content
-    }
-}
-
-extension View {
-
-    func onAnimationCompleted(for value: Double, completion: @escaping () -> Void) -> some View {
-        modifier(AnimatableModifierDouble(bindedValue: value, completion: completion))
-    }
-}
-
 // MARK: - TransparentNonAnimatingFullScreenCover
 
 #if os(iOS)
@@ -282,6 +192,7 @@ private struct FullScreenCoverBackgroundRemovalView: UIViewRepresentable {
 
 #if os(iOS)
 
+@MainActor
 class KeyboardHeightHelper: ObservableObject {
 
     @Published var keyboardHeight: CGFloat = 0
@@ -298,15 +209,19 @@ class KeyboardHeightHelper: ObservableObject {
             guard let userInfo = notification.userInfo,
                   let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
 
-            self.keyboardHeight = keyboardRect.height
-            self.keyboardDisplayed = true
+            DispatchQueue.main.async {
+                self.keyboardHeight = keyboardRect.height
+                self.keyboardDisplayed = true
+            }
         }
 
         NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification,
                                                object: nil,
                                                queue: .main) { (notification) in
-            self.keyboardHeight = 0
-            self.keyboardDisplayed = false
+            DispatchQueue.main.async {
+                self.keyboardHeight = 0
+                self.keyboardDisplayed = false
+            }
         }
     }
 }
@@ -326,6 +241,7 @@ class KeyboardHeightHelper: ObservableObject {
 
 extension CGPoint {
 
+    @MainActor
     static var pointFarAwayFromScreen: CGPoint {
         CGPoint(x: 2*CGSize.screenSize.width, y: 2*CGSize.screenSize.height)
     }
@@ -333,6 +249,7 @@ extension CGPoint {
 
 extension CGSize {
 
+    @MainActor
     static var screenSize: CGSize {
 #if os(iOS) || os(tvOS)
         return UIScreen.main.bounds.size

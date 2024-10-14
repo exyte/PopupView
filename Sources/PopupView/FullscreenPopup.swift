@@ -122,9 +122,11 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             main(content: content)
                 .onChange(of: isPresented) { newValue in
                     eventsQueue.async {
-                        eventsSemaphore.wait()
-                        closingIsInProcess = !newValue
-                        appearAction(popupPresented: newValue)
+                        DispatchQueue.main.async {
+                            eventsSemaphore.wait()
+                            closingIsInProcess = !newValue
+                            appearAction(popupPresented: newValue)
+                        }
                     }
                 }
                 .onAppear {
