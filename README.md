@@ -178,7 +178,7 @@ To implement a sheet (like in 4th gif) enable `dragToDismiss` on bottom toast (s
 } customize: {
     $0
         .type (.toast)
-        .position(bottom)
+        .position(.bottom)
         .dragToDismiss(true)
 }
 ```
