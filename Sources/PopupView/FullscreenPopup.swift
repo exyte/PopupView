@@ -121,9 +121,9 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         if isBoolMode {
             main(content: content)
                 .onChange(of: isPresented) { newValue in
-                    eventsQueue.async {
+                    eventsQueue.async { [eventsSemaphore] in
+                        eventsSemaphore.wait()
                         DispatchQueue.main.async {
-                            eventsSemaphore.wait()
                             closingIsInProcess = !newValue
                             appearAction(popupPresented: newValue)
                         }

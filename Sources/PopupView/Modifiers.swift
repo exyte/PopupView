@@ -105,21 +105,29 @@ struct OrientationChangeModifier: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .onAppear {
 #if os(iOS)
-                NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification, object: nil, queue: .main) { _ in
-                    DispatchQueue.main.async {
-                        updateOrientation()
-                    }
-                }
+            .onReceive(NotificationCenter.default
+                .publisher(for: UIDevice.orientationDidChangeNotification)
+                .receive(on: DispatchQueue.main)
+            ) { _ in
                 updateOrientation()
+            }
 #endif
-            }
-            .onDisappear {
-                #if os(iOS)
-                NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
-                #endif
-            }
+//            .onAppear {
+//#if os(iOS)
+//                NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification, object: nil, queue: .main) { _ in
+//                    DispatchQueue.main.async {
+//                        updateOrientation()
+//                    }
+//                }
+//                updateOrientation()
+//#endif
+//            }
+//            .onDisappear {
+//                #if os(iOS)
+//                NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
+//                #endif
+//            }
             .onChange(of: isLandscape) { _ in
                 onOrientationChange()
             }
