@@ -199,29 +199,31 @@ class KeyboardHeightHelper: ObservableObject {
     @Published var keyboardDisplayed: Bool = false
 
     init() {
-        self.listenForKeyboardNotifications()
+        NotificationCenter.default.addObserver(self, selector: #selector(onKeyboardWillShowNotification), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(onKeyboardWillHideNotification), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc private func onKeyboardWillShowNotification(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
 
-    private func listenForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillShowNotification,
-                                               object: nil,
-                                               queue: .main) { (notification) in
-            guard let userInfo = notification.userInfo,
-                  let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-
-            DispatchQueue.main.async {
-                self.keyboardHeight = keyboardRect.height
-                self.keyboardDisplayed = true
-            }
+        DispatchQueue.main.async {
+            self.keyboardHeight = keyboardRect.height
+            self.keyboardDisplayed = true
         }
+    }
+    
+    @objc private func onKeyboardWillHideNotification(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
 
-        NotificationCenter.default.addObserver(forName: UIResponder.keyboardWillHideNotification,
-                                               object: nil,
-                                               queue: .main) { (notification) in
-            DispatchQueue.main.async {
-                self.keyboardHeight = 0
-                self.keyboardDisplayed = false
-            }
+        DispatchQueue.main.async {
+            self.keyboardHeight = keyboardRect.height
+            self.keyboardDisplayed = true
         }
     }
 }
