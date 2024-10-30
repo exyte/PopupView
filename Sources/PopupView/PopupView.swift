@@ -779,8 +779,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
         return sheet()
             .applyIf(dragToDismiss) {
-                $0.offset(dragOffset())
-                    .simultaneousGesture(drag)
+                $0
+                    .offset(dragOffset())
+                    .gesture(drag)
             }
 #else
         return sheet()
