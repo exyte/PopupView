@@ -44,3 +44,17 @@ struct ItemPopupButton<Content> : View where Content : View {
         .customButtonStyle(foreground: .black, background: .clear)
     }
 }
+
+class SomeItem: Equatable {
+
+    let value: String
+
+    init(value: String) {
+        self.value = value
+    }
+
+    static func == (lhs: SomeItem, rhs: SomeItem) -> Bool {
+        lhs.value == rhs.value
+    }
+}
+

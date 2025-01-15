@@ -10,7 +10,9 @@ import SwiftUI
 
 public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier {
 
-    // MARK: - Presentaion
+    // MARK: - Presentation
+
+    let id = UUID()
 
     @Binding var isPresented: Bool
     @Binding var item: Item?
@@ -36,7 +38,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     var backgroundView: AnyView?
 
     /// If opaque - taps do not pass through popup's background color
-    var isOpaque: Bool
+    var displayMode: Popup<PopupContent>.DisplayMode
 
     /// called when when dismiss animation starts
     var userWillDismissCallback: (DismissSource) -> ()
@@ -64,7 +66,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     @State private var showSheet = false
 
     /// opacity of background color
-    @State private var opacity = 0.0
+    @State private var animatableOpacity: CGFloat = 0
 
     /// A temporary variable to hold a copy of the `itemView` when the item is nil (to complete `itemView`'s dismiss animation)
     @State private var tempItemView: PopupContent?
@@ -102,7 +104,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         self.closeOnTapOutside = params.closeOnTapOutside
         self.backgroundColor = params.backgroundColor
         self.backgroundView = params.backgroundView
-        self.isOpaque = params.isOpaque
+        self.displayMode = params.displayMode
         self.userDismissCallback = params.dismissCallback
         self.userWillDismissCallback = params.willDismissCallback
 
@@ -157,52 +159,51 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     @ViewBuilder
     public func main(content: Content) -> some View {
-        if isOpaque {
 #if os(iOS)
+        switch displayMode {
+        case .overlay:
+            ZStack {
+                content
+                constructPopup()
+            }
+
+        case .sheet:
             content.transparentNonAnimatingFullScreenCover(isPresented: $showSheet, dismissSource: dismissSource, userDismissCallback: userDismissCallback) {
                 constructPopup()
             }
+
+        case .window:
+            content
+                .onChange(of: showSheet) { newValue in
+                    if newValue {
+                        WindowManager.showInNewWindow(id: id) {
+                            constructPopup()
+                        }
+                    } else {
+                        WindowManager.closeWindow(id: id)
+                    }
+                }
+        }
 #else
             ZStack {
                 content
                 constructPopup()
             }
 #endif
-        } else {
-            ZStack {
-                content
-                constructPopup()
-            }
-        }
     }
-
-    func createBackgroundView() -> some View {
-        Group {
-            if let backgroundView = backgroundView {
-                backgroundView
-            } else {
-                backgroundColor
-            }
-        }
-        .opacity(opacity)
-        .applyIf(closeOnTapOutside) { view in
-            view.contentShape(Rectangle())
-        }
-        .addTapIfNotTV(if: closeOnTapOutside) {
-            dismissSource = .tapOutside
-            isPresented = false
-            item = nil
-        }
-        .edgesIgnoringSafeArea(.all)
-        .animation(.linear(duration: 0.2), value: opacity)
-    }
-
+    
+    @ViewBuilder
     func constructPopup() -> some View {
-        Group {
-            if showContent {
-                createBackgroundView()
-                    .modifier(getModifier())
-            }
+        if showContent {
+            PopupBackgroundView(
+                isPresented: $isPresented,
+                item: $item,
+                animatableOpacity: $animatableOpacity,
+                dismissSource: $dismissSource,
+                backgroundColor: backgroundColor,
+                closeOnTapOutside: closeOnTapOutside
+            )
+            .modifier(getModifier())
         }
     }
 
@@ -220,14 +221,16 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             params: params,
             view: viewForItem != nil ? viewForItem! : view,
             popupPresented: popupPresented,
-            shouldShowContent: shouldShowContent,
+            shouldShowContent: $shouldShowContent,
             showContent: showContent,
             positionIsCalculatedCallback: {
-                // once the closing has been started, don't allow position recalculation to trigger popup shpwing again
+                // once the closing has been started, don't allow position recalculation to trigger popup showing again
                 if !closingIsInProcess {
                     DispatchQueue.main.async {
                         shouldShowContent = true // this will cause currentOffset change thus triggering the sliding showing animation
-                        opacity = 1 // this will cause cross disolving animation for background color
+                        withAnimation(.linear(duration: 0.2)) {
+                            animatableOpacity = 1 // this will cause cross dissolving animation for background color/view
+                        }
                     }
                     setupAutohide()
                 }
@@ -252,7 +255,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             userWillDismissCallback(dismissSource ?? .binding)
             dispatchWorkHolder.work?.cancel()
             shouldShowContent = false // this will cause currentOffset change thus triggering the sliding hiding animation
-            opacity = 0
+            animatableOpacity = 0
             // do the rest once the animation is finished (see onAnimationCompleted())
         }
 
@@ -273,7 +276,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         performWithDelay(0.01) {
             showSheet = false
         }
-        if !isOpaque { // for opaque this callback is called in fullScreenCover's onDisappear
+        if displayMode != .sheet { // for .sheet this callback is called in fullScreenCover's onDisappear
             userDismissCallback(dismissSource ?? .binding)
         }
 
@@ -305,5 +308,39 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             block()
         }
     }
+}
 
+/// this is a separe struct with @Bindings because of how UIWindow doesn't receive updates in usual SwiftUI manner
+struct PopupBackgroundView<Item: Equatable>: View {
+
+    @Binding var isPresented: Bool
+    @Binding var item: Item?
+
+    @Binding var animatableOpacity: CGFloat
+    @Binding var dismissSource: DismissSource?
+
+    var backgroundColor: Color
+    var backgroundView: AnyView?
+    var closeOnTapOutside: Bool
+
+    var body: some View {
+        Group {
+            if let backgroundView = backgroundView {
+                backgroundView
+            } else {
+                backgroundColor
+            }
+        }
+        .opacity(animatableOpacity)
+        .applyIf(closeOnTapOutside) { view in
+            view.contentShape(Rectangle())
+        }
+        .addTapIfNotTV(if: closeOnTapOutside) {
+            dismissSource = .tapOutside
+            isPresented = false
+            item = nil
+        }
+        .edgesIgnoringSafeArea(.all)
+        .animation(.linear(duration: 0.2), value: animatableOpacity)
+    }
 }

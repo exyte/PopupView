@@ -6,13 +6,13 @@
 //
 
 import SwiftUI
+import PopupView
 
 @main
 struct PopupExampleApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .preferredColorScheme(.light)
         }
     }
 }

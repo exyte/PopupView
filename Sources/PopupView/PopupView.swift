@@ -24,13 +24,14 @@ public struct Popup<PopupContent: View>: ViewModifier {
     init(params: Popup<PopupContent>.PopupParameters,
          view: @escaping () -> PopupContent,
          popupPresented: Bool,
-         shouldShowContent: Bool,
+         shouldShowContent: Binding<Bool>,
          showContent: Bool,
          positionIsCalculatedCallback: @escaping () -> (),
          animationCompletedCallback: @escaping () -> (),
          dismissCallback: @escaping (DismissSource)->()) {
 
         self.type = params.type
+        self.displayMode = params.displayMode
         self.position = params.position ?? params.type.defaultPosition
         self.appearFrom = params.appearFrom
         self.disappearTo = params.disappearTo
@@ -42,7 +43,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
         self.dragToDismiss = params.dragToDismiss
         self.dragToDismissDistance = params.dragToDismissDistance
         self.closeOnTap = params.closeOnTap
-        self.isOpaque = params.isOpaque
 
         self.view = view
 
@@ -90,6 +90,12 @@ public struct Popup<PopupContent: View>: ViewModifier {
             }
             return false
         }
+    }
+
+    public enum DisplayMode {
+        case overlay // place the popup above the content in a ZStack
+        case sheet // using .fullscreenSheet
+        case window // using UIWindow
     }
 
     public enum Position {
@@ -140,6 +146,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     public struct PopupParameters {
         var type: PopupType = .default
+        var displayMode: DisplayMode = .window
 
         var position: Position?
 
@@ -169,9 +176,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
         /// Custom background view for outside area
         var backgroundView: AnyView?
 
-        /// If true - taps do not pass through popup's background and the popup is displayed on top of navbar
-        var isOpaque: Bool = false
-
         /// move up for keyboardHeight when it is displayed
         var useKeyboardSafeArea: Bool = false
 
@@ -184,6 +188,12 @@ public struct Popup<PopupContent: View>: ViewModifier {
         public func type(_ type: PopupType) -> PopupParameters {
             var params = self
             params.type = type
+            return params
+        }
+
+        public func displayMode(_ displayMode: DisplayMode) -> PopupParameters {
+            var params = self
+            params.displayMode = displayMode
             return params
         }
 
@@ -257,9 +267,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
             return params
         }
 
+        @available(*, deprecated, message: "use displayMode instead")
         public func isOpaque(_ isOpaque: Bool) -> PopupParameters {
             var params = self
-            params.isOpaque = isOpaque
+            params.displayMode = isOpaque ? .sheet : .overlay
             return params
         }
 
@@ -333,6 +344,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
     // MARK: - Public Properties
 
     var type: PopupType
+    var displayMode: DisplayMode
     var position: Position
     var appearFrom: AppearAnimation?
     var disappearTo: AppearAnimation?
@@ -351,15 +363,12 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     /// Minimum distance to drag to dismiss
     var dragToDismissDistance: CGFloat?
-    
-    /// If opaque - taps do not pass through popup's background color
-    var isOpaque: Bool
 
     /// Variable showing changes in isPresented/item, used here to determine direction of animation (showing or hiding)
     var popupPresented: Bool
 
     /// Trigger popup showing/hiding animations and...
-    var shouldShowContent: Bool
+    var shouldShowContent: Binding<Bool>
 
     /// ... once hiding animation is finished remove popup from the memory using this flag
     var showContent: Bool
@@ -417,7 +426,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     /// The offset when the popup is displayed
     private var displayedOffsetY: CGFloat {
-        if isOpaque {
+        if displayMode != .overlay {
             if position.isTop {
                 return verticalPadding + (useSafeAreaInset ? 0 :  -safeAreaInsets.top)
             }
@@ -452,7 +461,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     /// The offset when the popup is displayed
     private var displayedOffsetX: CGFloat {
-        if isOpaque {
+        if displayMode != .overlay {
             if position.isLeading {
                 return horizontalPadding + (useSafeAreaInset ? safeAreaInsets.leading : 0)
             }
@@ -509,7 +518,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     /// Passes the desired position to actualCurrentOffset allowing to animate selectively
     private var targetCurrentOffset: CGPoint {
-        shouldShowContent ? CGPoint(x: displayedOffsetX, y: displayedOffsetY) : hiddenOffset
+        shouldShowContent.wrappedValue ? CGPoint(x: displayedOffsetX, y: displayedOffsetY) : hiddenOffset
     }
 
     // MARK: - Scale calculations
@@ -532,7 +541,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     /// Passes the desired scale to actualScale allowing to animate selectively
     private var targetScale: CGFloat {
-        shouldShowContent ? displayedScale : hiddenScale
+        shouldShowContent.wrappedValue ? displayedScale : hiddenScale
     }
 
     // MARK: - Appear position direction calculations
@@ -679,7 +688,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 .frameGetter($sheetContentRect)
                 .position(x: sheetContentRect.width/2 + actualCurrentOffset.x, y: sheetContentRect.height/2 + actualCurrentOffset.y)
 
-                .onChange(of: shouldShowContent) { newValue in
+                .onChange(of: shouldShowContent.wrappedValue) { newValue in
                     if actualCurrentOffset == CGPoint.pointFarAwayFromScreen { // don't animate initial positioning outside the screen
                         DispatchQueue.main.async {
                             actualCurrentOffset = hiddenOffset
@@ -697,7 +706,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 }
 
                 .onChange(of: keyboardHeightHelper.keyboardHeight) { _ in
-                    if shouldShowContent {
+                    if shouldShowContent.wrappedValue {
                         DispatchQueue.main.async {
                             withAnimation(animation) {
                                 changeParamsWithAnimation(true)
@@ -708,7 +717,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
                 .onChange(of: sheetContentRect.size) { sheetContentRect in
                     positionIsCalculatedCallback()
-                    if shouldShowContent { // already displayed but the size has changed
+                    if shouldShowContent.wrappedValue { // already displayed but the size has changed
                         actualCurrentOffset = targetCurrentOffset
                     }
                 }
@@ -731,7 +740,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 .position(x: sheetContentRect.width/2 + actualCurrentOffset.x, y: sheetContentRect.height/2 + actualCurrentOffset.y)
 
                 .onChange(of: targetCurrentOffset) { newValue in
-                    if !shouldShowContent, newValue == hiddenOffset { // don't animate initial positioning outside the screen
+                    if !shouldShowContent.wrappedValue, newValue == hiddenOffset { // don't animate initial positioning outside the screen
                         actualCurrentOffset = newValue
                         actualScale = targetScale
                     } else {
@@ -743,7 +752,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 }
 
                 .onChange(of: targetScale) { newValue in
-                    if !shouldShowContent, newValue == hiddenScale { // don't animate initial positioning outside the screen
+                    if !shouldShowContent.wrappedValue, newValue == hiddenScale { // don't animate initial positioning outside the screen
                         actualCurrentOffset = targetCurrentOffset
                         actualScale = newValue
                     } else {

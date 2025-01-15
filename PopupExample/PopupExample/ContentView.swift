@@ -9,62 +9,6 @@
 import SwiftUI
 import PopupView
 
-class SomeItem: Equatable {
-    
-    let value: String
-    
-    init(value: String) {
-        self.value = value
-    }
-    
-    static func == (lhs: SomeItem, rhs: SomeItem) -> Bool {
-        lhs.value == rhs.value
-    }
-}
-
-struct FloatsStateBig {
-    var showingTopLeading = false
-    var showingTop = false
-    var showingTopTrailing = false
-
-    var showingLeading = false
-    // center is a regular popup
-    var showingTrailing = false
-
-    var showingBottomLeading = false
-    var showingBottom = false
-    var showingBottomTrailing = false
-}
-
-struct FloatsStateSmall {
-    var showingTopFirst = false
-    var showingTopSecond = false
-    var showingBottomFirst = false
-    var showingBottomSecond = false
-}
-
-struct ToastsState {
-    var showingTopFirst = false
-    var showingTopSecond = false
-    var showingBottomFirst = false
-    var showingBottomSecond = false
-}
-
-struct PopupsState {
-    var middleItem: SomeItem?
-    var showingBottomFirst = false
-    var showingBottomSecond = false
-}
-
-struct ActionSheetsState {
-    var showingFirst = false
-    var showingSecond = false
-}
-
-struct InputSheetsState {
-    var showingFirst = false
-}
-
 struct ContentView : View {
     @State var floatsSmall = FloatsStateSmall()
     @State var floatsBig = FloatsStateBig()
@@ -159,6 +103,7 @@ struct ContentView : View {
                 $0
                     .type(.floater())
                     .position(.top)
+                    .displayMode(.window)
                     .animation(.spring())
                     .closeOnTapOutside(true)
                     .autohideIn(3)
@@ -177,7 +122,6 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.top)
                     .animation(.spring())
-                    .autohideIn(3)
             }
 
             .popup(isPresented: $floatsSmall.showingBottomFirst) {
@@ -299,7 +243,6 @@ struct ContentView : View {
                     .position(.bottom)
                     .closeOnTap(false)
                     .backgroundColor(.black.opacity(0.4))
-                    .isOpaque(true)
                     .useKeyboardSafeArea(true)
             }
     }

@@ -44,6 +44,137 @@
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-brightgreen.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](https://opensource.org/licenses/MIT)
 
+# What's new in version 4
+You can show multiple popups on top of anything, and they can also let the taps pass through to lower views. 
+There are 3 ways to display a popup: as a simple overlay, using SwiftUI's fullscreenSheet, and using UIKit's UIWindow. There are pros and cons for all of these, here is a table.
+<table>
+    <thead>
+        <tr>
+            <th></th>
+            <th>Overlay</th>
+            <th>Sheet</th>
+            <th>Window</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr align=center>
+        <th>Show on top of navbar</th>
+            <td> ❌ </td>
+            <td> ✅ </td>
+            <td> ✅ </td>
+        </tr>
+        <tr align=center>
+        <th>Show on top of sheet</th>
+            <td> ❌ </td>
+            <td> ❌ </td>
+            <td> ✅ </td>
+        </tr>
+        <tr align=center>
+        <th>Show multiple popups</th>
+            <td> ✅ </td>
+            <td> ❌ </td>
+            <td> ✅ </td>
+        </tr>
+        <tr align=center>
+        <th>Taps "pass through" the transparent bg</th>
+            <td> ✅ </td>
+            <td> ❌ </td>
+            <td> ✅ </td>
+        </tr>
+        <tr align=center>
+        <th>SwiftUI @State update mechanism works as expected</th>
+            <td> ✅ </td>
+            <td> ✅ </td>
+            <td> ❌ </td>
+        </tr>
+    </tbody>
+</table>
+
+Basically UIWindow based popup is the best option for most situations, just remember - to get adequate UI updates, use ObservableObjects or @Bindings instead of @State. This won't work:
+```swift
+struct ContentView1 : View {
+    @State var showPopup = false
+    @State var a = false
+
+    var body: some View {
+        Button("Button") {
+            showPopup.toggle()
+        }
+        .popup(isPresented: $showPopup) {
+            VStack {
+                Button("Switch a") {
+                    a.toggle()
+                }
+                a ? Text("on").foregroundStyle(.green) : Text("off").foregroundStyle(.red)
+            }
+        } customize: {
+            $0
+                .type(.floater())
+                .closeOnTap(false)
+                .position(.top)
+        }
+    }
+}
+```
+This will work:
+```swift
+struct ContentView1 : View {
+    @State var showPopup = false
+    @State var a = false
+
+    var body: some View {
+        Button("Button") {
+            showPopup.toggle()
+        }
+        .popup(isPresented: $showPopup) {
+            PopupContent(a: $a)
+        } customize: {
+            $0
+                .type(.floater())
+                .closeOnTap(false)
+                .position(.top)
+        }
+    }
+}
+
+struct PopupContent: View {
+    @Binding var a: Bool
+
+    var body: some View {
+        VStack {
+            Button("Switch a") {
+                a.toggle()
+            }
+            a ? Text("on").foregroundStyle(.green) : Text("off").foregroundStyle(.red)
+        }
+    }
+}
+```
+
+# Update to version 4
+New `DisplayMode` enum was introduced instead of `isOpaque`. `isOpaque` is now deprecated.
+Instead of:
+```swift
+.popup(isPresented: $toasts.showingTopSecond) {
+    ToastTopSecond()
+} customize: {
+    $0
+        .type(.toast)
+        .isOpaque(true) // <-- here
+}
+```
+use:
+```swift
+.popup(isPresented: $floats.showingTopFirst) {
+    FloatTopFirst()
+} customize: {
+    $0
+        .type(.floater())
+        .displayMode(.sheet) // <-- here
+}
+```
+Default is `.window`.
+
 # What's new in version 3
 - zoom in/out appear/disappear animations
 - `disappearTo` parameter to specify disappearing animation direction - can be different from `appearFrom`

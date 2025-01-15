@@ -7,6 +7,49 @@
 
 import SwiftUI
 
+struct FloatsStateBig {
+    var showingTopLeading = false
+    var showingTop = false
+    var showingTopTrailing = false
+
+    var showingLeading = false
+    // center is a regular popup
+    var showingTrailing = false
+
+    var showingBottomLeading = false
+    var showingBottom = false
+    var showingBottomTrailing = false
+}
+
+struct FloatsStateSmall {
+    var showingTopFirst = false
+    var showingTopSecond = false
+    var showingBottomFirst = false
+    var showingBottomSecond = false
+}
+
+struct ToastsState {
+    var showingTopFirst = false
+    var showingTopSecond = false
+    var showingBottomFirst = false
+    var showingBottomSecond = false
+}
+
+struct PopupsState {
+    var middleItem: SomeItem?
+    var showingBottomFirst = false
+    var showingBottomSecond = false
+}
+
+struct ActionSheetsState {
+    var showingFirst = false
+    var showingSecond = false
+}
+
+struct InputSheetsState {
+    var showingFirst = false
+}
+
 private struct SectionHeader: View {
     let name: String
     let count: Int
@@ -150,6 +193,13 @@ struct PopupsList: View {
 
     @ViewBuilder
     func floatsSectionSmall() -> some View {
+        Button("Show multiple popups") {
+            popups.showingBottomFirst = true
+            toasts.showingBottomSecond = true
+            floatsSmall.showingBottomFirst = true
+            floatsSmall.showingTopSecond = true
+            toasts.showingTopSecond = true
+        }
         PopupButton(isShowing: $floatsSmall.showingTopFirst, hideAll: hideAll) {
             PopupTypeView(
                 title: "Top version 1",
