@@ -173,7 +173,8 @@ use:
         .displayMode(.sheet) // <-- here
 }
 ```
-Default is `.window`.
+So, new `.displayMode(.sheet)` corresponds to old `.isOpaque(true)`, `.displayMode(.overlay)` corresponds to `.isOpaque(false)`.
+Default `DisplayMode` is `.window`.
 
 # What's new in version 3
 - zoom in/out appear/disappear animations
