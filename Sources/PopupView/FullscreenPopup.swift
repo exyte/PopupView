@@ -176,7 +176,11 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             content
                 .onChange(of: showSheet) { newValue in
                     if newValue {
-                        WindowManager.showInNewWindow(id: id) {
+                        WindowManager.showInNewWindow(id: id, dismissClosure: {
+                            dismissSource = .binding
+                            isPresented = false
+                            item = nil
+                        }) {
                             constructPopup()
                         }
                     } else {

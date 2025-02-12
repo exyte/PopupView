@@ -247,7 +247,7 @@ public final class WindowManager {
     var windows: [UUID: UIWindow] = [:]
 
     // Show a new window with hosted SwiftUI content
-    public static func showInNewWindow<Content: View>(id: UUID, content: @escaping () -> Content) {
+    public static func showInNewWindow<Content: View>(id: UUID, dismissClosure: @escaping ()->(), content: @escaping () -> Content) {
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
             print("No valid scene available")
             return
@@ -256,10 +256,10 @@ public final class WindowManager {
         let window = UIPassthroughWindow(windowScene: scene)
         window.backgroundColor = .clear
 
-        // Wrap content in an ObservableObject to track changes
-        //let hostingState = HostingViewState(content: content(), id: id)
-
-        let controller = UIPassthroughVC(rootView: content())
+        let controller = UIPassthroughVC(rootView: content()
+            .environment(\.popupDismiss) {
+                dismissClosure()
+            })
         controller.view.backgroundColor = .clear
         window.rootViewController = controller
         window.windowLevel = .alert + 1
