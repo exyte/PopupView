@@ -40,8 +40,7 @@
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fexyte%2FPopupView%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/exyte/PopupView)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fexyte%2FPopupView%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/exyte/PopupView)
 [![SPM Compatible](https://img.shields.io/badge/SwiftPM-Compatible-brightgreen.svg)](https://swiftpackageindex.com/exyte/PopupView)
-[![Cocoapods Compatible](https://img.shields.io/badge/cocoapods-Compatible-brightgreen.svg)](https://cocoapods.org/pods/ExytePopupView)
-[![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-brightgreen.svg?style=flat)](https://github.com/Carthage/Carthage)
+[![Cocoapods Compatible](https://img.shields.io/badge/cocoapods-Deprecated%20after%204.0.0-yellow.svg)](https://cocoapods.org/pods/ExytePopupView)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](https://opensource.org/licenses/MIT)
 
 # What's new in version 4
