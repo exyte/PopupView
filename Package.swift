@@ -1,4 +1,4 @@
-// swift-tools-version:6.0
+// swift-tools-version: 5.9
 
 import PackageDescription
 
@@ -24,6 +24,9 @@ let package = Package(
             name: "PopupView",
             dependencies: [
                 .product(name: "SwiftUIIntrospect", package: "swiftui-introspect"),
+            ],
+            swiftSettings: [
+              .enableExperimentalFeature("StrictConcurrency")
             ]
         )
     ]

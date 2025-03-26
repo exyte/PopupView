@@ -39,8 +39,8 @@
 ![](https://img.shields.io/github/v/tag/exyte/popupView?label=Version)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fexyte%2FPopupView%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/exyte/PopupView)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fexyte%2FPopupView%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/exyte/PopupView)
-[![SPM Compatible](https://img.shields.io/badge/SwiftPM-Compatible-brightgreen.svg)](https://swiftpackageindex.com/exyte/PopupView)
-[![Cocoapods Compatible](https://img.shields.io/badge/cocoapods-Deprecated%20after%204.0.0-yellow.svg)](https://cocoapods.org/pods/ExytePopupView)
+[![SPM](https://img.shields.io/badge/SPM-Compatible-brightgreen.svg)](https://swiftpackageindex.com/exyte/PopupView)
+[![Cocoapods](https://img.shields.io/badge/Cocoapods-Deprecated%20after%204.0.0-yellow.svg)](https://cocoapods.org/pods/ExytePopupView)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](https://opensource.org/licenses/MIT)
 
 # What's new in version 4
@@ -316,11 +316,9 @@ To implement a sheet (like in 4th gif) enable `dragToDismiss` on bottom toast (s
 
 ## Examples
 
-To try PopupView examples:
+To try the PopupView examples:
 - Clone the repo `https://github.com/exyte/PopupView.git`
-- Open terminal and run `cd <PopupViewRepo>/Example/`
-- Run `pod install` to install all dependencies
-- Run open `PopupViewExample.xcworkspace/` to open project in the Xcode
+- Open `PopupExample.xcodeproj` in the Xcode
 - Try it!
 
 ## Installation
@@ -331,22 +329,6 @@ To try PopupView examples:
 dependencies: [
     .package(url: "https://github.com/exyte/PopupView.git")
 ]
-```
-
-### [CocoaPods](http://cocoapods.org)
-
-To install `PopupView`, simply add the following line to your Podfile:
-
-```ruby
-pod 'ExytePopupView'
-```
-
-### [Carthage](http://github.com/Carthage/Carthage)
-
-To integrate `PopupView` into your Xcode project using Carthage, specify it in your `Cartfile`
-
-```ogdl
-github "Exyte/PopupView"
 ```
 
 ## Requirements
