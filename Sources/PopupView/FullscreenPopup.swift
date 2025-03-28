@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 
+@MainActor
 public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier {
 
     // MARK: - Presentation

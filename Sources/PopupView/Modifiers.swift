@@ -20,8 +20,8 @@ public extension EnvironmentValues {
     }
 }
 
+@MainActor
 extension View {
-
     public func popup<PopupContent: View>(
         isPresented: Binding<Bool>,
         @ViewBuilder view: @escaping () -> PopupContent,
@@ -93,12 +93,14 @@ extension View {
 
 #if os(iOS)
 
+@MainActor
 extension View {
-  func onOrientationChange(isLandscape: Binding<Bool>, onOrientationChange: @escaping () -> Void) -> some View {
-    self.modifier(OrientationChangeModifier(isLandscape: isLandscape, onOrientationChange: onOrientationChange))
-  }
+    func onOrientationChange(isLandscape: Binding<Bool>, onOrientationChange: @escaping () -> Void) -> some View {
+        self.modifier(OrientationChangeModifier(isLandscape: isLandscape, onOrientationChange: onOrientationChange))
+    }
 }
 
+@MainActor
 struct OrientationChangeModifier: ViewModifier {
     @Binding var isLandscape: Bool
     let onOrientationChange: () -> Void
@@ -135,12 +137,10 @@ struct OrientationChangeModifier: ViewModifier {
 
 #if os(iOS)
     private func updateOrientation() {
-        DispatchQueue.main.async {
-            let newIsLandscape = UIDevice.current.orientation.isLandscape
-            if newIsLandscape != isLandscape {
-                isLandscape = newIsLandscape
-                onOrientationChange()
-            }
+        let newIsLandscape = UIDevice.current.orientation.isLandscape
+        if newIsLandscape != isLandscape {
+            isLandscape = newIsLandscape
+            onOrientationChange()
         }
     }
 #endif
