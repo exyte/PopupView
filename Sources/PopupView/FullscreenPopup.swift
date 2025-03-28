@@ -80,6 +80,15 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     /// holder for autohiding dispatch work (to be able to cancel it when needed)
     @State private var dispatchWorkHolder = DispatchWorkHolder()
 
+    // MARK: - Autohide With Dragging
+    /// If user "grabbed" the popup to drag it around, put off the autohiding until he lifts his finger up
+
+    /// is user currently holding th popup with his finger
+    @State private var isDragging = false
+
+    /// if autohide time was set up, shows that timer has come to an end already
+    @State private var timeToHide = false
+
     // MARK: - Internal
 
     /// Set dismiss source to pass to dismiss callback
@@ -228,6 +237,8 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             popupPresented: popupPresented,
             shouldShowContent: $shouldShowContent,
             showContent: showContent,
+            isDragging: $isDragging,
+            timeToHide: $timeToHide,
             positionIsCalculatedCallback: {
                 // once the closing has been started, don't allow position recalculation to trigger popup showing again
                 if !closingIsInProcess {
@@ -240,7 +251,6 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                     setupAutohide()
                 }
             },
-            animationCompletedCallback: onAnimationCompleted,
             dismissCallback: { source in
                 dismissSource = source
                 isPresented = false
@@ -264,14 +274,13 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             // do the rest once the animation is finished (see onAnimationCompleted())
         }
 
-        if #unavailable(iOS 17.0, tvOS 17.0, macOS 14.0, watchOS 10.0) {
-            performWithDelay(0.3) { // imitate onAnimationCompleted for older os
-                onAnimationCompleted()
-            }
+        // animation completion block isn't being called reliably when there are other animations happening at the same time (drag, autohide, etc.) so here we imitate onAnimationCompleted
+        performWithDelay(0.3) {
+            onAnimationCompleted()
         }
     }
 
-    func onAnimationCompleted() -> () {
+    func onAnimationCompleted() {
         if shouldShowContent { // return if this was called on showing animation, only proceed if called on hiding
             eventsSemaphore.signal()
             return
@@ -297,6 +306,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             // which would create a retain cycle with the work holder itself.
 
             dispatchWorkHolder.work = DispatchWorkItem(block: { [weak isPresentedRef, weak itemRef] in
+                if isDragging {
+                    timeToHide = true // raise this flag to hide the popup once the drag is over
+                    return
+                }
                 dismissSource = .autohide
                 isPresentedRef?.value.wrappedValue = false
                 itemRef?.value.wrappedValue = nil
@@ -312,42 +325,5 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             block()
         }
-    }
-}
-
-/// this is a separe struct with @Bindings because of how UIWindow doesn't receive updates in usual SwiftUI manner
-struct PopupBackgroundView<Item: Equatable>: View {
-
-    @Binding var id: UUID
-    
-    @Binding var isPresented: Bool
-    @Binding var item: Item?
-
-    @Binding var animatableOpacity: CGFloat
-    @Binding var dismissSource: DismissSource?
-
-    var backgroundColor: Color
-    var backgroundView: AnyView?
-    var closeOnTapOutside: Bool
-
-    var body: some View {
-        Group {
-            if let backgroundView = backgroundView {
-                backgroundView
-            } else {
-                backgroundColor
-            }
-        }
-        .opacity(animatableOpacity)
-        .applyIf(closeOnTapOutside) { view in
-            view.contentShape(Rectangle())
-        }
-        .addTapIfNotTV(if: closeOnTapOutside) {
-            dismissSource = .tapOutside
-            isPresented = false
-            item = nil
-        }
-        .edgesIgnoringSafeArea(.all)
-        .animation(.linear(duration: 0.2), value: animatableOpacity)
     }
 }
