@@ -91,7 +91,7 @@ There are 3 ways to display a popup: as a simple overlay, using SwiftUI's fullsc
 
 Basically UIWindow based popup is the best option for most situations, just remember - to get adequate UI updates, use ObservableObjects or @Bindings instead of @State. This won't work:
 ```swift
-struct ContentView1 : View {
+struct ContentView : View {
     @State var showPopup = false
     @State var a = false
 
@@ -117,7 +117,7 @@ struct ContentView1 : View {
 ```
 This will work:
 ```swift
-struct ContentView1 : View {
+struct ContentView : View {
     @State var showPopup = false
     @State var a = false
 
@@ -224,19 +224,6 @@ use:
 }
 ```
 Using this API you can pass parameters in any order you like.
-
-# Show over navbar
-To display your popup over all other views including navbars please use:
-```swift
-.popup(isPresented: $floats.showingTopFirst) {
-    FloatTopFirst()
-} customize: {
-    $0.isOpaque(true)
-}
-```
-This will also mean that you won't be able to tap "through" the popup's background on any of the controls "behind it" (that's because this method actually uses transparent fullscreenSheet, which won't pass the touches to underlying view). Opaque popup uses screen size to calculate its position.   
-
-Unfortunately, if opaque is false (to allow "through-touches" if you need them), popup - even if forced to be fullscreen, will be displayed under the navbar (if you know how to pass over this restriction, please do let me know in the comments). Please keep in mind that in this case the popup calculates its position using the frame of the view you attach it to, to avoid being under the navbar. So you'll likely want to attach it to the root view of your app.  
 
 # Usage
 1. Add a bool to control popup presentation state
