@@ -375,12 +375,9 @@ class KeyboardHeightHelper: ObservableObject {
     }
     
     @objc private func onKeyboardWillHideNotification(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let keyboardRect = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-
         DispatchQueue.main.async {
-            self.keyboardHeight = keyboardRect.height
-            self.keyboardDisplayed = true
+            self.keyboardHeight = 0
+            self.keyboardDisplayed = false
         }
     }
 }
