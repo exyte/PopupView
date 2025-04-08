@@ -216,6 +216,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                 animatableOpacity: $animatableOpacity,
                 dismissSource: $dismissSource,
                 backgroundColor: backgroundColor,
+                backgroundView: backgroundView,
                 closeOnTapOutside: closeOnTapOutside
             )
             .modifier(getModifier())
