@@ -15,7 +15,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     init(params: Popup<PopupContent>.PopupParameters,
          view: @escaping () -> PopupContent,
-         popupPresented: Bool,
          shouldShowContent: Binding<Bool>,
          showContent: Bool,
          isDragging: Binding<Bool>,
@@ -35,11 +34,11 @@ public struct Popup<PopupContent: View>: ViewModifier {
         self.animation = params.animation
         self.dragToDismiss = params.dragToDismiss
         self.dragToDismissDistance = params.dragToDismissDistance
+        self.dismissEnabled = params.dismissEnabled
         self.closeOnTap = params.closeOnTap
 
         self.view = view
 
-        self.popupPresented = popupPresented
         self.shouldShowContent = shouldShowContent
         self.showContent = showContent
         self._isDragging = isDragging
@@ -85,6 +84,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     var animation: Animation
 
+    /// Becomes true when `dismissibleIn` times finishes
+    /// Makes no sense if `dismissibleIn` is nil
+    var dismissEnabled: Binding<Bool>
+
     /// Should close on tap - default is `true`
     var closeOnTap: Bool
 
@@ -93,9 +96,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     /// Minimum distance to drag to dismiss
     var dragToDismissDistance: CGFloat?
-
-    /// Variable showing changes in isPresented/item, used here to determine direction of animation (showing or hiding)
-    var popupPresented: Bool
 
     /// Trigger popup showing/hiding animations and...
     var shouldShowContent: Binding<Bool>
@@ -151,7 +151,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
     @State private var scrollViewOffset: CGSize = .zero
 
     /// Height of scrollView content that will be displayed on the screen
-    @State var scrollViewContentHeight = 0.0
+    @State private var scrollViewContentHeight = 0.0
+
+    /// Track ScrollView's frame to check if it's ready
+    @State private var scrollViewRect: CGRect = .zero
 
     // MARK: - Position calculations
 
@@ -223,7 +226,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         }
 
         // appearing animation
-        if popupPresented {
+        if shouldShowContent.wrappedValue {
             return hiddenOffset(calculatedAppearFrom)
         }
         // hiding animation
@@ -242,7 +245,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
             return CGPoint(x: -screenWidth, y: displayedOffsetY)
         case .rightSlide:
             return CGPoint(x: screenWidth, y: displayedOffsetY)
-        case .centerScale:
+        case .centerScale, .none:
             return CGPoint(x: displayedOffsetX, y: displayedOffsetY)
         }
     }
@@ -261,10 +264,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     /// The scale when the popup is hidden
     private var hiddenScale: CGFloat {
-        if popupPresented, calculatedAppearFrom == .centerScale {
+        if shouldShowContent.wrappedValue, calculatedAppearFrom == .centerScale {
             return 0
         }
-        else if !popupPresented, calculatedDisappearTo == .centerScale {
+        else if !shouldShowContent.wrappedValue, calculatedDisappearTo == .centerScale {
             return 0
         }
         return 1
@@ -389,6 +392,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 }
                 // no heigher than its contents
                 .frame(maxHeight: scrollViewContentHeight)
+                .frameGetter($scrollViewRect)
             }
             .introspect(.scrollView, on: .iOS(.v15, .v16, .v17, .v18)) { scrollView in
                 configure(scrollView: scrollView)
@@ -412,7 +416,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 VStack {
                     contentView()
                         .addTapIfNotTV(if: closeOnTap) {
-                            dismissCallback(.tapInside)
+                            if dismissEnabled.wrappedValue {
+                                dismissCallback(.tapInside)
+                            }
                         }
                         .scaleEffect(actualScale) // scale is here to avoid it messing with frameGetter for sheetContentRect
                 }
@@ -445,14 +451,14 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 }
 
                 .onChange(of: sheetContentRect.size) { sheetContentRect in
+                    // check if scrollView has already calculated its height, otherwise sheetContentRect is already non-zero but yet incorrect
+                    if case .scroll(_) = type, scrollViewRect.height == 0 {
+                        return
+                    }
                     positionIsCalculatedCallback()
                     if shouldShowContent.wrappedValue { // already displayed but the size has changed
                         actualCurrentOffset = targetCurrentOffset
                     }
-                }
-
-                .onChange(of: actualCurrentOffset) { actualCurrentOffset in
-                    print(actualCurrentOffset)
                 }
 #if os(iOS)
                 .onOrientationChange(isLandscape: $isLandscape) {
@@ -465,7 +471,9 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 VStack {
                     contentView()
                         .addTapIfNotTV(if: closeOnTap) {
-                            dismissCallback(.tapInside)
+                            if dismissEnabled.wrappedValue {
+                                dismissCallback(.tapInside)
+                            }
                         }
                         .scaleEffect(actualScale) // scale is here to avoid it messing with frameGetter for sheetContentRect
                 }
@@ -559,7 +567,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
             if dragState.translation.width > 0 {
                 return CGSize(width: dragState.translation.width, height: 0)
             }
-        case .centerScale:
+        case .centerScale, .none:
             return .zero
         }
         return .zero
@@ -606,7 +614,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
             if drag.translation.width > referenceX {
                 shouldDismiss = true
             }
-        case .centerScale:
+        case .centerScale, .none:
             break
         }
 
@@ -615,7 +623,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
             shouldDismiss = true
         }
 
-        if shouldDismiss {
+        if dismissEnabled.wrappedValue, shouldDismiss {
             dismissCallback(.drag)
         } else {
             withAnimation {

@@ -104,6 +104,7 @@ extension Popup {
         case leftSlide
         case rightSlide
         case centerScale
+        case none
     }
 
     public struct PopupParameters {
@@ -119,6 +120,13 @@ extension Popup {
 
         /// If nil - never hides on its own
         var autohideIn: Double?
+
+        /// Only allow dismiss by any means after this time passes
+        var dismissibleIn: Double?
+
+        /// Becomes true when `dismissibleIn` times finishes
+        /// Makes no sense if `dismissibleIn` is nil
+        var dismissEnabled: Binding<Bool> = .constant(true)
 
         /// Should allow dismiss by dragging - default is `true`
         var dragToDismiss: Bool = true
@@ -186,6 +194,15 @@ extension Popup {
         public func autohideIn(_ autohideIn: Double?) -> PopupParameters {
             var params = self
             params.autohideIn = autohideIn
+            return params
+        }
+
+        public func dismissibleIn(_ dismissibleIn: Double?, _ dismissEnabled: Binding<Bool>?) -> PopupParameters {
+            var params = self
+            params.dismissibleIn = dismissibleIn
+            if let dismissEnabled = dismissEnabled {
+                params.dismissEnabled = dismissEnabled
+            }
             return params
         }
 

@@ -29,6 +29,13 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     /// If nil - never hides on its own
     var autohideIn: Double?
 
+    /// Only allow dismiss by any means after this time passes
+    var dismissibleIn: Double?
+
+    /// Becomes true when `dismissibleIn` times finishes
+    /// Makes no sense if `dismissibleIn` is nil
+    var dismissEnabled: Binding<Bool>
+
     /// Should close on tap outside - default is `false`
     var closeOnTapOutside: Bool
 
@@ -79,7 +86,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     private var itemRef: ClassReference<Binding<Item?>>?
 
     /// holder for autohiding dispatch work (to be able to cancel it when needed)
-    @State private var dispatchWorkHolder = DispatchWorkHolder()
+    @State private var autohidingWorkHolder = DispatchWorkHolder()
+
+    /// holder for `dismissibleIn` dispatch work (to be able to cancel it when needed)
+    @State private var dismissibleInWorkHolder = DispatchWorkHolder()
 
     // MARK: - Autohide With Dragging
     /// If user "grabbed" the popup to drag it around, put off the autohiding until he lifts his finger up
@@ -89,6 +99,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     /// if autohide time was set up, shows that timer has come to an end already
     @State private var timeToHide = false
+
+    // MARK: - dismissibleIn
+
+    private var dismissEnabledRef: ClassReference<Binding<Bool>>?
 
     // MARK: - Internal
 
@@ -111,6 +125,8 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
         self.params = params
         self.autohideIn = params.autohideIn
+        self.dismissibleIn = params.dismissibleIn
+        self.dismissEnabled = params.dismissEnabled
         self.closeOnTapOutside = params.closeOnTapOutside
         self.backgroundColor = params.backgroundColor
         self.backgroundView = params.backgroundView
@@ -127,6 +143,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
         self.isPresentedRef = ClassReference(self.$isPresented)
         self.itemRef = ClassReference(self.$item)
+        self.dismissEnabledRef = ClassReference(self.dismissEnabled)
     }
 
     public func body(content: Content) -> some View {
@@ -217,7 +234,8 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                 dismissSource: $dismissSource,
                 backgroundColor: backgroundColor,
                 backgroundView: backgroundView,
-                closeOnTapOutside: closeOnTapOutside
+                closeOnTapOutside: closeOnTapOutside,
+                dismissEnabled: dismissEnabled
             )
             .modifier(getModifier())
         }
@@ -236,7 +254,6 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         Popup(
             params: params,
             view: viewForItem != nil ? viewForItem! : view,
-            popupPresented: popupPresented,
             shouldShowContent: $shouldShowContent,
             showContent: showContent,
             isDragging: $isDragging,
@@ -251,6 +268,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                         }
                     }
                     setupAutohide()
+                    setupdismissibleIn()
                 }
             },
             dismissCallback: { source in
@@ -270,7 +288,8 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         } else {
             closingIsInProcess = true
             userWillDismissCallback(dismissSource ?? .binding)
-            dispatchWorkHolder.work?.cancel()
+            autohidingWorkHolder.work?.cancel()
+            dismissibleInWorkHolder.work?.cancel()
             shouldShowContent = false // this will cause currentOffset change thus triggering the sliding hiding animation
             animatableOpacity = 0
             // do the rest once the animation is finished (see onAnimationCompleted())
@@ -289,6 +308,9 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         }
         showContent = false // unload popup body after hiding animation is done
         tempItemView = nil
+        if dismissibleIn != nil {
+            dismissEnabled.wrappedValue = false
+        }
         performWithDelay(0.01) {
             showSheet = false
         }
@@ -302,12 +324,12 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     func setupAutohide() {
         // if needed, dispatch autohide and cancel previous one
         if let autohideIn = autohideIn {
-            dispatchWorkHolder.work?.cancel()
+            autohidingWorkHolder.work?.cancel()
 
             // Weak reference to avoid the work item capturing the struct,
             // which would create a retain cycle with the work holder itself.
 
-            dispatchWorkHolder.work = DispatchWorkItem(block: { [weak isPresentedRef, weak itemRef] in
+            autohidingWorkHolder.work = DispatchWorkItem(block: { [weak isPresentedRef, weak itemRef] in
                 if isDragging {
                     timeToHide = true // raise this flag to hide the popup once the drag is over
                     return
@@ -315,10 +337,27 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                 dismissSource = .autohide
                 isPresentedRef?.value.wrappedValue = false
                 itemRef?.value.wrappedValue = nil
-                dispatchWorkHolder.work = nil
+                autohidingWorkHolder.work = nil
             })
-            if popupPresented, let work = dispatchWorkHolder.work {
+            if popupPresented, let work = autohidingWorkHolder.work {
                 DispatchQueue.main.asyncAfter(deadline: .now() + autohideIn, execute: work)
+            }
+        }
+    }
+
+    func setupdismissibleIn() {
+        if let dismissibleIn = dismissibleIn {
+            dismissibleInWorkHolder.work?.cancel()
+
+            // Weak reference to avoid the work item capturing the struct,
+            // which would create a retain cycle with the work holder itself.
+
+            dismissibleInWorkHolder.work = DispatchWorkItem(block: { [weak dismissEnabledRef] in
+                dismissEnabledRef?.value.wrappedValue = true
+                dismissibleInWorkHolder.work = nil
+            })
+            if popupPresented, let work = dismissibleInWorkHolder.work {
+                DispatchQueue.main.asyncAfter(deadline: .now() + dismissibleIn, execute: work)
             }
         }
     }

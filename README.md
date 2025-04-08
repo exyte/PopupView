@@ -275,10 +275,11 @@ scroll parameters:
 `headerView` - a view on top which won't be a part of the scroll (if you need one)
 
 `position` - topLeading, top, topTrailing, leading, center, trailing, bottomLeading, bottom, bottomTrailing 
-`appearFrom` - `topSlide, bottomSlide, leftSlide, rightSlide, centerScale`: determines the direction of appearing animation. If left empty it copies `position` parameter: so appears from .top edge, if `position` is set to .top
+`appearFrom` - `topSlide, bottomSlide, leftSlide, rightSlide, centerScale, none`: determines the direction of appearing animation. If left empty it copies `position` parameter: so appears from .top edge, if `position` is set to .top. `.none` means no animation
 `disappearTo` - same as `appearFrom`, but for disappearing animation. If left empty it copies `appearFrom`.
 `animation` - custom animation for popup sliding onto screen  
 `autohideIn` - time after which popup should disappear    
+`dismissibleIn(Double?, Binding<Bool>?)` - only allow dismiss after this time passes (forbids closeOnTap, closeOnTapOutside, and drag). Pass a boolean binding if you'd like to track current status     
 `dragToDismiss` - true by default: enable/disable drag to dismiss (upwards for .top popup types, downwards for .bottom and default type)    
 `closeOnTap` - true by default: enable/disable closing on tap on popup     
 `closeOnTapOutside` - false by default: enable/disable closing on tap on outside of popup     
