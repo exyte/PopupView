@@ -451,10 +451,12 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 }
 
                 .onChange(of: sheetContentRect.size) { sheetContentRect in
+                    #if os(iOS)
                     // check if scrollView has already calculated its height, otherwise sheetContentRect is already non-zero but yet incorrect
                     if case .scroll(_) = type, scrollViewRect.height == 0 {
                         return
                     }
+                    #endif
                     positionIsCalculatedCallback()
                     if shouldShowContent.wrappedValue { // already displayed but the size has changed
                         actualCurrentOffset = targetCurrentOffset
