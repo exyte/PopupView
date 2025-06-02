@@ -525,7 +525,11 @@ public struct Popup<PopupContent: View>: ViewModifier {
 #if !os(tvOS)
         let drag = DragGesture()
             .updating($dragState) { drag, state, _ in
-                isDragging = true
+                if !isDragging {
+                    DispatchQueue.main.async {
+                        isDragging = true
+                    }
+                }
                 state = .dragging(translation: drag.translation)
             }
             .onEnded(onDragEnded)
