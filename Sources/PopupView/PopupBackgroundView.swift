@@ -21,6 +21,7 @@ struct PopupBackgroundView<Item: Equatable>: View {
     var backgroundColor: Color
     var backgroundView: AnyView?
     var closeOnTapOutside: Bool
+    var allowTapThroughBG: Bool
     var dismissEnabled: Binding<Bool>
 
     var body: some View {
@@ -31,6 +32,7 @@ struct PopupBackgroundView<Item: Equatable>: View {
                 backgroundColor
             }
         }
+        .allowsHitTesting(!allowTapThroughBG)
         .opacity(animatableOpacity)
         .applyIf(closeOnTapOutside) { view in
             view.contentShape(Rectangle())

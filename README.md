@@ -283,6 +283,7 @@ scroll parameters:
 `dragToDismiss` - true by default: enable/disable drag to dismiss (upwards for .top popup types, downwards for .bottom and default type)    
 `closeOnTap` - true by default: enable/disable closing on tap on popup     
 `closeOnTapOutside` - false by default: enable/disable closing on tap on outside of popup     
+`allowTapThroughBG` - Should allow taps to pass "through" the popup's background down to views "below" it. `.sheet` popup is always allowTapThroughBG = false    
 `backgroundColor` - Color.clear by default: change background color of outside area     
 `backgroundView` - custom background builder for outside area (if this one is set `backgroundColor` is ignored)    
 `isOpaque` - false by default: if true taps do not pass through popup's background and the popup is displayed on top of navbar. For more see section "Show over navbar"     

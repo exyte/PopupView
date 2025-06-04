@@ -198,6 +198,7 @@ struct ContentView : View {
                     .disappearTo(.centerScale)
                     .position(.bottom)
                     .closeOnTap(false)
+                    .allowTapThroughBG(false)
                     .backgroundColor(.black.opacity(0.4))
             }
 

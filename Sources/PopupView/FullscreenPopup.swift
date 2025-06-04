@@ -39,6 +39,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     /// Should close on tap outside - default is `false`
     var closeOnTapOutside: Bool
 
+    /// Should allow taps to pass "through" the popup's background down to views "below" it.
+    /// .sheet popup is always allowTapThroughBG = false
+    var allowTapThroughBG: Bool
+
     /// Background color for outside area - default is `Color.clear`
     var backgroundColor: Color
 
@@ -128,6 +132,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         self.dismissibleIn = params.dismissibleIn
         self.dismissEnabled = params.dismissEnabled
         self.closeOnTapOutside = params.closeOnTapOutside
+        self.allowTapThroughBG = params.allowTapThroughBG
         self.backgroundColor = params.backgroundColor
         self.backgroundView = params.backgroundView
         self.displayMode = params.displayMode
@@ -203,7 +208,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             content
                 .onChange(of: showSheet) { newValue in
                     if newValue {
-                        WindowManager.showInNewWindow(id: id, dismissClosure: {
+                        WindowManager.showInNewWindow(id: id, allowTapThroughBG: allowTapThroughBG, dismissClosure: {
                             dismissSource = .binding
                             isPresented = false
                             item = nil
@@ -235,6 +240,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                 backgroundColor: backgroundColor,
                 backgroundView: backgroundView,
                 closeOnTapOutside: closeOnTapOutside,
+                allowTapThroughBG: allowTapThroughBG,
                 dismissEnabled: dismissEnabled
             )
             .modifier(getModifier())

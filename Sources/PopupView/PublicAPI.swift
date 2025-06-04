@@ -110,7 +110,6 @@ extension Popup {
     public struct PopupParameters {
         var type: PopupType = .default
         var displayMode: DisplayMode = .window
-
         var position: Position?
 
         var appearFrom: AppearAnimation?
@@ -139,6 +138,10 @@ extension Popup {
 
         /// Should close on tap outside - default is `false`
         var closeOnTapOutside: Bool = false
+
+        /// Should allow taps to pass "through" the popup's background down to views "below" it.
+        /// .sheet popup is always allowTapThroughBG = false
+        var allowTapThroughBG: Bool = true
 
         /// Background color for outside area
         var backgroundColor: Color = .clear
@@ -231,6 +234,12 @@ extension Popup {
         public func closeOnTapOutside(_ closeOnTapOutside: Bool) -> PopupParameters {
             var params = self
             params.closeOnTapOutside = closeOnTapOutside
+            return params
+        }
+
+        public func allowTapThroughBG(_ allowTapThroughBG: Bool) -> PopupParameters {
+            var params = self
+            params.allowTapThroughBG = allowTapThroughBG
             return params
         }
 

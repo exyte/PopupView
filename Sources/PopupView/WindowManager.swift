@@ -14,25 +14,27 @@ public final class WindowManager {
     static let shared = WindowManager()
     var windows: [UUID: UIWindow] = [:]
 
-    static var count = 1
-
     // Show a new window with hosted SwiftUI content
-    public static func showInNewWindow<Content: View>(id: UUID, dismissClosure: @escaping ()->(), content: @escaping () -> Content) {
+    public static func showInNewWindow<Content: View>(id: UUID, allowTapThroughBG: Bool, dismissClosure: @escaping ()->(), content: @escaping () -> Content) {
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
             print("No valid scene available")
             return
         }
 
-        let window = UIPassthroughWindow(windowScene: scene)
+        let window = allowTapThroughBG ? UIPassthroughWindow(windowScene: scene) : UIWindow(windowScene: scene)
         window.backgroundColor = .clear
 
-        let controller = UITextFieldCheckingVC(rootView: content()
+        let root = content()
             .environment(\.popupDismiss) {
                 dismissClosure()
-            })
+            }
+        let controller: UIViewController
+        if #available(iOS 18, *) {
+            controller = UIHostingController(rootView: root)
+        } else {
+            controller = UITextFieldCheckingVC(rootView: root)
+        }
         controller.view.backgroundColor = .clear
-        controller.view.tag = count
-        count += 1
         window.rootViewController = controller
         window.windowLevel = .alert + 1
         window.makeKeyAndVisible()
@@ -62,7 +64,7 @@ class UIPassthroughWindow: UIWindow {
 
     private func isTouchInsideSubview(point: CGPoint, view: UIView) -> UIView? {
         for subview in view.subviews {
-            if subview.frame.contains(point) {
+            if subview.isUserInteractionEnabled, subview.frame.contains(point) {
                 return subview
             }
         }
@@ -94,7 +96,7 @@ class UITextFieldCheckingVC<Content: View>: UIHostingController<Content> {
     private func isTouchInsideSubviews(_ view: UIView, _ touchLocation: CGPoint) {
         for subview in view.subviews {
             let localPoint = subview.convert(touchLocation, from: self.view)
-            if subview.frame.contains(localPoint), let textField = subview as? UITextField {
+            if subview.isUserInteractionEnabled, subview.frame.contains(localPoint), let textField = subview as? UITextField {
                 textField.becomeFirstResponder()
                 return
             }
