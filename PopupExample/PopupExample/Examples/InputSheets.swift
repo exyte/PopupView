@@ -24,19 +24,19 @@ struct InputSheetBottom: View {
                 .foregroundColor(Color(red: 1, green: 0.23, blue: 0.19))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(12)
-                .background {
+                .background(
                     RoundedRectangle(cornerRadius: 10)
                         .fill(Color(red: 0.98, green: 0.92, blue: 0.92))
-                }
+                )
                 .padding(.top, 16)
 
             TextField("Nickname", text: $nickname)
                 .padding()
                 .frame(height: 44)
-                .background {
+                .background(
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color(red: 1, green: 0.23, blue: 0.19), lineWidth: 0.5)
-                }
+                )
                 .padding(.top, 6)
 
             Button {
@@ -47,10 +47,10 @@ struct InputSheetBottom: View {
                     .font(.system(size: 17))
                     .frame(maxWidth: .infinity)
                     .frame(height: 44)
-                    .background {
+                    .background(
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color(red: 0.29, green: 0.38, blue: 1))
-                    }
+                    )
             }
             .buttonStyle(.plain)
             .foregroundColor(.white)

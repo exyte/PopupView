@@ -112,10 +112,11 @@ struct FloatLeading: View {
         ZStack {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color("purple"))
-                .overlay(alignment: .topTrailing) {
+                .overlay(
                     Picture("cross", 10)
                         .padding(13)
-                }
+                    , alignment: .topTrailing
+                )
 
             VStack(alignment: .leading, spacing: 8) {
                 Picture("gift2", 33)
