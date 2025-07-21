@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "PopupView",
     platforms: [
-        .iOS(.v15),
+        .iOS(.v14),
         .macOS(.v11),
         .tvOS(.v14),
         .watchOS(.v7)

@@ -105,7 +105,7 @@ struct ActionSheetSecond: View {
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 16)
-        .background(.white)
+        .background(Color.white)
     }
 }
 
