@@ -16,7 +16,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/siteline/swiftui-introspect",
-            from: "1.0.0"
+            .upToNextMinor(from: "26.0.0-rc.1")
         )
     ],
     targets: [
