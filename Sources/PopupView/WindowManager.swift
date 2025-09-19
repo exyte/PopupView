@@ -54,7 +54,14 @@ class UIPassthroughWindow: UIWindow {
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
         if let vc = self.rootViewController {
             vc.view.layoutSubviews() // otherwise the frame is as if the popup is still outside the screen
-            if let _ = isTouchInsideSubview(point: point, view: vc.view) {
+            
+            let pointInRoot = vc.view.convert(point, from: self)
+            
+            // iOS26 Passthrough Find Issue
+            if #available(iOS 26, *), vc.view.point(inside: pointInRoot, with: event) {
+                return vc.view
+            }
+            if let _ = isTouchInsideSubview(point: pointInRoot, view: vc.view) {
                 // pass tap to this UIPassthroughVC
                 return vc.view
             }
