@@ -59,7 +59,7 @@ class UIPassthroughWindow: UIWindow {
             
             // iOS26 Passthrough Find Issue
             if #available(iOS 26, *), vc.view.point(inside: pointInRoot, with: event) {
-                return vc.view
+                return isTouchInsideSubviewForiOS26(point: pointInRoot, view: vc.view)
             }
             if let _ = isTouchInsideSubview(point: pointInRoot, view: vc.view) {
                 // pass tap to this UIPassthroughVC
@@ -76,6 +76,14 @@ class UIPassthroughWindow: UIWindow {
             }
         }
         return nil
+    }
+    
+    @available(iOS 26.0, *)
+    private func isTouchInsideSubviewForiOS26(point: CGPoint, view: UIView) -> UIView? {
+        guard view.layer.hitTest(point)?.name == nil else {
+            return nil
+        }
+        return view
     }
 }
 
