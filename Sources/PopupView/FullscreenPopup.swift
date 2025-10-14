@@ -168,6 +168,14 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                         appearAction(popupPresented: true)
                     }
                 }
+                .onDisappear {
+                    if isPresented {
+                        isPresented = false
+                        if displayMode == .window {
+                            WindowManager.closeWindow(id: id)
+                        }
+                    }
+                }
         } else {
             main(content: content)
                 .onChange(of: item) { newValue in
@@ -184,6 +192,14 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                     if let item {
                         self.tempItemView = itemView(item)
                         appearAction(popupPresented: true)
+                    }
+                }
+                .onDisappear {
+                    if item != nil {
+                        item = nil
+                        if displayMode == .window {
+                            WindowManager.closeWindow(id: id)
+                        }
                     }
                 }
         }
