@@ -59,7 +59,9 @@ class UIPassthroughWindow: UIWindow {
             
             // iOS26 Passthrough Find Issue
             if #available(iOS 26, *), vc.view.point(inside: pointInRoot, with: event) {
-                return isTouchInsideSubviewForiOS26(point: pointInRoot, view: vc.view)
+                if let view = isTouchInsideSubviewForiOS26(point: pointInRoot, view: vc.view) {
+                    return view
+                } // iOS 26.1 Fix
             }
             if let _ = isTouchInsideSubview(point: pointInRoot, view: vc.view) {
                 // pass tap to this UIPassthroughVC
