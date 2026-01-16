@@ -524,8 +524,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
     func sheetWithDragGesture() -> some View {
 #if !os(tvOS)
         switch type {
+#if os(iOS)
         case .scroll:
             sheet() // Drag to dismiss is handled inside
+#endif
         default:
             let dragGesture = DragGesture()
                 .updating($dragState) { drag, state, _ in
