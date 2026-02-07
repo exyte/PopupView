@@ -208,13 +208,17 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             content
                 .onChange(of: showSheet) { newValue in
                     if newValue {
-                        WindowManager.showInNewWindow(id: id, allowTapThroughBG: allowTapThroughBG, dismissClosure: {
-                            dismissSource = .binding
-                            isPresented = false
-                            item = nil
-                        }) {
-                            constructPopup()
-                        }
+                        WindowManager.showInNewWindow(
+                            id: id,
+                            closeOnTapOutside: closeOnTapOutside,
+                            allowTapThroughBG: allowTapThroughBG,
+                            dismissClosure: {
+                                dismissSource = .tapOutside
+                                isPresented = false
+                                item = nil
+                            }) {
+                                constructPopup()
+                            }
                     } else {
                         WindowManager.closeWindow(id: id)
                     }
