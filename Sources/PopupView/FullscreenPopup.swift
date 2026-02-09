@@ -178,6 +178,18 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                             self.tempItemView = itemView(newValue)
                         }
                         appearAction(popupPresented: newValue != nil)
+
+                        #if os(iOS)
+                        if displayMode == .window, showSheet, newValue != nil {
+                            WindowManager.updateRootView(id: id, dismissClosure: {
+                                dismissSource = .binding
+                                isPresented = false
+                                item = nil
+                            }) {
+                                AnyView(constructPopup())
+                            }
+                        }
+                        #endif
                     }
                 }
                 .onAppear {
@@ -213,11 +225,11 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                             closeOnTapOutside: closeOnTapOutside,
                             allowTapThroughBG: allowTapThroughBG,
                             dismissClosure: {
-                                dismissSource = .tapOutside
+                                dismissSource = .binding
                                 isPresented = false
                                 item = nil
                             }) {
-                                constructPopup()
+                                AnyView(constructPopup())
                             }
                     } else {
                         WindowManager.closeWindow(id: id)

@@ -12,15 +12,21 @@ import SwiftUI
 @MainActor
 public final class WindowManager {
     static let shared = WindowManager()
-    private var windows: [UUID: UIWindow] = [:]
+    
+    private struct Entry {
+        let window: UIWindow
+        let controller: (UIViewController & AnyViewHostingController)
+    }
+    
+    private var entries: [UUID: Entry] = [:]
 
     // Show a new window with hosted SwiftUI content
-    public static func showInNewWindow<Content: View>(
+    public static func showInNewWindow(
         id: UUID,
         closeOnTapOutside: Bool,
         allowTapThroughBG: Bool,
-        dismissClosure: SendableClosure?,
-        content: @escaping () -> Content
+        dismissClosure: @escaping ()->(),
+        content: @escaping () -> AnyView
     ) {
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
             print("No valid scene available")
@@ -36,11 +42,14 @@ public final class WindowManager {
         
         window.backgroundColor = .clear
 
-        let root = content()
-            .environment(\.popupDismiss) {
-                dismissClosure?()
-            }
-        let controller: UIViewController
+        let root = AnyView(
+            content()
+                .environment(\.popupDismiss) {
+                    dismissClosure()
+                }
+        )
+        
+        let controller: (UIViewController & AnyViewHostingController)
         if #available(iOS 18, *) {
             controller = UIHostingController(rootView: root)
         } else {
@@ -52,14 +61,31 @@ public final class WindowManager {
         window.makeKeyAndVisible()
 
         // Store window reference
-        shared.windows[id] = window
+        shared.entries[id] = Entry(window: window, controller: controller)
+    }
+
+    public static func updateRootView(id: UUID, dismissClosure: @escaping () -> (), content: @escaping () -> AnyView) {
+        guard let entry = shared.entries[id] else { return }
+        
+        entry.controller.rootView = AnyView(
+            content()
+                .environment(\.popupDismiss) {
+                    dismissClosure()
+                }
+        )
     }
 
     static func closeWindow(id: UUID) {
-        shared.windows[id]?.isHidden = true
-        shared.windows.removeValue(forKey: id)
+        shared.entries[id]?.window.isHidden = true
+        shared.entries.removeValue(forKey: id)
     }
 }
+
+protocol AnyViewHostingController: AnyObject {
+    var rootView: AnyView { get set }
+}
+
+extension UIHostingController: AnyViewHostingController where Content == AnyView {}
 
 class UIPassthroughWindow: UIWindow {
     var closeOnTapOutside: Bool
