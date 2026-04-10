@@ -36,6 +36,7 @@ public final class WindowManager {
         }
     }
 
+    // Show a new window with hosted SwiftUI content
     public static func showInNewWindow<Content: View>(
         id: UUID,
         closeOnTapOutside: Bool,
@@ -73,6 +74,7 @@ public final class WindowManager {
         window.windowLevel = .alert + 1
         window.makeKeyAndVisible()
 
+        // Store window and controller reference
         shared.entries[id] = Entry(window: window, controller: controller)
     }
 
