@@ -12,14 +12,35 @@ import SwiftUI
 @MainActor
 public final class WindowManager {
     static let shared = WindowManager()
-    private var windows: [UUID: UIWindow] = [:]
+    private var entries: [UUID: Entry] = [:]
+    
+    private struct Entry {
+        let window: UIWindow
+        let controller: UIViewController
+        private let rootViewUpdater: @MainActor (Any) -> Void
 
-    // Show a new window with hosted SwiftUI content
+        init<Content: View>(window: UIWindow, controller: UIHostingController<Content>) {
+            self.window = window
+            self.controller = controller
+            self.rootViewUpdater = { @MainActor newContent in
+                guard let content = newContent as? Content else {
+                    assertionFailure("Content type mismatch")
+                    return
+                }
+                controller.rootView = content
+            }
+        }
+
+        @MainActor func updateRootView<Content: View>(_ content: Content) {
+            rootViewUpdater(content)
+        }
+    }
+
     public static func showInNewWindow<Content: View>(
         id: UUID,
         closeOnTapOutside: Bool,
         allowTapThroughBG: Bool,
-        dismissClosure: SendableClosure?,
+        dismissClosure: @escaping SendableClosure,
         content: @escaping () -> Content
     ) {
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
@@ -33,31 +54,45 @@ public final class WindowManager {
             isPassthrough: allowTapThroughBG,
             dismissClosure: dismissClosure
         )
-        
+
         window.backgroundColor = .clear
 
-        let root = content()
+        let rootView = content()
             .environment(\.popupDismiss) {
-                dismissClosure?()
+                dismissClosure()
             }
-        let controller: UIViewController
-        if #available(iOS 18, *) {
-            controller = UIHostingController(rootView: root)
+
+        let controller = if #available(iOS 18, *) {
+            UIHostingController(rootView: rootView)
         } else {
-            controller = UITextFieldCheckingVC(rootView: root)
+            UITextFieldCheckingVC(rootView: rootView)
         }
+
         controller.view.backgroundColor = .clear
         window.rootViewController = controller
         window.windowLevel = .alert + 1
         window.makeKeyAndVisible()
 
-        // Store window reference
-        shared.windows[id] = window
+        shared.entries[id] = Entry(window: window, controller: controller)
+    }
+
+    public static func updateRootView<Content: View>(
+        id: UUID,
+        dismissClosure: @escaping () -> (),
+        content: @escaping () -> Content
+    ) {
+        guard let entry = shared.entries[id] else { return }
+
+        let rootView = content()
+            .environment(\.popupDismiss) {
+                dismissClosure()
+            }
+        entry.updateRootView(rootView)
     }
 
     static func closeWindow(id: UUID) {
-        shared.windows[id]?.isHidden = true
-        shared.windows.removeValue(forKey: id)
+        shared.entries[id]?.window.isHidden = true
+        shared.entries.removeValue(forKey: id)
     }
 }
 
