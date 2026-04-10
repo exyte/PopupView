@@ -12,78 +12,140 @@ import SwiftUI
 @MainActor
 public final class WindowManager {
     static let shared = WindowManager()
-    private var windows: [UUID: UIWindow] = [:]
+    private var entries: [UUID: Entry] = [:]
+    
+    private struct Entry {
+        let window: UIWindow
+        let controller: UIViewController
+        private let rootViewUpdater: @MainActor (Any) -> Void
 
-    // Show a new window with hosted SwiftUI content
-    public static func showInNewWindow<Content: View>(id: UUID, allowTapThroughBG: Bool, dismissClosure: @escaping ()->(), content: @escaping () -> Content) {
+        init<Content: View>(window: UIWindow, controller: UIHostingController<Content>) {
+            self.window = window
+            self.controller = controller
+            self.rootViewUpdater = { @MainActor newContent in
+                guard let content = newContent as? Content else {
+                    assertionFailure("Content type mismatch")
+                    return
+                }
+                controller.rootView = content
+            }
+        }
+
+        @MainActor func updateRootView<Content: View>(_ content: Content) {
+            rootViewUpdater(content)
+        }
+    }
+
+    public static func showInNewWindow<Content: View>(
+        id: UUID,
+        closeOnTapOutside: Bool,
+        allowTapThroughBG: Bool,
+        dismissClosure: @escaping SendableClosure,
+        content: @escaping () -> Content
+    ) {
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
             print("No valid scene available")
             return
         }
 
-        let window = allowTapThroughBG ? UIPassthroughWindow(windowScene: scene) : UIWindow(windowScene: scene)
+        let window = UIPassthroughWindow(
+            windowScene: scene,
+            closeOnTapOutside: closeOnTapOutside,
+            isPassthrough: allowTapThroughBG,
+            dismissClosure: dismissClosure
+        )
+
         window.backgroundColor = .clear
 
-        let root = content()
+        let rootView = content()
             .environment(\.popupDismiss) {
                 dismissClosure()
             }
-        let controller: UIViewController
-        if #available(iOS 18, *) {
-            controller = UIHostingController(rootView: root)
+
+        let controller = if #available(iOS 18, *) {
+            UIHostingController(rootView: rootView)
         } else {
-            controller = UITextFieldCheckingVC(rootView: root)
+            UITextFieldCheckingVC(rootView: rootView)
         }
+
         controller.view.backgroundColor = .clear
         window.rootViewController = controller
         window.windowLevel = .alert + 1
         window.makeKeyAndVisible()
 
-        // Store window reference
-        shared.windows[id] = window
+        shared.entries[id] = Entry(window: window, controller: controller)
+    }
+
+    public static func updateRootView<Content: View>(
+        id: UUID,
+        dismissClosure: @escaping () -> (),
+        content: @escaping () -> Content
+    ) {
+        guard let entry = shared.entries[id] else { return }
+
+        let rootView = content()
+            .environment(\.popupDismiss) {
+                dismissClosure()
+            }
+        entry.updateRootView(rootView)
     }
 
     static func closeWindow(id: UUID) {
-        shared.windows[id]?.isHidden = true
-        shared.windows.removeValue(forKey: id)
+        shared.entries[id]?.window.isHidden = true
+        shared.entries.removeValue(forKey: id)
     }
 }
 
 class UIPassthroughWindow: UIWindow {
-
-    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        if let vc = self.rootViewController {
-            vc.view.layoutSubviews() // otherwise the frame is as if the popup is still outside the screen
-            
-            let pointInRoot = vc.view.convert(point, from: self)
-            
-            // iOS26 Passthrough Find Issue
-            if #available(iOS 26, *), vc.view.point(inside: pointInRoot, with: event) {
-                return isTouchInsideSubviewForiOS26(point: pointInRoot, view: vc.view)
-            }
-            if let _ = isTouchInsideSubview(point: pointInRoot, view: vc.view) {
-                // pass tap to this UIPassthroughVC
-                return vc.view
-            }
-        }
-        return nil // pass to next window
+    var closeOnTapOutside: Bool
+    var isPassthrough: Bool
+    var dismissClosure: SendableClosure?
+    
+    init(windowScene: UIWindowScene, closeOnTapOutside: Bool, isPassthrough: Bool, dismissClosure: SendableClosure?) {
+        self.closeOnTapOutside = closeOnTapOutside
+        self.isPassthrough = isPassthrough
+        self.dismissClosure = dismissClosure
+        super.init(windowScene: windowScene)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
-    private func isTouchInsideSubview(point: CGPoint, view: UIView) -> UIView? {
-        for subview in view.subviews {
-            if subview.isUserInteractionEnabled, subview.frame.contains(point) {
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        guard let vc = self.rootViewController else {
+            return nil // pass to next window
+        }
+
+        vc.view.layoutIfNeeded() // otherwise the frame is as if the popup is still outside the screen
+
+        let layerHitTestResult = vc.view.layer.hitTest(vc.view.convert(point, from: self))
+        let superlayerDelegateName = layerHitTestResult?.superlayer?.delegate.map { String(describing: type(of: $0)) }
+        let didTapBackground = superlayerDelegateName?.contains(String(describing: PopupHitTestingBackground.self)) ?? false
+
+        if didTapBackground {
+            if closeOnTapOutside {
+                dismissClosure?()
+            }
+            
+            if isPassthrough {
+                return nil // pass to next window
+            }
+            return vc.view
+        }
+        
+        // pass tap to this
+        let farthestDescendent = super.hitTest(point, with: event)
+        return farthestDescendent
+    }
+
+    private func isTouchInsideSubview(point: CGPoint, vc: UIView) -> UIView? {
+        for subview in vc.subviews {
+            if subview.frame.contains(point) {
                 return subview
             }
         }
         return nil
-    }
-    
-    @available(iOS 26.0, *)
-    private func isTouchInsideSubviewForiOS26(point: CGPoint, view: UIView) -> UIView? {
-        guard view.layer.hitTest(point)?.name == nil else {
-            return nil
-        }
-        return view
     }
 }
 
