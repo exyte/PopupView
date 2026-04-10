@@ -25,26 +25,33 @@ struct PopupBackgroundView<Item: Equatable>: View {
     var dismissEnabled: Binding<Bool>
 
     var body: some View {
-        Group {
-            if let backgroundView = backgroundView {
-                backgroundView
-            } else {
-                backgroundColor
+        ZStack {
+            Group {
+                if let backgroundView = backgroundView {
+                    backgroundView
+                } else {
+                    backgroundColor
+                }
             }
+            .allowsHitTesting(!allowTapThroughBG)
+            .opacity(animatableOpacity)
+            .edgesIgnoringSafeArea(.all)
+            .animation(.linear(duration: 0.2), value: animatableOpacity)
+            
+            PopupHitTestingBackground() // Hit testing workaround
+                .ignoresSafeArea()
         }
-        .allowsHitTesting(!allowTapThroughBG)
-        .opacity(animatableOpacity)
-        .applyIf(closeOnTapOutside) { view in
-            view.contentShape(Rectangle())
-        }
-        .addTapIfNotTV(if: closeOnTapOutside) {
-            if dismissEnabled.wrappedValue {
-                dismissSource = .tapOutside
-                isPresented = false
-                item = nil
-            }
-        }
-        .edgesIgnoringSafeArea(.all)
-        .animation(.linear(duration: 0.2), value: animatableOpacity)
     }
+}
+
+/// A special view to handle hit-testing on background parts of popup content
+struct PopupHitTestingBackground: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.isUserInteractionEnabled = false
+        return view
+    }
+    
+    func updateUIView(_ uiView: UIView, context: Context) {}
 }
