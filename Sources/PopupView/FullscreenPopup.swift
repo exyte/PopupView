@@ -186,7 +186,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                                 isPresented = false
                                 item = nil
                             }) {
-                                AnyView(constructPopup())
+                                constructPopup()
                             }
                         }
                         #endif
@@ -229,7 +229,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                                 isPresented = false
                                 item = nil
                             }) {
-                                AnyView(constructPopup())
+                                constructPopup()
                             }
                     } else {
                         WindowManager.closeWindow(id: id)
