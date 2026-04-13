@@ -239,7 +239,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                     WindowManager.closeWindow(id: id)
                 }
         }
-#else
+#elseif os(macOS) || os(tvOS)
         ZStack {
             content
                 .disabled(showContent)
@@ -250,6 +250,13 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
             dismissSource = .exitCommand
             isPresented = false
             item = nil
+        }
+#else
+        ZStack {
+            content
+                .disabled(showContent)
+
+            constructPopup()
         }
 #endif
     }
