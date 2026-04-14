@@ -37,7 +37,7 @@ struct PopupBackgroundView<Item: Equatable>: View {
             .opacity(animatableOpacity)
             .edgesIgnoringSafeArea(.all)
             .animation(.linear(duration: 0.2), value: animatableOpacity)
-#if os(watchOS)
+#if os(watchOS) || os(macOS)
             .applyIf(closeOnTapOutside) { view in
                 view.contentShape(Rectangle())
             }
@@ -49,7 +49,7 @@ struct PopupBackgroundView<Item: Equatable>: View {
                 }
             }
 #endif
-#if !os(watchOS)
+#if !(os(watchOS) || os(macOS))
             PopupHitTestingBackground() // Hit testing workaround
                 .ignoresSafeArea()
 #endif
@@ -57,7 +57,7 @@ struct PopupBackgroundView<Item: Equatable>: View {
     }
 }
 
-#if !os(watchOS)
+#if !(os(watchOS) || os(macOS))
 /// A special view to handle hit-testing on background parts of popup content
 struct PopupHitTestingBackground: UIViewRepresentable {
     func makeUIView(context: Context) -> UIView {
