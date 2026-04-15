@@ -29,6 +29,7 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.topLeading)
                     .animation(.spring())
+                    .allowTapThroughBG(true)
             }
 
             .popup(isPresented: $floatsBig.showingTop) {
@@ -38,6 +39,7 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.top)
                     .animation(.spring())
+                    .allowTapThroughBG(true)
             }
 
             .popup(isPresented: $floatsBig.showingTopTrailing) {
@@ -47,6 +49,7 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.topTrailing)
                     .animation(.spring())
+                    .allowTapThroughBG(true)
             }
 
             .popup(isPresented: $floatsBig.showingLeading) {
@@ -56,6 +59,7 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.leading)
                     .animation(.spring())
+                    .allowTapThroughBG(true)
             }
 
             .popup(isPresented: $floatsBig.showingTrailing) {
@@ -65,6 +69,7 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.trailing)
                     .animation(.spring())
+                    .allowTapThroughBG(true)
             }
 
             .popup(isPresented: $floatsBig.showingBottomLeading) {
@@ -75,6 +80,7 @@ struct ContentView : View {
                     .position(.bottomLeading)
                     .appearFrom(.bottomSlide)
                     .animation(.spring())
+                    .allowTapThroughBG(true)
             }
 
             .popup(isPresented: $floatsBig.showingBottom) {
@@ -84,6 +90,7 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.bottom)
                     .animation(.spring())
+                    .allowTapThroughBG(true)
             }
 
             .popup(isPresented: $floatsBig.showingBottomTrailing) {
@@ -93,6 +100,7 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.bottomTrailing)
                     .animation(.spring())
+                    .allowTapThroughBG(true)
             }
 
         // MARK: - Designed floats small screen
@@ -106,6 +114,7 @@ struct ContentView : View {
                     .displayMode(.window)
                     .animation(.spring())
                     .closeOnTapOutside(true)
+                    .allowTapThroughBG(true)
                     .autohideIn(3)
                     .dismissCallback {
                         print("did", $0)
@@ -122,6 +131,7 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.top)
                     .animation(.spring())
+                    .allowTapThroughBG(true)
             }
 
             .popup(isPresented: $floatsSmall.showingBottomFirst) {
@@ -131,6 +141,7 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.bottom)
                     .animation(.spring())
+                    .allowTapThroughBG(true)
             }
 
             .popup(isPresented: $floatsSmall.showingBottomSecond) {
@@ -140,6 +151,7 @@ struct ContentView : View {
                     .type(.floater())
                     .position(.bottom)
                     .animation(.spring())
+                    .allowTapThroughBG(true)
             }
 
         // MARK: - Designed toasts
@@ -150,6 +162,7 @@ struct ContentView : View {
                 $0
                     .type(.toast)
                     .position(.top)
+                    .allowTapThroughBG(true)
             }
 
             .popup(isPresented: $toasts.showingTopSecond) {
@@ -158,6 +171,7 @@ struct ContentView : View {
                 $0
                     .type(.toast)
                     .position(.top)
+                    .allowTapThroughBG(true)
             }
 
             .popup(isPresented: $toasts.showingBottomFirst) {
@@ -177,6 +191,7 @@ struct ContentView : View {
                     .type(.toast)
                     .position(.bottom)
                     .autohideIn(10)
+                    .allowTapThroughBG(true)
             }
 
         // MARK: - Designed popups
@@ -198,7 +213,6 @@ struct ContentView : View {
                     .disappearTo(.centerScale)
                     .position(.bottom)
                     .closeOnTap(false)
-                    .allowTapThroughBG(false)
                     .backgroundColor(.black.opacity(0.4))
             }
 
