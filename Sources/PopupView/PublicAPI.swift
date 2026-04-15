@@ -142,7 +142,7 @@ extension Popup {
 
         /// Should allow taps to pass "through" the popup's background down to views "below" it.
         /// .sheet popup is always allowTapThroughBG = false
-        var allowTapThroughBG: Bool = true
+        var allowTapThroughBG: Bool = false
 
         /// Background color for outside area
         var backgroundColor: Color = .clear
