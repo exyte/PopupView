@@ -20,6 +20,8 @@ extension UIScrollView {
 @MainActor
 final class PopupScrollViewDelegate: ObservableObject {
 
+    var keyboardHeightHelper = KeyboardHeightHelper()
+
     var scrollView: UIScrollView?
 
     var gestureIsCreated = false
@@ -31,7 +33,7 @@ final class PopupScrollViewDelegate: ObservableObject {
     func handlePan(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: scrollView)
         let contentOffset = scrollView?.contentOffset.y ?? 0
-        let maxContentOffset = scrollView?.maxContentOffsetHeight() ?? 0
+        let maxContentOffset = (scrollView?.maxContentOffsetHeight() ?? 0) + keyboardHeightHelper.keyboardHeight
 
         if contentOffset - translation.y > 0 {
             scrollView?.contentOffset.y = min(contentOffset - translation.y, maxContentOffset)
