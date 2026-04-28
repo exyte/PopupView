@@ -242,7 +242,7 @@ struct ContentView : View {
                 ActionSheetSecond()
             } customize: {
                 $0
-                    .type(.scroll(headerView: AnyView(scrollViewHeader())))
+                    .type(.scroll(headerView: scrollViewHeader()))
                     .position(.bottom)
                     .closeOnTap(false)
                     .closeOnTapOutside(true)

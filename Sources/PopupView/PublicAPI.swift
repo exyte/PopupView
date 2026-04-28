@@ -23,7 +23,7 @@ extension Popup {
         case toast
         case floater(verticalPadding: CGFloat = 10, horizontalPadding: CGFloat = 10, useSafeAreaInset: Bool = true)
 #if os(iOS)
-        case scroll(headerView: AnyView = AnyView(Color.clear.frame(height: 1)))
+        case scroll(headerView: any View = EmptyView())
 #endif
 
         var defaultPosition: Position {

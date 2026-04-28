@@ -381,19 +381,34 @@ public struct Popup<PopupContent: View>: ViewModifier {
     @ViewBuilder
     private func contentView() -> some View {
 #if os(iOS)
+        let dragGesture = DragGesture()
+            .updating($dragState) { drag, state, _ in
+                if !isDragging {
+                    DispatchQueue.main.async {
+                        isDragging = true
+                    }
+                }
+                state = .dragging(translation: drag.translation)
+            }
+            .onEnded(onDragEnded)
+
         switch type {
         case .scroll(let headerView):
             VStack(spacing: 0) {
-                headerView
+                scrollHeaderView(view: headerView)
                     .fixedSize(horizontal: false, vertical: true)
+                    .offset(dragOffset())
+                    .simultaneousGesture(dragGesture)
+
                 ScrollView {
                     view()
                 }
                 // no heigher than its contents
                 .frame(maxHeight: scrollViewContentHeight)
                 .frameGetter($scrollViewRect)
+                .offset(dragOffset())
             }
-            .introspect(.scrollView, on: .iOS(.v15...)) { scrollView in
+            .introspect(.scrollView, on: .iOS(.v16...)) { scrollView in
                 configure(scrollView: scrollView)
             }
             .offset(CGSize(width: 0, height: scrollViewOffset.height))
@@ -405,6 +420,18 @@ public struct Popup<PopupContent: View>: ViewModifier {
         view()
 #endif
     }
+
+#if os(iOS)
+    @ViewBuilder
+    func scrollHeaderView(view: any View) -> some View {
+        ZStack {
+            Color.white
+                .mask(AnyView(view))
+
+            AnyView(view)
+        }
+    }
+#endif
 
 #if swift(>=5.9)
     /// This is the builder for the sheet content
@@ -452,7 +479,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 .onChange(of: sheetContentRect.size) { sheetContentRect in
                     #if os(iOS)
                     // check if scrollView has already calculated its height, otherwise sheetContentRect is already non-zero but yet incorrect
-                    if case .scroll(_) = type, scrollViewRect.height == 0 {
+                    if case .scroll = type, scrollViewRect.height == 0 {
                         return
                     }
                     #endif
@@ -646,3 +673,4 @@ public struct Popup<PopupContent: View>: ViewModifier {
     }
 #endif
 }
+
