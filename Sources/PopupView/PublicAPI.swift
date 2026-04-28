@@ -135,6 +135,7 @@ extension Popup {
         var dragToDismissDistance: CGFloat?
 
         /// Should close on tap - default is `true`
+        /// NOTE: any gesture or control element you add to popup's body will override tap to close. in this case please close the popup manually if you need it to
         var closeOnTap: Bool = true
 
         /// Should close on tap outside - default is `false`
@@ -225,6 +226,7 @@ extension Popup {
         }
 
         /// Should close on tap - default is `true`
+        /// NOTE: any gesture or control element you add to popup's body will override tap to close. in this case please close the popup manually if you need it to
         public func closeOnTap(_ closeOnTap: Bool) -> PopupParameters {
             var params = self
             params.closeOnTap = closeOnTap
