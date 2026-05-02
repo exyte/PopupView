@@ -167,8 +167,20 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 return (screenHeight - sheetContentRect.height)/2 - safeAreaInsets.top
             }
             if position.isBottom {
+                // For .scroll type, keyboard avoidance is handled by constraining the
+                // ScrollView's maxHeight in contentView(), so we don't shift the popup frame.
+#if os(iOS)
+                let keyboardOffset: CGFloat
+                if case .scroll = type {
+                    keyboardOffset = 0
+                } else {
+                    keyboardOffset = useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0
+                }
+#else
+                let keyboardOffset: CGFloat = useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0
+#endif
                 return screenHeight - sheetContentRect.height
-                - (useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0)
+                - keyboardOffset
                 - verticalPadding
                 - (useSafeAreaInset ? safeAreaInsets.bottom : 0)
                 - safeAreaInsets.top
@@ -182,9 +194,21 @@ public struct Popup<PopupContent: View>: ViewModifier {
             return (presenterContentRect.height - sheetContentRect.height)/2
         }
         if position.isBottom {
+            // For .scroll type, keyboard avoidance is handled by constraining the
+            // ScrollView's maxHeight in contentView(), so we don't shift the popup frame.
+#if os(iOS)
+            let keyboardOffset: CGFloat
+            if case .scroll = type {
+                keyboardOffset = 0
+            } else {
+                keyboardOffset = useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0
+            }
+#else
+            let keyboardOffset: CGFloat = useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0
+#endif
             return presenterContentRect.height
             - sheetContentRect.height
-            - (useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0)
+            - keyboardOffset
             - verticalPadding
             + safeAreaInsets.bottom
             - (useSafeAreaInset ? safeAreaInsets.bottom : 0)
@@ -389,8 +413,10 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 ScrollView {
                     view()
                 }
-                // no heigher than its contents
-                .frame(maxHeight: scrollViewContentHeight)
+                // Constrain to content height, and also subtract keyboard height when
+                // useKeyboardSafeArea is true so the scroll area shrinks instead of
+                // the whole popup frame being shifted upward (issue #281).
+                .frame(maxHeight: max(0, scrollViewContentHeight - (useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0)))
                 .frameGetter($scrollViewRect)
             }
             .introspect(.scrollView, on: .iOS(.v15...)) { scrollView in
