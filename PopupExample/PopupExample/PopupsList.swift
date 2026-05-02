@@ -48,6 +48,7 @@ struct ActionSheetsState {
 
 struct InputSheetsState {
     var showingFirst = false
+    var showingScroll = false
 }
 
 private struct SectionHeader: View {
@@ -374,6 +375,16 @@ struct PopupsList: View {
                 InputSheetImage()
             }
         }
+#if os(iOS)
+        PopupButton(isShowing: $inputSheets.showingScroll, hideAll: hideAll) {
+            PopupTypeView(
+                title: "Scroll + Keyboard (issue #281)",
+                detail: "Scroll popup with TextField - popup should stay at bottom"
+            ) {
+                InputSheetImage()
+            }
+        }
+#endif
     }
 }
 

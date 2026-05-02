@@ -260,6 +260,22 @@ struct ContentView : View {
                     .backgroundColor(.black.opacity(0.4))
                     .useKeyboardSafeArea(true)
             }
+
+#if os(iOS)
+        // Issue #281 reproduction: .scroll type + useKeyboardSafeArea(true) + TextField
+        // Bug: entire popup shifts up by full keyboard height instead of shrinking scroll area
+            .popup(isPresented: $inputSheets.showingScroll) {
+                ScrollInputSheet(isShowing: $inputSheets.showingScroll)
+            } customize: {
+                $0
+                    .type(.scroll(headerView: AnyView(scrollViewHeader())))
+                    .position(.bottom)
+                    .closeOnTap(false)
+                    .closeOnTapOutside(true)
+                    .backgroundColor(.black.opacity(0.4))
+                    .useKeyboardSafeArea(true)
+            }
+#endif
     }
 
     func createPopupsList() -> PopupsList {

@@ -7,6 +7,40 @@
 
 import SwiftUI
 
+// Reproduces issue #281: .scroll type popup with useKeyboardSafeArea(true) shifts
+// the entire popup off-screen when the keyboard appears, instead of constraining
+// only the ScrollView height.
+struct ScrollInputSheet: View {
+    @Binding var isShowing: Bool
+
+    @State var comment: String = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Scrollable content area
+            ForEach(0..<8, id: \.self) { i in
+                Text("Item \(i + 1)")
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                Divider().padding(.horizontal, 20)
+            }
+
+            // TextField at the bottom of the scroll content
+            TextField("Leave a comment...", text: $comment)
+                .padding()
+                .frame(height: 44)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                )
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+                .padding(.bottom, 20)
+        }
+        .background(Color.white)
+    }
+}
+
 struct InputSheetBottom: View {
     @Binding var isShowing: Bool
 
