@@ -392,7 +392,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         switch type {
         case .scroll(let headerView):
             VStack(spacing: 0) {
-                scrollHeaderView(view: headerView)
+                AnyView(headerView)
                     .fixedSize(horizontal: false, vertical: true)
                     .offset(dragOffset())
                     .simultaneousGesture(dragGesture)
@@ -419,18 +419,6 @@ public struct Popup<PopupContent: View>: ViewModifier {
         view()
 #endif
     }
-
-#if os(iOS)
-    @ViewBuilder
-    func scrollHeaderView(view: any View) -> some View {
-        ZStack {
-            Color.white
-                .mask(AnyView(view))
-
-            AnyView(view)
-        }
-    }
-#endif
 
 #if swift(>=5.9)
     /// This is the builder for the sheet content
