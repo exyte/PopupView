@@ -18,6 +18,7 @@ struct PopupBackgroundView<Item: Equatable>: View {
     @Binding var animatableOpacity: CGFloat
     @Binding var dismissSource: DismissSource?
 
+    var isWindowMode: Bool
     var backgroundColor: Color
     var backgroundView: AnyView?
     var closeOnTapOutside: Bool
@@ -26,34 +27,50 @@ struct PopupBackgroundView<Item: Equatable>: View {
 
     var body: some View {
         ZStack {
-            Group {
-                if let backgroundView = backgroundView {
-                    backgroundView
-                } else {
-                    backgroundColor
-                }
-            }
-            .allowsHitTesting(!allowTapThroughBG)
-            .opacity(animatableOpacity)
-            .edgesIgnoringSafeArea(.all)
-            .animation(.linear(duration: 0.2), value: animatableOpacity)
 #if os(watchOS) || os(macOS)
-            .applyIf(closeOnTapOutside) { view in
-                view.contentShape(Rectangle())
-            }
-            .addTapIfNotTV(if: closeOnTapOutside) {
-                if dismissEnabled.wrappedValue {
-                    dismissSource = .tapOutside
-                    isPresented = false
-                    item = nil
+            contentView()
+                .applyIf(closeOnTapOutside) { view in
+                    view.contentShape(Rectangle())
                 }
-            }
+                .addTapIfNotTV(if: closeOnTapOutside) {
+                    if dismissEnabled.wrappedValue {
+                        dismissSource = .tapOutside
+                        isPresented = false
+                        item = nil
+                    }
+                }
+#else
+            contentView()
+                .applyIf(closeOnTapOutside && !isWindowMode) { view in
+                    view.contentShape(Rectangle())
+                }
+                .addTapIfNotTV(if: closeOnTapOutside && !isWindowMode) {
+                    if dismissEnabled.wrappedValue {
+                        dismissSource = .tapOutside
+                        isPresented = false
+                        item = nil
+                    }
+                }
 #endif
 #if !(os(watchOS) || os(macOS))
             PopupHitTestingBackground() // Hit testing workaround
                 .ignoresSafeArea()
 #endif
         }
+    }
+
+    func contentView() -> some View {
+        Group {
+            if let backgroundView = backgroundView {
+                backgroundView
+            } else {
+                backgroundColor
+            }
+        }
+        .allowsHitTesting(!allowTapThroughBG)
+        .opacity(animatableOpacity)
+        .edgesIgnoringSafeArea(.all)
+        .animation(.linear(duration: 0.2), value: animatableOpacity)
     }
 }
 

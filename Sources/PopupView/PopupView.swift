@@ -7,9 +7,6 @@
 //
 
 import SwiftUI
-#if os(iOS)
-@_spi(Advanced) import SwiftUIIntrospect
-#endif
 
 public struct Popup<PopupContent: View>: ViewModifier {
 
@@ -405,22 +402,39 @@ public struct Popup<PopupContent: View>: ViewModifier {
     @ViewBuilder
     private func contentView() -> some View {
 #if os(iOS)
+        let dragGesture = DragGesture()
+            .updating($dragState) { drag, state, _ in
+                if !isDragging {
+                    DispatchQueue.main.async {
+                        isDragging = true
+                    }
+                }
+                state = .dragging(translation: drag.translation)
+            }
+            .onEnded(onDragEnded)
+
         switch type {
         case .scroll(let headerView):
             VStack(spacing: 0) {
-                headerView
+                AnyView(headerView)
                     .fixedSize(horizontal: false, vertical: true)
+                    .offset(dragOffset())
+                    .simultaneousGesture(dragGesture)
+
                 ScrollView {
                     view()
+                        .background(
+                            ScrollViewResolver { scrollView in
+                                configure(scrollView: scrollView)
+                            }
+                        )
                 }
                 // Constrain to content height, and also subtract keyboard height when
                 // useKeyboardSafeArea is true so the scroll area shrinks instead of
                 // the whole popup frame being shifted upward (issue #281).
                 .frame(maxHeight: max(0, scrollViewContentHeight - (useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0)))
                 .frameGetter($scrollViewRect)
-            }
-            .introspect(.scrollView, on: .iOS(.v15...)) { scrollView in
-                configure(scrollView: scrollView)
+                .offset(dragOffset())
             }
             .offset(CGSize(width: 0, height: scrollViewOffset.height))
 
@@ -478,7 +492,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
                 .onChange(of: sheetContentRect.size) { sheetContentRect in
                     #if os(iOS)
                     // check if scrollView has already calculated its height, otherwise sheetContentRect is already non-zero but yet incorrect
-                    if case .scroll(_) = type, scrollViewRect.height == 0 {
+                    if case .scroll = type, scrollViewRect.height == 0 {
                         return
                     }
                     #endif
@@ -672,3 +686,4 @@ public struct Popup<PopupContent: View>: ViewModifier {
     }
 #endif
 }
+

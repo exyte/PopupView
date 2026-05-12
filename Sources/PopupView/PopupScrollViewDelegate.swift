@@ -36,6 +36,7 @@ final class PopupScrollViewDelegate: ObservableObject {
         let maxContentOffset = (scrollView?.maxContentOffsetHeight() ?? 0) + keyboardHeightHelper.keyboardHeight
 
         if contentOffset - translation.y > 0 {
+            didReachTop(0)
             scrollView?.contentOffset.y = min(contentOffset - translation.y, maxContentOffset)
             gesture.setTranslation(.zero, in: scrollView)
         } else {

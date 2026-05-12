@@ -281,7 +281,8 @@ scroll parameters:
 `autohideIn` - time after which popup should disappear    
 `dismissibleIn(Double?, Binding<Bool>?)` - only allow dismiss after this time passes (forbids closeOnTap, closeOnTapOutside, and drag). Pass a boolean binding if you'd like to track current status     
 `dragToDismiss` - true by default: enable/disable drag to dismiss (upwards for .top popup types, downwards for .bottom and default type)    
-`closeOnTap` - true by default: enable/disable closing on tap on popup     
+`closeOnTap` - true by default: enable/disable closing on tap on popup. 
+NOTE: any gesture or control element you add to popup's body will override tap to close. in this case please close the popup manually if you need it to     
 `closeOnTapOutside` - false by default: enable/disable closing on tap on outside of popup     
 `allowTapThroughBG` - Should allow taps to pass "through" the popup's background down to views "below" it. `.sheet` popup is always allowTapThroughBG = false. False by default    
 `backgroundColor` - Color.clear by default: change background color of outside area     

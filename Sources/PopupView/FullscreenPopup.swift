@@ -270,6 +270,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                 item: $item,
                 animatableOpacity: $animatableOpacity,
                 dismissSource: $dismissSource,
+                isWindowMode: params.displayMode == .window,
                 backgroundColor: backgroundColor,
                 backgroundView: backgroundView,
                 closeOnTapOutside: closeOnTapOutside,
