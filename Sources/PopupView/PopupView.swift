@@ -8,16 +8,16 @@
 
 import SwiftUI
 
-public struct Popup<PopupContent: View>: ViewModifier {
+struct PopupBody<PopupContent: View>: ViewModifier {
 
-    init(params: Popup<PopupContent>.PopupParameters,
+    init(params: Popup.PopupParameters,
          view: @escaping () -> PopupContent,
          shouldShowContent: Binding<Bool>,
          showContent: Bool,
          isDragging: Binding<Bool>,
          timeToHide: Binding<Bool>,
          positionIsCalculatedCallback: @escaping () -> (),
-         dismissCallback: @escaping (DismissSource)->()) {
+         dismissCallback: @escaping (Popup.DismissSource)->()) {
 
         self.type = params.type
         self.displayMode = params.displayMode
@@ -69,11 +69,11 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     // MARK: - Public Properties
 
-    var type: PopupType
-    var displayMode: DisplayMode
-    var position: Position
-    var appearFrom: AppearAnimation?
-    var disappearTo: AppearAnimation?
+    var type: Popup.PopupType
+    var displayMode: Popup.DisplayMode
+    var position: Popup.Position
+    var appearFrom: Popup.AppearAnimation?
+    var disappearTo: Popup.AppearAnimation?
     var verticalPadding: CGFloat
     var horizontalPadding: CGFloat
     var useSafeAreaInset: Bool
@@ -104,7 +104,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
     var positionIsCalculatedCallback: () -> ()
 
     /// Call dismiss callback with dismiss source
-    var dismissCallback: (DismissSource)->()
+    var dismissCallback: (Popup.DismissSource)->()
 
     var view: () -> PopupContent
 
@@ -255,7 +255,7 @@ public struct Popup<PopupContent: View>: ViewModifier {
         }
     }
 
-    func hiddenOffset(_ appearAnimation: AppearAnimation) -> CGPoint {
+    func hiddenOffset(_ appearAnimation: Popup.AppearAnimation) -> CGPoint {
         switch appearAnimation {
         case .topSlide:
             return CGPoint(x: displayedOffsetX, y: -presenterContentRect.minY - safeAreaInsets.top - sheetContentRect.height)
@@ -300,8 +300,8 @@ public struct Popup<PopupContent: View>: ViewModifier {
 
     // MARK: - Appear position direction calculations
 
-    private var calculatedAppearFrom: AppearAnimation {
-        let from: AppearAnimation
+    private var calculatedAppearFrom: Popup.AppearAnimation {
+        let from: Popup.AppearAnimation
         if let appearFrom = appearFrom {
             from = appearFrom
         } else if position.isLeading {
@@ -316,8 +316,8 @@ public struct Popup<PopupContent: View>: ViewModifier {
         return from
     }
 
-    private var calculatedDisappearTo: AppearAnimation {
-        let to: AppearAnimation
+    private var calculatedDisappearTo: Popup.AppearAnimation {
+        let to: Popup.AppearAnimation
         if let disappearTo = disappearTo {
             to = disappearTo
         } else if let appearFrom = appearFrom {

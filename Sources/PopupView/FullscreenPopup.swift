@@ -50,15 +50,15 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     var backgroundView: AnyView?
 
     /// If opaque - taps do not pass through popup's background color
-    var displayMode: Popup<PopupContent>.DisplayMode
+    var displayMode: Popup.DisplayMode
 
     /// called when when dismiss animation starts
-    var userWillDismissCallback: (DismissSource) -> ()
+    var userWillDismissCallback: (Popup.DismissSource) -> ()
 
     /// called when when dismiss animation ends
-    var userDismissCallback: (DismissSource) -> ()
+    var userDismissCallback: (Popup.DismissSource) -> ()
 
-    var params: Popup<PopupContent>.PopupParameters
+    var params: Popup.PopupParameters
 
     var view: (() -> PopupContent)!
     var itemView: ((Item) -> PopupContent)!
@@ -111,7 +111,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     // MARK: - Internal
 
     /// Set dismiss source to pass to dismiss callback
-    @State private var dismissSource: DismissSource?
+    @State private var dismissSource: Popup.DismissSource?
 
     /// Synchronize isPresented changes and animations
     private let eventsQueue = DispatchQueue(label: "eventsQueue", qos: .utility)
@@ -120,7 +120,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     init(isPresented: Binding<Bool> = .constant(false),
          item: Binding<Item?> = .constant(nil),
          isBoolMode: Bool,
-         params: Popup<PopupContent>.PopupParameters,
+         params: Popup.PopupParameters,
          view: (() -> PopupContent)?,
          itemView: ((Item) -> PopupContent)?) {
         self._isPresented = isPresented
@@ -158,7 +158,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                     eventsQueue.async { [eventsSemaphore] in
                         eventsSemaphore.wait()
                         DispatchQueue.main.async {
-                            closingIsInProcess = !newValue
+                            closingIsInProcess = !newValue // todoalisa
                             appearAction(popupPresented: newValue)
                         }
                     }
@@ -290,8 +290,8 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         return nil
     }
 
-    private func getModifier() -> Popup<PopupContent> {
-        Popup(
+    private func getModifier() -> PopupBody<PopupContent> {
+        PopupBody(
             params: params,
             view: viewForItem != nil ? viewForItem! : view,
             shouldShowContent: $shouldShowContent,

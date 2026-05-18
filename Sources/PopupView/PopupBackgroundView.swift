@@ -16,7 +16,7 @@ struct PopupBackgroundView<Item: Equatable>: View {
     @Binding var item: Item?
 
     @Binding var animatableOpacity: CGFloat
-    @Binding var dismissSource: DismissSource?
+    @Binding var dismissSource: Popup.DismissSource?
 
     var isWindowMode: Bool
     var backgroundColor: Color

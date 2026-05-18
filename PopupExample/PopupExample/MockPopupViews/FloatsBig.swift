@@ -179,7 +179,7 @@ struct FloatBottom: View {
                 }
                 Text("Retry")
                     .font(.custom(boldFont, size: 21))
-                    .foregroundColor(Color("lightBlue"))
+                    .foregroundColor(Color(.lightBlue))
             }
             .padding(26, 20)
         }

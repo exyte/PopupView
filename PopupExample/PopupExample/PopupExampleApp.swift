@@ -12,7 +12,21 @@ import PopupView
 struct PopupExampleApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationView {
+                List {
+                    Section {
+                        NavigationLink("Types example") {
+                            PopupTypesView()
+                        }
+                        
+                        NavigationLink("Modes example") {
+                            PopupModesView()
+                        }
+                    }
+                }
+                .navigationTitle("Popup examples")
+                .navigationBarTitleDisplayMode(.inline)
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 //
-//  ImageViews.swift
+//  IconViews.swift
 //  Example
 //
 //  Created by Alex.M on 19.05.2022.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-private struct AlertImageView<Content> : View where Content : View {
+private struct AlertIconView<Content> : View where Content : View {
     let hex: String
     let alignment: Alignment
     
@@ -26,11 +26,11 @@ private struct AlertImageView<Content> : View where Content : View {
     }
 }
 
-struct SmallFloatsImage: View {
+struct SmallFloatsIcon: View {
     let alignment: Alignment
     
     var body: some View {
-        AlertImageView(hex: "9265F8", alignment: alignment) { color in
+        AlertIconView(hex: "9265F8", alignment: alignment) { color in
             Rectangle()
                 .fill(color)
                 .frame(width: 24, height: 4)
@@ -40,11 +40,11 @@ struct SmallFloatsImage: View {
     }
 }
 
-struct BigFloatsImage: View {
+struct BigFloatsIcon: View {
     let alignment: Alignment
 
     var body: some View {
-        AlertImageView(hex: "9265F8", alignment: alignment) { color in
+        AlertIconView(hex: "9265F8", alignment: alignment) { color in
             Rectangle()
                 .fill(color)
                 .frame(width: 12, height: 4)
@@ -54,11 +54,11 @@ struct BigFloatsImage: View {
     }
 }
 
-struct ToastImage: View {
+struct ToastIcon: View {
     let position: Position
     
     var body: some View {
-        AlertImageView(hex: "87B9FF", alignment: position.toAligment()) { color in
+        AlertIconView(hex: "87B9FF", alignment: position.toAligment()) { color in
             RoundedRectangle(cornerRadius: 4)
                 .fill(color)
                 .frame(width: 40, height: 24)
@@ -87,11 +87,11 @@ struct ToastImage: View {
     }
 }
 
-struct PopupImage: View {
+struct PopupIcon: View {
     let style: Style
     
     var body: some View {
-        AlertImageView(hex: "CCE7A2", alignment: style.toAligment()) { color in
+        AlertIconView(hex: "CCE7A2", alignment: style.toAligment()) { color in
             switch style {
             case .default:
                 RoundedRectangle(cornerRadius: 4)
@@ -129,9 +129,9 @@ struct PopupImage: View {
     }
 }
 
-struct ActionSheetImage: View {
+struct ActionSheetIcon: View {
     var body: some View {
-        AlertImageView(hex: "FFB93D", alignment: .bottom) { color in
+        AlertIconView(hex: "FFB93D", alignment: .bottom) { color in
             RoundedRectangle(cornerRadius: 4)
                 .fill(color)
                 .frame(width: 40, height: 20)
@@ -140,9 +140,9 @@ struct ActionSheetImage: View {
     }
 }
 
-struct InputSheetImage: View {
+struct InputSheetIcon: View {
     var body: some View {
-        AlertImageView(hex: "B03A31", alignment: .bottom) { color in
+        AlertIconView(hex: "B03A31", alignment: .bottom) { color in
             RoundedRectangle(cornerRadius: 4)
                 .fill(color)
                 .frame(width: 24, height: 20)

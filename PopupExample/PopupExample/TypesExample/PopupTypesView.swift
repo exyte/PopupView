@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  PopupTypesView.swift
 //  Example
 //
 //  Created by Alisa Mylnikova on 23/04/2020.
@@ -9,7 +9,7 @@
 import SwiftUI
 import PopupView
 
-struct ContentView : View {
+struct PopupTypesView: View {
     @State var floatsSmall = FloatsStateSmall()
     @State var floatsBig = FloatsStateBig()
     @State var toasts = ToastsState()
@@ -278,8 +278,8 @@ struct ContentView : View {
 #endif
     }
 
-    func createPopupsList() -> PopupsList {
-        PopupsList(
+    func createPopupsList() -> PopupTypesButtonsList {
+        PopupTypesButtonsList(
             floatsBig: $floatsBig,
             floatsSmall: $floatsSmall,
             toasts: $toasts,
@@ -314,6 +314,6 @@ struct ContentView : View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        PopupTypesView()
     }
 }

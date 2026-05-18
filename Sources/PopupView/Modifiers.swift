@@ -25,13 +25,13 @@ extension View {
     public func popup<PopupContent: View>(
         isPresented: Binding<Bool>,
         @ViewBuilder view: @escaping () -> PopupContent,
-        customize: @escaping (Popup<PopupContent>.PopupParameters) -> Popup<PopupContent>.PopupParameters
+        customize: @escaping (Popup.PopupParameters) -> Popup.PopupParameters
         ) -> some View {
             self.modifier(
                 FullscreenPopup<Int, PopupContent>(
                     isPresented: isPresented,
                     isBoolMode: true,
-                    params: customize(Popup<PopupContent>.PopupParameters()),
+                    params: customize(Popup.PopupParameters()),
                     view: view,
                     itemView: nil)
             )
@@ -43,13 +43,13 @@ extension View {
     public func popup<Item: Equatable, PopupContent: View>(
         item: Binding<Item?>,
         @ViewBuilder itemView: @escaping (Item) -> PopupContent,
-        customize: @escaping (Popup<PopupContent>.PopupParameters) -> Popup<PopupContent>.PopupParameters
+        customize: @escaping (Popup.PopupParameters) -> Popup.PopupParameters
         ) -> some View {
             self.modifier(
                 FullscreenPopup<Item, PopupContent>(
                     item: item,
                     isBoolMode: false,
-                    params: customize(Popup<PopupContent>.PopupParameters()),
+                    params: customize(Popup.PopupParameters()),
                     view: nil,
                     itemView: itemView)
             )
@@ -65,7 +65,7 @@ extension View {
                 FullscreenPopup<Int, PopupContent>(
                     isPresented: isPresented,
                     isBoolMode: true,
-                    params: Popup<PopupContent>.PopupParameters(),
+                    params: Popup.PopupParameters(),
                     view: view,
                     itemView: nil)
             )
@@ -81,7 +81,7 @@ extension View {
                 FullscreenPopup<Item, PopupContent>(
                     item: item,
                     isBoolMode: false,
-                    params: Popup<PopupContent>.PopupParameters(),
+                    params: Popup.PopupParameters(),
                     view: nil,
                     itemView: itemView)
             )

@@ -7,16 +7,7 @@
 
 import SwiftUI
 
-public enum DismissSource {
-    case binding // set isPresented to false ot item to nil
-    case tapInside
-    case tapOutside
-    case drag
-    case autohide
-    case exitCommand // TV Remove/ESC on Mac
-}
-
-extension Popup {
+public class Popup {
 
     public enum PopupType {
         case `default`
@@ -106,6 +97,15 @@ extension Popup {
         case rightSlide
         case centerScale
         case none
+    }
+
+    public enum DismissSource {
+        case binding // set isPresented to false ot item to nil
+        case tapInside
+        case tapOutside
+        case drag
+        case autohide
+        case exitCommand // TV Remove/ESC on Mac
     }
 
     public struct PopupParameters {

@@ -7,28 +7,6 @@
 
 import SwiftUI
 
-struct PopupButton<Content> : View where Content : View {
-    @Binding var isShowing: Bool
-    
-    var hideAll: () -> ()
-    
-    @ViewBuilder let content: () -> Content
-    
-    var body: some View {
-        Button {
-            hideAll()
-            isShowing.toggle()
-        } label: {
-            content()
-        }
-#if os(tvOS)
-        .buttonStyle(.automatic)
-#else
-        .customButtonStyle(foreground: .black, background: .clear)
-#endif
-    }
-}
-
 struct ItemPopupButton<Content> : View where Content : View {
     @Binding var item: SomeItem?
 
@@ -65,4 +43,3 @@ class SomeItem: Equatable {
         lhs.value == rhs.value
     }
 }
-
