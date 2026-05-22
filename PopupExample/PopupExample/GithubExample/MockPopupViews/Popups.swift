@@ -11,7 +11,8 @@ import PopupView
 struct PopupMiddle: View {
 
     @Environment(\.popupDismiss) var dismiss
-    let item: SomeItem
+
+    let text = "In two weeks, you did 12 workouts and burned 2671 calories. That's 566 calories more than last month. Continue at the same pace and the result will please you."
 
     var body: some View {
         VStack(spacing: 12) {
@@ -25,7 +26,7 @@ struct PopupMiddle: View {
                 .font(.system(size: 24))
                 .padding(.top, 12)
             
-            Text(item.value)
+            Text(text)
                 .foregroundColor(.black)
                 .font(.system(size: 16))
                 .opacity(0.6)
@@ -136,7 +137,7 @@ struct Popups_Previews: PreviewProvider {
         ZStack {
             Rectangle()
                 .ignoresSafeArea()
-            PopupMiddle(item: SomeItem(value: "item"))
+            PopupMiddle()
         }
         
         ZStack {

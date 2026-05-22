@@ -1,0 +1,162 @@
+//
+//  MiscExamplesView.swift
+//  PopupExample
+//
+//  Created by Alisa Mylnikova on 22.05.2026.
+//
+
+import SwiftUI
+import PopupView
+
+struct MiscExamplesView: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 12) {
+                // Issue #281 reproduction: .scroll type + useKeyboardSafeArea(true) + TextField
+                // Bug: entire popup shifts up by full keyboard height instead of shrinking scroll area
+                MiscPopupShowingButton(
+                    title: "Scroll + Keyboard (issue #281)",
+                    details: "Scroll popup with TextField - popup should stay at bottom"
+                ) {
+                    ScrollInputSheet()
+                } customize: {
+                    $0
+                        .type(.scroll(headerView: AnyView(scrollViewHeader())))
+                        .position(.bottom)
+                        .closeOnTap(false)
+                        .closeOnTapOutside(true)
+                        .backgroundColor(.black.opacity(0.4))
+                        .useKeyboardSafeArea(true)
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .background(Color(.lightGrey).ignoresSafeArea())
+    }
+
+    func scrollViewHeader() -> some View {
+        ZStack {
+            Color(.white).cornerRadius(40, corners: [.topLeft, .topRight])
+
+            Color.black
+                .opacity(0.2)
+                .frame(width: 30, height: 6)
+                .clipShape(Capsule())
+                .padding(.vertical, 20)
+        }
+    }
+}
+
+struct MiscPopupShowingButton<PopupContent: View>: View {
+    var title: String
+    var details: String
+
+    @ViewBuilder var popupContent: () -> PopupContent
+    var customize: (Popup.PopupParameters) -> Popup.PopupParameters
+
+    @State private var show = false
+
+    var body: some View {
+        Button {
+            show = true
+        } label: {
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(.white)
+
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(title)
+                        .font(.system(size: 18))
+
+                    Text(details)
+                        .font(.system(size: 13))
+                        .opacity(0.4)
+                }
+                .foregroundStyle(.black)
+                .padding()
+            }
+        }
+        .popup(isPresented: $show) {
+            popupContent()
+        } customize: {
+            customize($0)
+        }
+    }
+}
+
+//struct ScrollExamplePopup: View {
+//    @Environment(\.popupDismiss) var dismiss
+//    var mode: Popup.DisplayMode
+//    var closeOnTapOutside: Bool
+//    var allowTapThroughBG: Bool
+//
+//    var body: some View {
+//        VStack(spacing: 12) {
+//            Image("winner")
+//                .resizable()
+//                .scaledToFit()
+//                .frame(maxWidth: 226, maxHeight: 226)
+//
+//            VStack {
+//                Text(String(describing: mode).capitalized)
+//                    .font(.system(size: 20))
+//                Text("closeOnTapOutside: \(String(describing: closeOnTapOutside))")
+//                Text("allowTapThroughBG: \(String(describing: allowTapThroughBG))")
+//            }
+//            .font(.system(size: 16))
+//            .foregroundColor(.black)
+//            .padding()
+//
+//            Button {
+//                dismiss?()
+//            } label: {
+//                Text("Thanks")
+//                    .font(.system(size: 18, weight: .bold))
+//                    .frame(maxWidth: .infinity)
+//                    .padding(.vertical, 18)
+//                    .padding(.horizontal, 24)
+//                    .foregroundColor(.white)
+//                    .background(Color(hex: "9265F8"))
+//                    .cornerRadius(12)
+//            }
+//            .buttonStyle(.plain)
+//        }
+//        .padding(EdgeInsets(top: 37, leading: 24, bottom: 40, trailing: 24))
+//        .background(Color.white.cornerRadius(20))
+//        .shadowedStyle()
+//        .padding(.horizontal, 70)
+//    }
+//}
+
+// Reproduces issue #281: .scroll type popup with useKeyboardSafeArea(true) shifts
+// the entire popup off-screen when the keyboard appears, instead of constraining
+// only the ScrollView height.
+struct ScrollInputSheet: View {
+
+    @State var comment: String = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Scrollable content area
+            ForEach(0..<8, id: \.self) { i in
+                Text("Item \(i + 1)")
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 12)
+                Divider().padding(.horizontal, 20)
+            }
+
+            // TextField at the bottom of the scroll content
+            TextField("Leave a comment...", text: $comment)
+                .padding()
+                .frame(height: 44)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                )
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+                .padding(.bottom, 20)
+        }
+        .background(Color.white)
+    }
+}

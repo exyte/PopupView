@@ -10,6 +10,42 @@ import SwiftUI
 import Combine
 import Foundation
 
+@MainActor
+struct ScreenUtils {
+    static var bounds: CGRect {
+#if os(watchOS)
+        return WKInterfaceDevice.current().screenBounds
+#elseif os(macOS)
+        return NSApplication.shared.keyWindow?.frame
+        ?? NSScreen.main?.frame
+        ?? .zero
+#else
+        return UIScreen.main.bounds
+#endif
+    }
+
+    static var width: CGFloat {
+        bounds.width
+    }
+
+    static var height: CGFloat {
+        bounds.height
+    }
+
+    static var safeAreaInsets: UIEdgeInsets {
+#if os(iOS) || os(tvOS)
+        UIApplication.shared
+            .connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?
+            .keyWindow?
+            .safeAreaInsets ?? .zero
+#else
+        return .zero
+#endif
+    }
+}
+
 struct MemoryAddress<T>: CustomStringConvertible {
 
     let intValue: Int
@@ -46,20 +82,6 @@ final class ClassReference<T> {
 }
 
 extension View {
-
-    @ViewBuilder
-    func valueChanged<T: Equatable>(value: T, onChange: @escaping (T) -> Void) -> some View {
-        if #available(iOS 14.0, tvOS 14.0, macOS 11.0, watchOS 7.0, *) {
-            self.onChange(of: value, perform: onChange)
-        } else {
-            self.onReceive(Just(value)) { value in
-                onChange(value)
-            }
-        }
-    }
-}
-
-extension View {
     @ViewBuilder
     func applyIf<T: View>(_ condition: Bool, apply: (Self) -> T) -> some View {
         if condition {
@@ -92,6 +114,7 @@ extension View {
 struct FrameGetter: ViewModifier {
 
     @Binding var frame: CGRect
+    var id: String?
 
     func body(content: Content) -> some View {
         content
@@ -101,6 +124,9 @@ struct FrameGetter: ViewModifier {
                         let rect = proxy.frame(in: .global)
                         // This avoids an infinite layout loop
                         if rect.integral != self.frame.integral {
+                            if let id {
+                                print(id, self.frame, rect)
+                            }
                             self.frame = rect
                         }
                     }
@@ -111,35 +137,8 @@ struct FrameGetter: ViewModifier {
 }
 
 internal extension View {
-    func frameGetter(_ frame: Binding<CGRect>) -> some View {
-        modifier(FrameGetter(frame: frame))
-    }
-}
-
-struct SafeAreaGetter: ViewModifier {
-
-    @Binding var safeArea: EdgeInsets
-
-    func body(content: Content) -> some View {
-        content
-            .background(
-                GeometryReader { proxy -> AnyView in
-                    DispatchQueue.main.async {
-                        let area = proxy.safeAreaInsets
-                        // This avoids an infinite layout loop
-                        if area != self.safeArea {
-                            self.safeArea = area
-                        }
-                    }
-                    return AnyView(EmptyView())
-                }
-            )
-    }
-}
-
-extension View {
-    public func safeAreaGetter(_ safeArea: Binding<EdgeInsets>) -> some View {
-        modifier(SafeAreaGetter(safeArea: safeArea))
+    func frameGetter(_ frame: Binding<CGRect>, id: String? = nil) -> some View {
+        modifier(FrameGetter(frame: frame, id: id))
     }
 }
 
@@ -167,7 +166,7 @@ private struct TransparentNonAnimatableFullScreenModifier<FullScreenContent: Vie
 
     func body(content: Content) -> some View {
         content
-            .onChange(of: isPresented) { isPresented in
+            .onChange(of: isPresented) {
                 UIView.setAnimationsEnabled(false)
             }
             .fullScreenCover(isPresented: $isPresented) {

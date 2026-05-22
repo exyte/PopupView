@@ -36,7 +36,7 @@ struct ToastsState {
 }
 
 struct PopupsState {
-    var middleItem: SomeItem?
+    var showingMiddle = false
     var showingBottomFirst = false
     var showingBottomSecond = false
 }
@@ -48,22 +48,6 @@ struct ActionSheetsState {
 
 struct InputSheetsState {
     var showingFirst = false
-    var showingScroll = false
-}
-
-struct SectionHeader: View {
-    let name: String
-    
-    var body: some View {
-        HStack {
-            Text(name)
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(.black)
-            
-            Spacer()
-        }
-        .padding(.horizontal, 20)
-    }
 }
 
 struct PopupTypesButtonsList: View {
@@ -80,52 +64,35 @@ struct PopupTypesButtonsList: View {
         ScrollView {
             VStack(spacing: 12) {
                 safeSpaceForMac()
-                
-                Group {
-                    SectionHeader(name: "Floats")
-                        .padding(.bottom, 12)
-                    
-                    floatsSection()
-                }
-                
-                Group {
-                    SectionHeader(name: "Toasts")
-                        .padding(EdgeInsets(top: 20, leading: 0, bottom: 12, trailing: 0))
-                    
-                    toastsSection()
-                }
-                
-                Group {
-                    SectionHeader(name: "Popups")
-                        .padding(EdgeInsets(top: 20, leading: 0, bottom: 12, trailing: 0))
-                    
-                    popupsSection()
-                }
+
+                SectionHeader(name: "Floats")
+                floatsSection()
+
+                SectionHeader(name: "Toasts")
+                    .padding(.top, 20)
+                toastsSection()
+
+                SectionHeader(name: "Popups")
+                    .padding(.top, 20)
+                popupsSection()
                 
 #if os(iOS)
-                Group {
-                    SectionHeader(name: "Action sheets")
-                        .padding(EdgeInsets(top: 20, leading: 0, bottom: 12, trailing: 0))
-                    
-                    actionSheetsSection()
-                }
+                SectionHeader(name: "Action sheets")
+                    .padding(.top, 20)
+                actionSheetsSection()
 #endif
-                
-                Group {
-                    SectionHeader(name: "Inputs")
-                        .padding(.bottom, 12)
-                    
-                    inputsSection()
-                }
+
+                SectionHeader(name: "Inputs")
+                    .padding(.top, 20)
+                inputsSection()
                 
                 safeSpaceForMac()
             }
         }
-        .padding(.top, 1)
         .background(Color(.lightGrey).ignoresSafeArea())
     }
     
-    func typeIconButton<V: View>(isShowing: Binding<Bool>, title: String, detail: String = "", icon: () -> V) -> some View {
+    func typeIconButton<V: View>(isShowing: Binding<Bool>, title: String, details: String = "", icon: () -> V) -> some View {
         Button {
             hideAll()
             isShowing.wrappedValue.toggle()
@@ -140,7 +107,7 @@ struct PopupTypesButtonsList: View {
                         Text(title)
                             .font(.system(size: 18))
                             .foregroundColor(.black)
-                        Text(detail)
+                        Text(details)
                             .font(.system(size: 13))
                             .foregroundColor(.black)
                             .opacity(0.4)
@@ -180,18 +147,10 @@ struct PopupTypesButtonsList: View {
     
     @ViewBuilder
     func floatsSectionSmall() -> some View {
-        Button("Show multiple popups") {
-            popups.showingBottomFirst = true
-            toasts.showingBottomSecond = true
-            floatsSmall.showingBottomFirst = true
-            floatsSmall.showingTopSecond = true
-            toasts.showingTopSecond = true
-        }
-        
         typeIconButton(
             isShowing: $floatsSmall.showingTopFirst,
             title: "Top version 1",
-            detail: "Top float with a picture and one button"
+            details: "Top float with a picture and one button"
         ) {
             SmallFloatsIcon(alignment: .top)
         }
@@ -199,7 +158,7 @@ struct PopupTypesButtonsList: View {
         typeIconButton(
             isShowing: $floatsSmall.showingTopSecond,
             title: "Top version 2",
-            detail: "Top float with a picture"
+            details: "Top float with a picture"
         ) {
             SmallFloatsIcon(alignment: .top)
         }
@@ -207,7 +166,7 @@ struct PopupTypesButtonsList: View {
         typeIconButton(
             isShowing: $floatsSmall.showingTopFirst,
             title: "Bottom version 1",
-            detail: "Bottom float with a picture"
+            details: "Bottom float with a picture"
         ) {
             SmallFloatsIcon(alignment: .bottom)
         }
@@ -215,7 +174,7 @@ struct PopupTypesButtonsList: View {
         typeIconButton(
             isShowing: $floatsSmall.showingTopSecond,
             title: "Bottom version 2",
-            detail: "Bottom float with a picture"
+            details: "Bottom float with a picture"
         ) {
             SmallFloatsIcon(alignment: .bottom)
         }
@@ -285,7 +244,7 @@ struct PopupTypesButtonsList: View {
         typeIconButton(
             isShowing: $toasts.showingTopFirst,
             title: "Top version 1",
-            detail: "Top toast only text"
+            details: "Top toast only text"
         ) {
             ToastIcon(position: .top)
         }
@@ -293,7 +252,7 @@ struct PopupTypesButtonsList: View {
         typeIconButton(
             isShowing: $toasts.showingTopSecond,
             title: "Top version 2",
-            detail: "Top float with picture"
+            details: "Top float with picture"
         ) {
             ToastIcon(position: .top)
         }
@@ -301,7 +260,7 @@ struct PopupTypesButtonsList: View {
         typeIconButton(
             isShowing: $toasts.showingBottomFirst,
             title: "Bottom version 1",
-            detail: "Bottom float with a picture and two buttons"
+            details: "Bottom float with a picture and two buttons"
         ) {
             ToastIcon(position: .bottom)
         }
@@ -309,7 +268,7 @@ struct PopupTypesButtonsList: View {
         typeIconButton(
             isShowing: $toasts.showingBottomSecond,
             title: "Bottom version 2",
-            detail: "Bottom float with a picture"
+            details: "Bottom float with a picture"
         ) {
             ToastIcon(position: .bottom)
         }
@@ -317,19 +276,18 @@ struct PopupTypesButtonsList: View {
     
     @ViewBuilder
     func popupsSection() -> some View {
-        //        ItemPopupButton(item: $popups.middleItem, hideAll: hideAll) { todoalisa
-        //            PopupTypeIconButton(
-        //                title: "Middle",
-        //                detail: "Popup in the middle of the screen with a picture"
-        //            ) {
-        //                PopupIcon(style: .default)
-        //            }
-        //        }
+        typeIconButton(
+            isShowing: $popups.showingMiddle,
+            title: "Middle",
+            details: "Popup in the middle of the screen with a picture"
+        ) {
+            PopupIcon(style: .default)
+        }
         
         typeIconButton(
             isShowing: $popups.showingBottomFirst,
             title: "Bottom version 1",
-            detail: "Popup bottom"
+            details: "Popup bottom"
         ) {
             PopupIcon(style: .bottomFirst)
         }
@@ -337,7 +295,7 @@ struct PopupTypesButtonsList: View {
         typeIconButton(
             isShowing: $popups.showingBottomSecond,
             title: "Bottom version 2",
-            detail: "Popup bottom"
+            details: "Popup bottom"
         ) {
             PopupIcon(style: .bottomSecond)
         }
@@ -348,7 +306,7 @@ struct PopupTypesButtonsList: View {
         typeIconButton(
             isShowing: $actionSheets.showingFirst,
             title: "Version 1",
-            detail: "Action sheets"
+            details: "Action sheets"
         ) {
             ActionSheetIcon()
         }
@@ -356,7 +314,7 @@ struct PopupTypesButtonsList: View {
         typeIconButton(
             isShowing: $actionSheets.showingSecond,
             title: "Version 2",
-            detail: "Action sheets"
+            details: "Action sheets"
         ) {
             ActionSheetIcon()
         }
@@ -367,36 +325,24 @@ struct PopupTypesButtonsList: View {
         typeIconButton(
             isShowing: $inputSheets.showingFirst,
             title: "Bottom Input",
-            detail: "Popup in the bottom of the screen with an input text field"
+            details: "Popup in the bottom of the screen with an input text field"
         ) {
             InputSheetIcon()
         }
-        
-#if os(iOS)
-        typeIconButton(
-            isShowing: $inputSheets.showingScroll,
-            title: "Scroll + Keyboard (issue #281)",
-            detail: "Scroll popup with TextField - popup should stay at bottom"
-        ) {
-            InputSheetIcon()
-        }
-#endif
     }
 }
 
-//struct PopupsList_Previews: PreviewProvider { todoalisa
-//    static var previews: some View {
-//        PopupButton(
-//            isShowing: Binding<Bool>.init(get: { true },
-//                                          set: { _ in }),
-//            hideAll: {})
-//        {
-//            PopupTypeIconButton(
-//                title: "Top version 1",
-//                detail: "Top float with a picture and one button"
-//            ) {
-//                BigFloatsIcon(alignment: .top)
-//            }
-//        }
-//    }
-//}
+struct SectionHeader: View {
+    let name: String
+
+    var body: some View {
+        HStack {
+            Text(name)
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(.black)
+
+            Spacer()
+        }
+        .padding(.horizontal, 20)
+    }
+}

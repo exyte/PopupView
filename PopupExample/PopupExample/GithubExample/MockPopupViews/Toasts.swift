@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ToastTopFirst: View {
     var body: some View {
-        Text("Unable to add to bag as this item is currently not available.")
+        Text("Unable to add to cart as this item is currently unavailable.")
             .foregroundColor(.white)
             .padding(EdgeInsets(top: 60, leading: 32, bottom: 16, trailing: 32))
             .frame(maxWidth: .infinity)

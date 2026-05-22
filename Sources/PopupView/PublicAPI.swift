@@ -17,6 +17,11 @@ public class Popup {
         case scroll(headerView: any View = EmptyView())
 #endif
 
+        public var isToast: Bool {
+            if case .toast = self { return true }
+            return false
+        }
+
         var defaultPosition: Position {
             if case .default = self {
                 return .center
@@ -146,7 +151,7 @@ public class Popup {
         var allowTapThroughBG: Bool = false
 
         /// Background color for outside area
-        var backgroundColor: Color = .clear
+        var backgroundColor: Color? = nil
 
         /// Custom background view for outside area
         var backgroundView: AnyView?
@@ -178,13 +183,13 @@ public class Popup {
             return params
         }
 
-        public func appearFrom(_ appearFrom: AppearAnimation) -> PopupParameters {
+        public func appearFrom(_ appearFrom: AppearAnimation?) -> PopupParameters {
             var params = self
             params.appearFrom = appearFrom
             return params
         }
 
-        public func disappearTo(_ disappearTo: AppearAnimation) -> PopupParameters {
+        public func disappearTo(_ disappearTo: AppearAnimation?) -> PopupParameters {
             var params = self
             params.disappearTo = disappearTo
             return params

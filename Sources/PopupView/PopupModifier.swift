@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 @MainActor
-public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier {
+public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
 
     // MARK: - Presentation
 
@@ -44,7 +44,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     var allowTapThroughBG: Bool
 
     /// Background color for outside area - default is `Color.clear`
-    var backgroundColor: Color
+    var backgroundColor: Color?
 
     /// Custom background view for outside area
     var backgroundView: AnyView?
@@ -82,6 +82,11 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     /// A temporary variable to hold a copy of the `itemView` when the item is nil (to complete `itemView`'s dismiss animation)
     @State private var tempItemView: PopupContent?
+
+    /// The rect of hosting content
+    @State private var presenterContentRect: CGRect = .zero
+    /// The rect of popup content
+    @State private var sheetContentRect: CGRect = .zero
 
     // MARK: - Autohide
 
@@ -153,13 +158,13 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
 
     public func body(content: Content) -> some View {
         if isBoolMode {
-            main(content: content)
-                .onChange(of: isPresented) { newValue in
+            main(content)
+                .onChange(of: isPresented) {
                     eventsQueue.async { [eventsSemaphore] in
                         eventsSemaphore.wait()
                         DispatchQueue.main.async {
-                            closingIsInProcess = !newValue // todoalisa
-                            appearAction(popupPresented: newValue)
+                            closingIsInProcess = !isPresented
+                            appearAction(popupPresented: isPresented)
                         }
                     }
                 }
@@ -169,24 +174,24 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                     }
                 }
         } else {
-            main(content: content)
-                .onChange(of: item) { newValue in
+            main(content)
+                .onChange(of: item) {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
-                        self.closingIsInProcess = newValue == nil
-                        if let newValue {
+                        self.closingIsInProcess = item == nil
+                        if let item {
                             /// copying `itemView`
-                            self.tempItemView = itemView(newValue)
+                            self.tempItemView = itemView(item)
                         }
-                        appearAction(popupPresented: newValue != nil)
+                        appearAction(popupPresented: item != nil)
 
                         #if os(iOS)
-                        if displayMode == .window, showSheet, newValue != nil {
+                        if displayMode == .window, showSheet, item != nil {
                             WindowManager.updateRootView(id: id, dismissClosure: {
                                 dismissSource = .binding
                                 isPresented = false
                                 item = nil
                             }) {
-                                constructPopup()
+                                popupViewBackground()
                             }
                         }
                         #endif
@@ -202,24 +207,45 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
     }
 
     @ViewBuilder
-    public func main(content: Content) -> some View {
+    public func main(_ presenterContent: Content) -> some View {
+        presenterContentWithPopup(presenterContent)
+            .frameGetter($presenterContentRect)
+            .onChange(of: sheetContentRect) {
+                // once the closing has been started, don't allow position recalculation to trigger popup showing again
+                if !closingIsInProcess {
+                    DispatchQueue.main.async {
+                        shouldShowContent = true // this will cause currentOffset change thus triggering the sliding showing animation
+                        withAnimation(.linear(duration: 0.2)) {
+                            animatableOpacity = 1 // this will cause cross dissolving animation for background color/view
+                        }
+                    }
+                    setupAutohide()
+                    setupDismissibleIn()
+                }
+            }
+    }
+
+    @ViewBuilder
+    public func presenterContentWithPopup(_ presenterContent: Content) -> some View {
 #if os(iOS)
         switch displayMode {
         case .overlay:
-            ZStack {
-                content
-                constructPopup()
-            }
+            presenterContent
+                .overlay {
+                    if showSheet {
+                        popupViewBackground()
+                    }
+                }
 
         case .sheet:
-            content.transparentNonAnimatingFullScreenCover(isPresented: $showSheet, dismissSource: dismissSource, userDismissCallback: userDismissCallback) {
-                constructPopup()
+            presenterContent.transparentNonAnimatingFullScreenCover(isPresented: $showSheet, dismissSource: dismissSource, userDismissCallback: userDismissCallback) {
+                popupViewBackground()
             }
 
         case .window:
-            content
-                .onChange(of: showSheet) { newValue in
-                    if newValue {
+            presenterContent
+                .onChange(of: showSheet) {
+                    if showSheet {
                         WindowManager.showInNewWindow(
                             id: id,
                             closeOnTapOutside: closeOnTapOutside,
@@ -229,7 +255,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
                                 isPresented = false
                                 item = nil
                             }) {
-                                constructPopup()
+                                popupViewBackground()
                             }
                     } else {
                         WindowManager.closeWindow(id: id)
@@ -241,10 +267,10 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         }
 #elseif os(macOS) || os(tvOS)
         ZStack {
-            content
+            presenterContent
                 .disabled(showContent)
 
-            constructPopup()
+            popupViewBackground()
         }
         .onExitCommand {
             dismissSource = .exitCommand
@@ -253,64 +279,44 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         }
 #else
         ZStack {
-            content
+            presenterContent
                 .disabled(showContent)
 
-            constructPopup()
+            popupViewBackground()
         }
 #endif
     }
     
     @ViewBuilder
-    func constructPopup() -> some View {
-        if showContent {
-            PopupBackgroundView(
-                id: $id,
-                isPresented: $isPresented,
-                item: $item,
-                animatableOpacity: $animatableOpacity,
-                dismissSource: $dismissSource,
-                isWindowMode: params.displayMode == .window,
-                backgroundColor: backgroundColor,
-                backgroundView: backgroundView,
-                closeOnTapOutside: closeOnTapOutside,
-                allowTapThroughBG: allowTapThroughBG,
-                dismissEnabled: dismissEnabled
-            )
-            .modifier(getModifier())
+    func popupViewBackground() -> some View {
+        ZStack {
+            popupBackground()
+            popupBody()
+                .frameGetter($sheetContentRect)
         }
+        .ignoresSafeArea()
     }
 
-    var viewForItem: (() -> PopupContent)? {
-        if let item = item {
-            return { itemView(item) }
-        } else if let tempItemView {
-            return { tempItemView }
+    @ViewBuilder
+    private func popupBody() -> some View {
+        var viewForItem: (() -> PopupContent)? {
+            if let item = item {
+                return { itemView(item) }
+            } else if let tempItemView {
+                return { tempItemView }
+            }
+            return nil
         }
-        return nil
-    }
 
-    private func getModifier() -> PopupBody<PopupContent> {
         PopupBody(
-            params: params,
-            view: viewForItem != nil ? viewForItem! : view,
-            shouldShowContent: $shouldShowContent,
-            showContent: showContent,
             isDragging: $isDragging,
             timeToHide: $timeToHide,
-            positionIsCalculatedCallback: {
-                // once the closing has been started, don't allow position recalculation to trigger popup showing again
-                if !closingIsInProcess {
-                    DispatchQueue.main.async {
-                        shouldShowContent = true // this will cause currentOffset change thus triggering the sliding showing animation
-                        withAnimation(.linear(duration: 0.2)) {
-                            animatableOpacity = 1 // this will cause cross dissolving animation for background color/view
-                        }
-                    }
-                    setupAutohide()
-                    setupdismissibleIn()
-                }
-            },
+            shouldShowContent: $shouldShowContent,
+            showContent: $showContent,
+            presenterContentRect: $presenterContentRect,
+            sheetContentRect: $sheetContentRect,
+            params: params,
+            popupBodyBuilder: viewForItem != nil ? viewForItem! : view,
             dismissCallback: { source in
                 dismissSource = source
                 isPresented = false
@@ -319,12 +325,28 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         )
     }
 
+    private func popupBackground() -> some View {
+        PopupBackgroundView(
+            id: $id,
+            isPresented: $isPresented,
+            item: $item,
+            animatableOpacity: $animatableOpacity,
+            dismissSource: $dismissSource,
+            isWindowMode: params.displayMode == .window,
+            backgroundColor: backgroundColor,
+            backgroundView: backgroundView,
+            closeOnTapOutside: closeOnTapOutside,
+            allowTapThroughBG: allowTapThroughBG,
+            dismissEnabled: dismissEnabled
+        )
+    }
+
     func appearAction(popupPresented: Bool) {
         if popupPresented {
             dismissSource = nil
             showSheet = true // show transparent fullscreen sheet
             showContent = true // immediately load popup body
-            // shouldShowContent is set after popup's frame is calculated, see positionIsCalculatedCallback
+            // shouldShowContent is set after popup's frame is calculated, see .onChange(of: sheetContentRect)
         } else {
             closingIsInProcess = true
             userWillDismissCallback(dismissSource ?? .binding)
@@ -353,6 +375,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         }
         performWithDelay(0.01) {
             showSheet = false
+            sheetContentRect = .zero
         }
         if displayMode != .sheet { // for .sheet this callback is called in fullScreenCover's onDisappear
             userDismissCallback(dismissSource ?? .binding)
@@ -385,7 +408,7 @@ public struct FullscreenPopup<Item: Equatable, PopupContent: View>: ViewModifier
         }
     }
 
-    func setupdismissibleIn() {
+    func setupDismissibleIn() {
         if let dismissibleIn = dismissibleIn {
             dismissibleInWorkHolder.work?.cancel()
 

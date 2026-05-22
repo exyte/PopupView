@@ -19,7 +19,7 @@ struct PopupBackgroundView<Item: Equatable>: View {
     @Binding var dismissSource: Popup.DismissSource?
 
     var isWindowMode: Bool
-    var backgroundColor: Color
+    var backgroundColor: Color?
     var backgroundView: AnyView?
     var closeOnTapOutside: Bool
     var allowTapThroughBG: Bool
@@ -52,18 +52,14 @@ struct PopupBackgroundView<Item: Equatable>: View {
                     }
                 }
 #endif
-#if !(os(watchOS) || os(macOS))
-            PopupHitTestingBackground() // Hit testing workaround
-                .ignoresSafeArea()
-#endif
         }
     }
 
     func contentView() -> some View {
         Group {
-            if let backgroundView = backgroundView {
+            if let backgroundView {
                 backgroundView
-            } else {
+            } else if let backgroundColor {
                 backgroundColor
             }
         }
@@ -73,17 +69,3 @@ struct PopupBackgroundView<Item: Equatable>: View {
         .animation(.linear(duration: 0.2), value: animatableOpacity)
     }
 }
-
-#if !(os(watchOS) || os(macOS))
-/// A special view to handle hit-testing on background parts of popup content
-struct PopupHitTestingBackground: UIViewRepresentable {
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView()
-        view.backgroundColor = .clear
-        view.isUserInteractionEnabled = false
-        return view
-    }
-    
-    func updateUIView(_ uiView: UIView, context: Context) {}
-}
-#endif

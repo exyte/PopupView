@@ -1,5 +1,5 @@
 //
-//  PopupModesView.swift
+//  BGTapsExamples.swift
 //  PopupExample
 //
 //  Created by Alisa Mylnikova on 18.05.2026.
@@ -8,20 +8,20 @@
 import SwiftUI
 import PopupView
 
-struct PopupModesView: View {
+struct BGTapsExamplesView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 12) {
-                ModeSectionView(mode: .window)
-                ModeSectionView(mode: .overlay)
-                ModeSectionView(mode: .sheet)
+                BGTapsSectionView(mode: .window)
+                BGTapsSectionView(mode: .overlay)
+                BGTapsSectionView(mode: .sheet)
             }
         }
         .background(Color(.lightGrey).ignoresSafeArea())
     }
 }
 
-struct ModeSectionView: View {
+struct BGTapsSectionView: View {
     var mode: Popup.DisplayMode
 
     var body: some View {
@@ -29,14 +29,14 @@ struct ModeSectionView: View {
         ForEach([true, false], id: \.self) { close in
             ForEach([true, false], id: \.self) { tap in
                 if mode != .sheet || !tap { // .sheet can't allow taps through
-                    PopupShowingButton(mode: mode, closeOnTapOutside: close, allowTapThroughBG: tap)
+                    BGTapsPopupShowingButton(mode: mode, closeOnTapOutside: close, allowTapThroughBG: tap)
                 }
             }
         }
     }
 }
 
-struct PopupShowingButton: View {
+struct BGTapsPopupShowingButton: View {
     var mode: Popup.DisplayMode
     var closeOnTapOutside: Bool
     var allowTapThroughBG: Bool
@@ -62,7 +62,7 @@ struct PopupShowingButton: View {
         }
         .padding(.horizontal, 20)
         .popup(isPresented: $show) {
-            ModeExamplePopup(mode: mode, closeOnTapOutside: closeOnTapOutside, allowTapThroughBG: allowTapThroughBG)
+            BGTapsExamplePopup(mode: mode, closeOnTapOutside: closeOnTapOutside, allowTapThroughBG: allowTapThroughBG)
         } customize: {
             $0
                 .displayMode(mode)
@@ -73,7 +73,7 @@ struct PopupShowingButton: View {
     }
 }
 
-struct ModeExamplePopup: View {
+struct BGTapsExamplePopup: View {
     @Environment(\.popupDismiss) var dismiss
     var mode: Popup.DisplayMode
     var closeOnTapOutside: Bool

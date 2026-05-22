@@ -28,7 +28,7 @@ extension View {
         customize: @escaping (Popup.PopupParameters) -> Popup.PopupParameters
         ) -> some View {
             self.modifier(
-                FullscreenPopup<Int, PopupContent>(
+                PopupModifier<Int, PopupContent>(
                     isPresented: isPresented,
                     isBoolMode: true,
                     params: customize(Popup.PopupParameters()),
@@ -46,7 +46,7 @@ extension View {
         customize: @escaping (Popup.PopupParameters) -> Popup.PopupParameters
         ) -> some View {
             self.modifier(
-                FullscreenPopup<Item, PopupContent>(
+                PopupModifier<Item, PopupContent>(
                     item: item,
                     isBoolMode: false,
                     params: customize(Popup.PopupParameters()),
@@ -62,7 +62,7 @@ extension View {
         isPresented: Binding<Bool>,
         @ViewBuilder view: @escaping () -> PopupContent) -> some View {
             self.modifier(
-                FullscreenPopup<Int, PopupContent>(
+                PopupModifier<Int, PopupContent>(
                     isPresented: isPresented,
                     isBoolMode: true,
                     params: Popup.PopupParameters(),
@@ -78,7 +78,7 @@ extension View {
         item: Binding<Item?>,
         @ViewBuilder itemView: @escaping (Item) -> PopupContent) -> some View {
             self.modifier(
-                FullscreenPopup<Item, PopupContent>(
+                PopupModifier<Item, PopupContent>(
                     item: item,
                     isBoolMode: false,
                     params: Popup.PopupParameters(),
@@ -130,7 +130,7 @@ struct OrientationChangeModifier: ViewModifier {
 //                NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
 //                #endif
 //            }
-            .onChange(of: isLandscape) { _ in
+            .onChange(of: isLandscape) {
                 onOrientationChange()
             }
     }

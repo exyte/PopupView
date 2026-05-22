@@ -1,5 +1,5 @@
 //
-//  PopupTypesView.swift
+//  GithubExampleView.swift
 //  Example
 //
 //  Created by Alisa Mylnikova on 23/04/2020.
@@ -9,7 +9,7 @@
 import SwiftUI
 import PopupView
 
-struct PopupTypesView: View {
+struct GithubExampleView: View {
     @State var floatsSmall = FloatsStateSmall()
     @State var floatsBig = FloatsStateBig()
     @State var toasts = ToastsState()
@@ -196,8 +196,8 @@ struct PopupTypesView: View {
 
         // MARK: - Designed popups
 
-            .popup(item: $popups.middleItem) { item in
-                PopupMiddle(item: item)
+            .popup(isPresented: $popups.showingMiddle) {
+                PopupMiddle()
             } customize: {
                 $0
                     .appearFrom(.centerScale)
@@ -238,6 +238,7 @@ struct PopupTypesView: View {
                     .closeOnTap(false)
                     .backgroundColor(.black.opacity(0.4))
             }
+        
             .popup(isPresented: $actionSheets.showingSecond) {
                 ActionSheetSecond()
             } customize: {
@@ -260,22 +261,6 @@ struct PopupTypesView: View {
                     .backgroundColor(.black.opacity(0.4))
                     .useKeyboardSafeArea(true)
             }
-
-#if os(iOS)
-        // Issue #281 reproduction: .scroll type + useKeyboardSafeArea(true) + TextField
-        // Bug: entire popup shifts up by full keyboard height instead of shrinking scroll area
-            .popup(isPresented: $inputSheets.showingScroll) {
-                ScrollInputSheet(isShowing: $inputSheets.showingScroll)
-            } customize: {
-                $0
-                    .type(.scroll(headerView: AnyView(scrollViewHeader())))
-                    .position(.bottom)
-                    .closeOnTap(false)
-                    .closeOnTapOutside(true)
-                    .backgroundColor(.black.opacity(0.4))
-                    .useKeyboardSafeArea(true)
-            }
-#endif
     }
 
     func createPopupsList() -> PopupTypesButtonsList {
@@ -314,6 +299,6 @@ struct PopupTypesView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        PopupTypesView()
+        GithubExampleView()
     }
 }
