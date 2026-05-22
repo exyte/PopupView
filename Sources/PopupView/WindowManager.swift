@@ -10,7 +10,7 @@ import SwiftUI
 #if os(iOS)
 
 @MainActor
-public final class WindowManager {
+final class WindowManager {
     static let shared = WindowManager()
     private var entries: [UUID: Entry] = [:]
     
@@ -37,7 +37,7 @@ public final class WindowManager {
     }
 
     // Show a new window with hosted SwiftUI content
-    public static func showInNewWindow<Content: View>(
+    static func showInNewWindow<Content: View>(
         id: UUID,
         closeOnTapOutside: Bool,
         allowTapThroughBG: Bool,
@@ -59,9 +59,7 @@ public final class WindowManager {
         window.backgroundColor = .clear
 
         let rootView = content()
-            .environment(\.popupDismiss) {
-                dismissClosure()
-            }
+            .environment(\.popupDismiss, dismissClosure)
 
         let controller = if #available(iOS 18, *) {
             UIHostingController(rootView: rootView)
@@ -78,7 +76,7 @@ public final class WindowManager {
         shared.entries[id] = Entry(window: window, controller: controller)
     }
 
-    public static func updateRootView<Content: View>(
+    static func updateRootView<Content: View>(
         id: UUID,
         dismissClosure: @escaping () -> (),
         content: @escaping () -> Content
@@ -115,40 +113,63 @@ class UIPassthroughWindow: UIWindow {
     }
 
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        guard let vc = self.rootViewController else {
-            return nil // pass to next window
+        guard let vc = rootViewController else {
+            return nil
         }
-
         vc.view.layoutIfNeeded() // otherwise the frame is as if the popup is still outside the screen
 
-        let layerHitTestResult = vc.view.layer.hitTest(vc.view.convert(point, from: self))
-        let superlayerDelegateName = layerHitTestResult?.superlayer?.delegate.map { String(describing: type(of: $0)) }
-        let didTapBackground = superlayerDelegateName?.contains(String(describing: PopupHitTestingBackground.self)) ?? false
-
-        if didTapBackground {
-            if closeOnTapOutside {
-                dismissClosure?()
-            }
-            
-            if isPassthrough {
-                return nil // pass to next window
-            }
-            return vc.view
-        }
-        
-        // pass tap to this
-        let farthestDescendent = super.hitTest(point, with: event)
-        return farthestDescendent
-    }
-
-    private func isTouchInsideSubview(point: CGPoint, vc: UIView) -> UIView? {
-        for subview in vc.subviews {
-            if subview.frame.contains(point) {
-                return subview
+        for subview in vc.view.subviews {
+            //print("rrr \(classNameContains(subview, "PopupHitRegion") ? "PopupHitRegion" : "BGHitRegion") \(subview.frame.contains(point))")
+            if classNameContains(subview, "PopupHitRegion"),
+               subview.frame.contains(point) {
+                return vc.view // let UIKit pass this touch to wrapped SwiftUI view in regular manner
             }
         }
-        return nil
+
+        // here we know the tap was outside the actual popup's body, meaning the background was tapped
+
+        if closeOnTapOutside {
+            dismissClosure?()
+        }
+
+        if isPassthrough {
+            return nil // pass to next window
+        }
+        return vc.view
     }
+
+    private func classNameContains(_ view: UIView, _ string: String) -> Bool {
+        String(describing: view.self).contains(string)
+    }
+}
+
+final class BGHitRegionView: UIView {
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        true
+    }
+}
+
+struct BGHitRegion: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView {
+        BGHitRegionView()
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
+}
+
+
+final class PopupHitRegionView: UIView {
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        true
+    }
+}
+
+struct PopupHitRegion: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView {
+        PopupHitRegionView()
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
 }
 
 class UITextFieldCheckingVC<Content: View>: UIHostingController<Content> {

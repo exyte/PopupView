@@ -252,6 +252,11 @@ struct PopupBody<PopupContent: View>: View {
 
     var body: some View {
         bodyWithGestures()
+            .background {
+                if params.displayMode == .window {
+                    PopupHitRegion() // apply here, because offset doesn't actually change popup's position, effectively breaking expected behaviour
+                }
+            }
             .scaleEffect(actualScale)
             .offset(x: actualCurrentOffset.x, y: actualCurrentOffset.y)
 
