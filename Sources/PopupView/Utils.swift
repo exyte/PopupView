@@ -46,6 +46,14 @@ struct ScreenUtils {
     }
 }
 
+extension CGPoint {
+
+    @MainActor
+    static var pointFarAwayFromScreen: CGPoint {
+        CGPoint(x: 2 * ScreenUtils.width, y: 2 * ScreenUtils.height)
+    }
+}
+
 struct MemoryAddress<T>: CustomStringConvertible {
 
     let intValue: Int
@@ -254,34 +262,8 @@ class KeyboardHeightHelper: ObservableObject {
 
 #endif
 
-
-// MARK: - Hide keyboard
-
-extension CGPoint {
-
-    @MainActor
-    static var pointFarAwayFromScreen: CGPoint {
-        CGPoint(x: 2*CGSize.screenSize.width, y: 2*CGSize.screenSize.height)
-    }
-}
-
-extension CGSize {
-
-    @MainActor
-    static var screenSize: CGSize {
-#if os(iOS) || os(tvOS)
-        return UIScreen.main.bounds.size
-#elseif os(watchOS)
-        return WKInterfaceDevice.current().screenBounds.size
-#elseif os(macOS)
-        return NSScreen.main?.frame.size ?? .zero
-#elseif os(visionOS)
-        return .zero
-#endif
-    }
-}
-
 #if os(iOS)
+
 // MARK: ScrollViewResolver
 
 struct ScrollViewResolver: UIViewRepresentable {
@@ -312,4 +294,43 @@ extension UIView {
         return nil
     }
 }
+
+#endif
+
+#if os(iOS)
+
+@MainActor
+extension View {
+    func onOrientationChange(isLandscape: Binding<Bool>, onOrientationChange: @escaping () -> Void) -> some View {
+        self.modifier(OrientationChangeModifier(isLandscape: isLandscape, onOrientationChange: onOrientationChange))
+    }
+}
+
+@MainActor
+struct OrientationChangeModifier: ViewModifier {
+    @Binding var isLandscape: Bool
+    let onOrientationChange: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .onReceive(NotificationCenter.default
+                .publisher(for: UIDevice.orientationDidChangeNotification)
+                .receive(on: DispatchQueue.main)
+            ) { _ in
+                updateOrientation()
+            }
+            .onChange(of: isLandscape) {
+                onOrientationChange()
+            }
+    }
+
+    private func updateOrientation() {
+        let newIsLandscape = UIDevice.current.orientation.isLandscape
+        if newIsLandscape != isLandscape {
+            isLandscape = newIsLandscape
+            onOrientationChange()
+        }
+    }
+}
+
 #endif

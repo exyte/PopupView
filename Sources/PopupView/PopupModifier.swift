@@ -19,49 +19,14 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
     @Binding var item: Item?
 
     var isBoolMode: Bool
-
-    var popupPresented: Bool {
-        item != nil || isPresented
-    }
-
-    // MARK: - Parameters
-
-    /// If nil - never hides on its own
-    var autohideIn: Double?
-
-    /// Only allow dismiss by any means after this time passes
-    var dismissibleIn: Double?
-
-    /// Becomes true when `dismissibleIn` times finishes
-    /// Makes no sense if `dismissibleIn` is nil
-    var dismissEnabled: Binding<Bool>
-
-    /// Should close on tap outside - default is `false`
-    var closeOnTapOutside: Bool
-
-    /// Should allow taps to pass "through" the popup's background down to views "below" it.
-    /// .sheet popup is always allowTapThroughBG = false
-    var allowTapThroughBG: Bool
-
-    /// Background color for outside area - default is `Color.clear`
-    var backgroundColor: Color?
-
-    /// Custom background view for outside area
-    var backgroundView: AnyView?
-
-    /// If opaque - taps do not pass through popup's background color
-    var displayMode: Popup.DisplayMode
-
-    /// called when when dismiss animation starts
-    var userWillDismissCallback: (Popup.DismissSource) -> ()
-
-    /// called when when dismiss animation ends
-    var userDismissCallback: (Popup.DismissSource) -> ()
-
     var params: Popup.PopupParameters
 
     var view: (() -> PopupContent)!
     var itemView: ((Item) -> PopupContent)!
+
+    var popupPresented: Bool {
+        item != nil || isPresented
+    }
 
     // MARK: - Presentation animation
 
@@ -133,27 +98,17 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
         self.isBoolMode = isBoolMode
 
         self.params = params
-        self.autohideIn = params.autohideIn
-        self.dismissibleIn = params.dismissibleIn
-        self.dismissEnabled = params.dismissEnabled
-        self.closeOnTapOutside = params.closeOnTapOutside
-        self.allowTapThroughBG = params.allowTapThroughBG
-        self.backgroundColor = params.backgroundColor
-        self.backgroundView = params.backgroundView
-        self.displayMode = params.displayMode
-        self.userDismissCallback = params.dismissCallback
-        self.userWillDismissCallback = params.willDismissCallback
 
-        if let view = view {
+        if let view {
             self.view = view
         }
-        if let itemView = itemView {
+        if let itemView {
             self.itemView = itemView
         }
 
         self.isPresentedRef = ClassReference(self.$isPresented)
         self.itemRef = ClassReference(self.$item)
-        self.dismissEnabledRef = ClassReference(self.dismissEnabled)
+        self.dismissEnabledRef = ClassReference(params.dismissEnabled)
     }
 
     public func body(content: Content) -> some View {
@@ -185,7 +140,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
                         appearAction(popupPresented: item != nil)
 
                         #if os(iOS)
-                        if displayMode == .window, showSheet, item != nil {
+                        if params.displayMode == .window, showSheet, item != nil {
                             WindowManager.updateRootView(id: id, dismissClosure: {
                                 dismissSource = .binding
                                 isPresented = false
@@ -228,7 +183,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
     @ViewBuilder
     public func presenterContentWithPopup(_ presenterContent: Content) -> some View {
 #if os(iOS)
-        switch displayMode {
+        switch params.displayMode {
         case .overlay:
             presenterContent
                 .overlay {
@@ -238,7 +193,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
                 }
 
         case .sheet:
-            presenterContent.transparentNonAnimatingFullScreenCover(isPresented: $showSheet, dismissSource: dismissSource, userDismissCallback: userDismissCallback) {
+            presenterContent.transparentNonAnimatingFullScreenCover(isPresented: $showSheet, dismissSource: dismissSource, userDismissCallback: params.dismissCallback) {
                 popupViewBackground()
             }
 
@@ -248,8 +203,8 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
                     if showSheet {
                         WindowManager.showInNewWindow(
                             id: id,
-                            closeOnTapOutside: closeOnTapOutside,
-                            allowTapThroughBG: allowTapThroughBG,
+                            closeOnTapOutside: params.closeOnTapOutside,
+                            allowTapThroughBG: params.allowTapThroughBG,
                             dismissClosure: {
                                 dismissSource = .binding
                                 isPresented = false
@@ -336,11 +291,11 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
             animatableOpacity: $animatableOpacity,
             dismissSource: $dismissSource,
             isWindowMode: params.displayMode == .window,
-            backgroundColor: backgroundColor,
-            backgroundView: backgroundView,
-            closeOnTapOutside: closeOnTapOutside,
-            allowTapThroughBG: allowTapThroughBG,
-            dismissEnabled: dismissEnabled
+            backgroundColor: params.backgroundColor,
+            backgroundView: params.backgroundView,
+            closeOnTapOutside: params.closeOnTapOutside,
+            allowTapThroughBG: params.allowTapThroughBG,
+            dismissEnabled: params.dismissEnabled
         )
     }
 
@@ -352,7 +307,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
             // shouldShowContent is set after popup's frame is calculated, see .onChange(of: sheetContentRect)
         } else {
             closingIsInProcess = true
-            userWillDismissCallback(dismissSource ?? .binding)
+            params.willDismissCallback(dismissSource ?? .binding)
             autohidingWorkHolder.work?.cancel()
             dismissibleInWorkHolder.work?.cancel()
             shouldShowContent = false // this will cause currentOffset change thus triggering the sliding hiding animation
@@ -373,15 +328,15 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
         }
         showContent = false // unload popup body after hiding animation is done
         tempItemView = nil
-        if dismissibleIn != nil {
-            dismissEnabled.wrappedValue = false
+        if params.dismissibleIn != nil {
+            params.dismissEnabled.wrappedValue = false
         }
         performWithDelay(0.01) {
             showSheet = false
             sheetContentRect = .zero
         }
-        if displayMode != .sheet { // for .sheet this callback is called in fullScreenCover's onDisappear
-            userDismissCallback(dismissSource ?? .binding)
+        if params.displayMode != .sheet { // for .sheet this callback is called in fullScreenCover's onDisappear
+            params.dismissCallback(dismissSource ?? .binding)
         }
 
         eventsSemaphore.signal()
@@ -389,7 +344,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
 
     func setupAutohide() {
         // if needed, dispatch autohide and cancel previous one
-        if let autohideIn = autohideIn {
+        if let autohideIn = params.autohideIn {
             autohidingWorkHolder.work?.cancel()
 
             // Weak reference to avoid the work item capturing the struct,
@@ -412,7 +367,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
     }
 
     func setupDismissibleIn() {
-        if let dismissibleIn = dismissibleIn {
+        if let dismissibleIn = params.dismissibleIn {
             dismissibleInWorkHolder.work?.cancel()
 
             // Weak reference to avoid the work item capturing the struct,
