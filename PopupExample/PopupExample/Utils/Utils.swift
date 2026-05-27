@@ -24,14 +24,23 @@ extension Color {
 extension View {
     
     @ViewBuilder
-    func applyIf<T: View>(_ condition: Bool, apply: (Self) -> T) -> some View {
+    func applyIf<V: View>(_ condition: Bool, apply: (Self) -> V) -> some View {
         if condition {
             apply(self)
         } else {
             self
         }
     }
-    
+
+    @ViewBuilder
+    func applyIfNotNil<V: View, Value>(_ value: Value?, @ViewBuilder _ apply: (_ view: Self, Value) -> V) -> some View {
+        if let value {
+            apply(self, value)
+        } else {
+            self
+        }
+    }
+
     func shadowedStyle() -> some View {
         self
             .shadow(color: .black.opacity(0.08), radius: 2, x: 0, y: 0)

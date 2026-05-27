@@ -19,10 +19,8 @@ struct MiscExamplesView: View {
                     details: "Scroll popup with TextField - popup should stay at bottom"
                 ) {
                     ScrollInputSheet()
-                } customize: {
+                } customizeScroll: {
                     $0
-                        .type(.scroll(headerView: AnyView(scrollViewHeader())))
-                        .position(.bottom)
                         .closeOnTap(false)
                         .closeOnTapOutside(true)
                         .backgroundColor(.black.opacity(0.4))
@@ -52,7 +50,8 @@ struct MiscPopupShowingButton<PopupContent: View>: View {
     var details: String
 
     @ViewBuilder var popupContent: () -> PopupContent
-    var customize: (Popup.PopupParameters) -> Popup.PopupParameters
+    var customize: ((Popup.PopupTypeParameters) -> Popup.PopupTypeParameters)?
+    var customizeScroll: ((Popup.ScrollPopupParameters) -> Popup.ScrollPopupParameters)?
 
     @State private var show = false
 
@@ -76,57 +75,25 @@ struct MiscPopupShowingButton<PopupContent: View>: View {
                 .padding()
             }
         }
-        .popup(isPresented: $show) {
-            popupContent()
-        } customize: {
-            customize($0)
+        .applyIfNotNil(customize) { view, customize in
+            view
+                .popup(isPresented: $show) {
+                    popupContent()
+                } customize: {
+                    customize($0)
+                }
         }
+        .applyIfNotNil(customizeScroll) { view, customize in
+            view
+                .scrollPopup(isPresented: $show) {
+                    popupContent()
+                } customize: {
+                    customize($0)
+                }
+        }
+
     }
 }
-
-//struct ScrollExamplePopup: View {
-//    @Environment(\.popupDismiss) var dismiss
-//    var mode: Popup.DisplayMode
-//    var closeOnTapOutside: Bool
-//    var allowTapThroughBG: Bool
-//
-//    var body: some View {
-//        VStack(spacing: 12) {
-//            Image("winner")
-//                .resizable()
-//                .scaledToFit()
-//                .frame(maxWidth: 226, maxHeight: 226)
-//
-//            VStack {
-//                Text(String(describing: mode).capitalized)
-//                    .font(.system(size: 20))
-//                Text("closeOnTapOutside: \(String(describing: closeOnTapOutside))")
-//                Text("allowTapThroughBG: \(String(describing: allowTapThroughBG))")
-//            }
-//            .font(.system(size: 16))
-//            .foregroundColor(.black)
-//            .padding()
-//
-//            Button {
-//                dismiss?()
-//            } label: {
-//                Text("Thanks")
-//                    .font(.system(size: 18, weight: .bold))
-//                    .frame(maxWidth: .infinity)
-//                    .padding(.vertical, 18)
-//                    .padding(.horizontal, 24)
-//                    .foregroundColor(.white)
-//                    .background(Color(hex: "9265F8"))
-//                    .cornerRadius(12)
-//            }
-//            .buttonStyle(.plain)
-//        }
-//        .padding(EdgeInsets(top: 37, leading: 24, bottom: 40, trailing: 24))
-//        .background(Color.white.cornerRadius(20))
-//        .shadowedStyle()
-//        .padding(.horizontal, 70)
-//    }
-//}
 
 // Reproduces issue #281: .scroll type popup with useKeyboardSafeArea(true) shifts
 // the entire popup off-screen when the keyboard appears, instead of constraining

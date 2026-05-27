@@ -20,7 +20,7 @@ struct GithubExampleView: View {
     var body: some View {
         createPopupsList()
 
-        // MARK: - Designed floats big screen
+        // MARK: - floats big screen
 
             .popup(isPresented: $floatsBig.showingTopLeading) {
                 FloatTopLeading()
@@ -103,7 +103,7 @@ struct GithubExampleView: View {
                     .allowTapThroughBG(true)
             }
 
-        // MARK: - Designed floats small screen
+        // MARK: - floats small screen
 
             .popup(isPresented: $floatsSmall.showingTopFirst) {
                 FloatTopFirst()
@@ -154,7 +154,7 @@ struct GithubExampleView: View {
                     .allowTapThroughBG(true)
             }
 
-        // MARK: - Designed toasts
+        // MARK: - toasts
 
             .popup(isPresented: $toasts.showingTopFirst) {
                 ToastTopFirst()
@@ -194,7 +194,7 @@ struct GithubExampleView: View {
                     .allowTapThroughBG(true)
             }
 
-        // MARK: - Designed popups
+        // MARK: - popups
 
             .popup(isPresented: $popups.showingMiddle) {
                 PopupMiddle()
@@ -228,7 +228,9 @@ struct GithubExampleView: View {
             }
 
 #if os(iOS)
-        // MARK: - Designed action sheets
+
+        // MARK: - action sheets
+
             .popup(isPresented: $actionSheets.showingFirst) {
                 ActionSheetFirst()
             } customize: {
@@ -239,12 +241,12 @@ struct GithubExampleView: View {
                     .backgroundColor(.black.opacity(0.4))
             }
         
-            .popup(isPresented: $actionSheets.showingSecond) {
+            .scrollPopup(isPresented: $actionSheets.showingSecond) {
                 ActionSheetSecond()
+            } header: {
+                scrollViewHeader()
             } customize: {
                 $0
-                    .type(.scroll(headerView: scrollViewHeader()))
-                    .position(.bottom)
                     .closeOnTap(false)
                     .closeOnTapOutside(true)
                     .backgroundColor(.black.opacity(0.4))

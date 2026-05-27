@@ -19,7 +19,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
     @Binding var item: Item?
 
     var isBoolMode: Bool
-    var params: Popup.PopupParameters
+    var params: Popup.BasePopupParameters
 
     var view: (() -> PopupContent)!
     var itemView: ((Item) -> PopupContent)!
@@ -90,7 +90,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
     init(isPresented: Binding<Bool> = .constant(false),
          item: Binding<Item?> = .constant(nil),
          isBoolMode: Bool,
-         params: Popup.PopupParameters,
+         params: Popup.BasePopupParameters,
          view: (() -> PopupContent)?,
          itemView: ((Item) -> PopupContent)?) {
         self._isPresented = isPresented
@@ -241,7 +241,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
         }
 #endif
     }
-    
+
     @ViewBuilder
     func popupViewBackground() -> some View {
         ZStack {
@@ -285,11 +285,12 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
 
     private func popupBackground() -> some View {
         PopupBackgroundView(
-            id: $id,
-            isPresented: $isPresented,
-            item: $item,
             animatableOpacity: $animatableOpacity,
-            dismissSource: $dismissSource,
+            shouldDismiss: {
+                dismissSource = .tapOutside
+                isPresented = false
+                item = nil
+            },
             isWindowMode: params.displayMode == .window,
             backgroundColor: params.backgroundColor,
             backgroundView: params.backgroundView,

@@ -25,13 +25,13 @@ extension View {
     public func popup<PopupContent: View>(
         isPresented: Binding<Bool>,
         @ViewBuilder view: @escaping () -> PopupContent,
-        customize: @escaping (Popup.PopupParameters) -> Popup.PopupParameters
+        customize: @escaping (Popup.PopupTypeParameters) -> Popup.PopupTypeParameters = { $0 }
         ) -> some View {
             self.modifier(
                 PopupModifier<Int, PopupContent>(
                     isPresented: isPresented,
                     isBoolMode: true,
-                    params: customize(Popup.PopupParameters()),
+                    params: customize(Popup.PopupTypeParameters()),
                     view: view,
                     itemView: nil)
             )
@@ -43,13 +43,13 @@ extension View {
     public func popup<Item: Equatable, PopupContent: View>(
         item: Binding<Item?>,
         @ViewBuilder itemView: @escaping (Item) -> PopupContent,
-        customize: @escaping (Popup.PopupParameters) -> Popup.PopupParameters
+        customize: @escaping (Popup.PopupTypeParameters) -> Popup.PopupTypeParameters = { $0 }
         ) -> some View {
             self.modifier(
                 PopupModifier<Item, PopupContent>(
                     item: item,
                     isBoolMode: false,
-                    params: customize(Popup.PopupParameters()),
+                    params: customize(Popup.PopupTypeParameters()),
                     view: nil,
                     itemView: itemView)
             )
@@ -58,92 +58,45 @@ extension View {
             }
         }
 
-    public func popup<PopupContent: View>(
+    public func scrollPopup<PopupContent: View>(
         isPresented: Binding<Bool>,
-        @ViewBuilder view: @escaping () -> PopupContent) -> some View {
-            self.modifier(
-                PopupModifier<Int, PopupContent>(
-                    isPresented: isPresented,
-                    isBoolMode: true,
-                    params: Popup.PopupParameters(),
-                    view: view,
-                    itemView: nil)
-            )
-            .environment(\.popupDismiss) {
-                isPresented.wrappedValue = false
-            }
-        }
+        @ViewBuilder view: @escaping () -> PopupContent,
+        header: @escaping () -> any View = { EmptyView() },
+        customize: @escaping (Popup.ScrollPopupParameters) -> Popup.ScrollPopupParameters = { $0 }
+    ) -> some View {
+        let params = Popup.ScrollPopupParameters().headerView(header)
 
-    public func popup<Item: Equatable, PopupContent: View>(
+        return self.modifier(
+            PopupModifier<Int, PopupContent>(
+                isPresented: isPresented,
+                isBoolMode: true,
+                params: params,
+                view: view,
+                itemView: nil)
+        )
+        .environment(\.popupDismiss) {
+            isPresented.wrappedValue = false
+        }
+    }
+
+    public func scrollPopup<Item: Equatable, PopupContent: View>(
         item: Binding<Item?>,
-        @ViewBuilder itemView: @escaping (Item) -> PopupContent) -> some View {
-            self.modifier(
-                PopupModifier<Item, PopupContent>(
-                    item: item,
-                    isBoolMode: false,
-                    params: Popup.PopupParameters(),
-                    view: nil,
-                    itemView: itemView)
-            )
-            .environment(\.popupDismiss) {
-                item.wrappedValue = nil
-            }
-        }
-}
+        @ViewBuilder itemView: @escaping (Item) -> PopupContent,
+        header: @escaping () -> any View = { EmptyView() },
+        customize: @escaping (Popup.ScrollPopupParameters) -> Popup.ScrollPopupParameters = { $0 }
+    ) -> some View {
+        let params = Popup.ScrollPopupParameters().headerView(header)
 
-#if os(iOS)
-
-@MainActor
-extension View {
-    func onOrientationChange(isLandscape: Binding<Bool>, onOrientationChange: @escaping () -> Void) -> some View {
-        self.modifier(OrientationChangeModifier(isLandscape: isLandscape, onOrientationChange: onOrientationChange))
-    }
-}
-
-@MainActor
-struct OrientationChangeModifier: ViewModifier {
-    @Binding var isLandscape: Bool
-    let onOrientationChange: () -> Void
-    
-    func body(content: Content) -> some View {
-        content
-#if os(iOS)
-            .onReceive(NotificationCenter.default
-                .publisher(for: UIDevice.orientationDidChangeNotification)
-                .receive(on: DispatchQueue.main)
-            ) { _ in
-                updateOrientation()
-            }
-#endif
-//            .onAppear {
-//#if os(iOS)
-//                NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification, object: nil, queue: .main) { _ in
-//                    DispatchQueue.main.async {
-//                        updateOrientation()
-//                    }
-//                }
-//                updateOrientation()
-//#endif
-//            }
-//            .onDisappear {
-//                #if os(iOS)
-//                NotificationCenter.default.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
-//                #endif
-//            }
-            .onChange(of: isLandscape) {
-                onOrientationChange()
-            }
-    }
-
-#if os(iOS)
-    private func updateOrientation() {
-        let newIsLandscape = UIDevice.current.orientation.isLandscape
-        if newIsLandscape != isLandscape {
-            isLandscape = newIsLandscape
-            onOrientationChange()
+        return self.modifier(
+            PopupModifier<Item, PopupContent>(
+                item: item,
+                isBoolMode: false,
+                params: params,
+                view: nil,
+                itemView: itemView)
+        )
+        .environment(\.popupDismiss) {
+            item.wrappedValue = nil
         }
     }
-#endif
 }
-
-#endif

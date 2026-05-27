@@ -8,15 +8,11 @@
 import SwiftUI
 
 /// this is a separe struct with @Bindings because of how UIWindow doesn't receive updates in usual SwiftUI manner
-struct PopupBackgroundView<Item: Equatable>: View {
-
-    @Binding var id: UUID
-    
-    @Binding var isPresented: Bool
-    @Binding var item: Item?
+struct PopupBackgroundView: View {
 
     @Binding var animatableOpacity: CGFloat
-    @Binding var dismissSource: Popup.DismissSource?
+    
+    var shouldDismiss: ()->()
 
     var isWindowMode: Bool
     var backgroundColor: Color?
@@ -34,9 +30,7 @@ struct PopupBackgroundView<Item: Equatable>: View {
                 }
                 .addTapIfNotTV(if: closeOnTapOutside) {
                     if dismissEnabled.wrappedValue {
-                        dismissSource = .tapOutside
-                        isPresented = false
-                        item = nil
+                        shouldDismiss()
                     }
                 }
 #else
@@ -46,9 +40,7 @@ struct PopupBackgroundView<Item: Equatable>: View {
                 }
                 .addTapIfNotTV(if: closeOnTapOutside && !isWindowMode) {
                     if dismissEnabled.wrappedValue {
-                        dismissSource = .tapOutside
-                        isPresented = false
-                        item = nil
+                        shouldDismiss()
                     }
                 }
 #endif

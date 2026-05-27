@@ -47,7 +47,7 @@ struct PopupBody<PopupContent: View>: View {
     @Binding var presenterContentRect: CGRect
     @Binding var sheetContentRect: CGRect
 
-    var params: Popup.PopupParameters
+    var params: Popup.BasePopupParameters
 
     var popupBodyBuilder: () -> PopupContent
 
@@ -89,14 +89,23 @@ struct PopupBody<PopupContent: View>: View {
 
     // MARK: - Convenience getters
 
-    var position: Popup.Position {
-        params.position ?? params.type.defaultPosition
+    var typeParams: Popup.PopupTypeParameters? { params as? Popup.PopupTypeParameters }
+    var scrollParams: Popup.ScrollPopupParameters? { params as? Popup.ScrollPopupParameters }
+
+    var isScrollPopup: Bool { scrollParams != nil }
+
+    var type: Popup.PopupType {
+        typeParams?.type ?? .default
     }
 
-    var useSafeAreaInset: Bool { params.type.useSafeAreaInset }
-    var useKeyboardSafeArea: Bool { params.useKeyboardSafeArea }
-    var verticalPadding: CGFloat { params.type.verticalPadding }
-    var horizontalPadding: CGFloat { params.type.horizontalPadding }
+    var position: Popup.Position {
+        if isScrollPopup { return .bottom }
+        return typeParams?.position ?? type.defaultPosition
+    }
+
+    var useSafeAreaInset: Bool { type.useSafeAreaInset }
+    var verticalPadding: CGFloat { type.verticalPadding }
+    var horizontalPadding: CGFloat { type.horizontalPadding }
 
     // MARK: - Position calculations
 
@@ -115,22 +124,10 @@ struct PopupBody<PopupContent: View>: View {
             return 0
         }
         if position.isBottom {
-            // For .scroll type, keyboard avoidance is handled by constraining the
-            // ScrollView's maxHeight in contentView(), so we don't shift the popup frame.
-#if os(iOS)
-            let keyboardOffset: CGFloat
-            if case .scroll = params.type {
-                keyboardOffset = 0
-            } else {
-                keyboardOffset = useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0
-            }
-#else
-            let keyboardOffset: CGFloat = useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0
-#endif
             return presenterRect.maxY - sheetContentRect.maxY
             - verticalPadding
             - (useSafeAreaInset ? ScreenUtils.safeAreaInsets.bottom : 0)
-            - keyboardOffset
+            - (params.useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0)
         }
 
         return 0
@@ -216,7 +213,7 @@ struct PopupBody<PopupContent: View>: View {
 
     private var calculatedAppearFrom: Popup.AppearAnimation {
         let from: Popup.AppearAnimation
-        if let appearFrom = params.appearFrom {
+        if let appearFrom = typeParams?.appearFrom {
             from = appearFrom
         } else if position.isLeading {
             from = .leftSlide
@@ -232,9 +229,9 @@ struct PopupBody<PopupContent: View>: View {
 
     private var calculatedDisappearTo: Popup.AppearAnimation {
         let to: Popup.AppearAnimation
-        if let disappearTo = params.disappearTo {
+        if let disappearTo = typeParams?.disappearTo {
             to = disappearTo
-        } else if let appearFrom = params.appearFrom {
+        } else if let appearFrom = typeParams?.appearFrom {
             to = appearFrom
         } else if position.isLeading {
             to = .leftSlide
@@ -286,16 +283,11 @@ struct PopupBody<PopupContent: View>: View {
             }
 
             .onChange(of: sheetContentRect.size) {
-#if os(iOS)
-                // check if scrollView has already calculated its height, otherwise sheetContentRect is already non-zero but yet incorrect
-                if case .scroll = params.type, scrollViewRect.height == 0 {
-                    return
-                }
-#endif
                 if shouldShowContent { // already displayed but the size has changed
                     actualCurrentOffset = targetCurrentOffset
                 }
             }
+
 #if os(iOS)
             .onOrientationChange(isLandscape: $isLandscape) {
                 actualCurrentOffset = targetCurrentOffset
@@ -325,10 +317,8 @@ struct PopupBody<PopupContent: View>: View {
         }
     }
 
-    @ViewBuilder
-    func addScrollIfNeeded<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-#if os(iOS)
-        let dragGesture = DragGesture()
+    var dragGesture: some Gesture {
+        DragGesture()
             .updating($dragState) { drag, state, _ in
                 if !isDragging {
                     DispatchQueue.main.async {
@@ -339,11 +329,13 @@ struct PopupBody<PopupContent: View>: View {
                 state = .dragging(translation: drag.translation)
             }
             .onEnded(onDragEnded)
+    }
 
-        switch params.type {
-        case .scroll(let headerView):
+    @ViewBuilder
+    func addScrollIfNeeded<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        if let scrollParams {
             VStack(spacing: 0) {
-                AnyView(headerView)
+                AnyView(scrollParams.headerView())
                     .fixedSize(horizontal: false, vertical: true)
                     .offset(dragOffset())
                     .simultaneousGesture(dragGesture)
@@ -356,47 +348,25 @@ struct PopupBody<PopupContent: View>: View {
                             }
                         )
                 }
-                .frame(maxHeight: max(0, scrollViewContentHeight - (useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0)))
+                .frame(maxHeight: max(0, scrollViewContentHeight - (params.useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0)))
                 .frameGetter($scrollViewRect)
                 .offset(dragOffset())
             }
             .offset(CGSize(width: 0, height: scrollViewOffset.height))
-
-        default:
+        } else {
             content()
         }
-#else
-        content()
-#endif
     }
 
     @ViewBuilder
     func addDragIfNeeded<Content: View>(@ViewBuilder content: () -> Content) -> some View {
 #if !os(tvOS)
-        switch params.type {
-#if os(iOS)
-        case .scroll:
-            content() // Drag to dismiss is handled inside
-#endif
-        default:
-            let dragGesture = DragGesture()
-                .updating($dragState) { drag, state, _ in
-                    if !isDragging {
-                        DispatchQueue.main.async {
-                            isDragging = true
-                        }
-                    }
-                    state = .dragging(translation: drag.translation)
-                }
-                .onEnded(onDragEnded)
-
-            content()
-                .applyIf(params.dragToDismiss) {
-                    $0
-                        .offset(dragOffset())
-                        .simultaneousGesture(dragGesture)
-                }
-        }
+        content()
+            .applyIf(params.dragToDismiss && !isScrollPopup) { // Type 'any View' cannot conform to 'View'
+                $0
+                    .offset(dragOffset())
+                    .simultaneousGesture(dragGesture)
+            }
 #else
         content()
 #endif
