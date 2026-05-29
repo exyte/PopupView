@@ -35,9 +35,6 @@ struct PopupBody<PopupContent: View>: View {
 
     // MARK: - Public Properties
 
-    @Binding var isDragging: Bool
-    @Binding var timeToHide: Bool
-
     /// Trigger popup showing/hiding animations and...
     @Binding var shouldShowContent: Bool
     /// ... once hiding animation is finished remove popup from the memory using this flag
@@ -46,6 +43,9 @@ struct PopupBody<PopupContent: View>: View {
     // these are bindings to pass updates even through UIWindow
     @Binding var presenterContentRect: CGRect
     @Binding var sheetContentRect: CGRect
+
+    @Binding var isDragging: Bool
+    @Binding var timeToHide: Bool
 
     var params: Popup.BasePopupParameters
 

@@ -267,12 +267,12 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
         }
 
         PopupBody(
-            isDragging: $isDragging,
-            timeToHide: $timeToHide,
             shouldShowContent: $shouldShowContent,
             showContent: $showContent,
             presenterContentRect: $presenterContentRect,
             sheetContentRect: $sheetContentRect,
+            isDragging: $isDragging,
+            timeToHide: $timeToHide,
             params: params,
             popupBodyBuilder: viewForItem != nil ? viewForItem! : view,
             dismissCallback: { source in

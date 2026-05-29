@@ -64,7 +64,7 @@ extension View {
         header: @escaping () -> any View = { EmptyView() },
         customize: @escaping (Popup.ScrollPopupParameters) -> Popup.ScrollPopupParameters = { $0 }
     ) -> some View {
-        let params = Popup.ScrollPopupParameters().headerView(header)
+        let params = customize(Popup.ScrollPopupParameters()).headerView(header)
 
         return self.modifier(
             PopupModifier<Int, PopupContent>(
@@ -85,7 +85,7 @@ extension View {
         header: @escaping () -> any View = { EmptyView() },
         customize: @escaping (Popup.ScrollPopupParameters) -> Popup.ScrollPopupParameters = { $0 }
     ) -> some View {
-        let params = Popup.ScrollPopupParameters().headerView(header)
+        let params = customize(Popup.ScrollPopupParameters()).headerView(header)
 
         return self.modifier(
             PopupModifier<Item, PopupContent>(
