@@ -22,29 +22,12 @@ struct PopupBackgroundView: View {
     var dismissEnabled: Binding<Bool>
 
     var body: some View {
-        ZStack {
-#if os(watchOS) || os(macOS)
-            contentView()
-                .applyIf(closeOnTapOutside) { view in
-                    view.contentShape(Rectangle())
+        contentView()
+            .addTapIfNotTV(if: closeOnTapOutside && !isWindowMode) {
+                if dismissEnabled.wrappedValue {
+                    shouldDismiss()
                 }
-                .addTapIfNotTV(if: closeOnTapOutside) {
-                    if dismissEnabled.wrappedValue {
-                        shouldDismiss()
-                    }
-                }
-#else
-            contentView()
-                .applyIf(closeOnTapOutside && !isWindowMode) { view in
-                    view.contentShape(Rectangle())
-                }
-                .addTapIfNotTV(if: closeOnTapOutside && !isWindowMode) {
-                    if dismissEnabled.wrappedValue {
-                        shouldDismiss()
-                    }
-                }
-#endif
-        }
+            }
     }
 
     func contentView() -> some View {
@@ -53,8 +36,11 @@ struct PopupBackgroundView: View {
                 backgroundView
             } else if let backgroundColor {
                 backgroundColor
+            } else {
+                Color.clear
             }
         }
+        .contentShape(Rectangle())
         .allowsHitTesting(!allowTapThroughBG)
         .opacity(animatableOpacity)
         .edgesIgnoringSafeArea(.all)

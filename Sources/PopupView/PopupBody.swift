@@ -10,29 +10,6 @@ import SwiftUI
 
 struct PopupBody<PopupContent: View>: View {
 
-    private enum DragState {
-        case inactive
-        case dragging(translation: CGSize)
-
-        var translation: CGSize {
-            switch self {
-            case .inactive:
-                return .zero
-            case .dragging(let translation):
-                return translation
-            }
-        }
-
-        var isDragging: Bool {
-            switch self {
-            case .inactive:
-                return false
-            case .dragging:
-                return true
-            }
-        }
-    }
-
     // MARK: - Public Properties
 
     /// Trigger popup showing/hiding animations and...
@@ -57,6 +34,7 @@ struct PopupBody<PopupContent: View>: View {
     // MARK: - Private Properties
 
     @StateObject private var keyboardHeightHelper = KeyboardHeightHelper()
+    @StateObject private var dragToDismissManager = DragToDismissHelper()
 
     /// Variables used to control what is animated and what is not
     @State private var actualCurrentOffset = CGPoint.pointFarAwayFromScreen
@@ -64,28 +42,6 @@ struct PopupBody<PopupContent: View>: View {
 #if os(iOS)
     @State private var isLandscape: Bool = UIDevice.current.orientation.isLandscape
 #endif
-
-    // MARK: - Drag to dismiss
-
-    /// Drag to dismiss gesture state
-    @GestureState private var dragState = DragState.inactive
-
-    /// Last position for drag gesture
-    @State private var lastDragPosition: CGSize = .zero
-
-    // MARK: - Drag to dismiss with scroll
-#if os(iOS)
-    @StateObject private var scrollViewDelegate = PopupScrollViewDelegate()
-#endif
-
-    /// Position when the scroll content offset became less than 0
-    @State private var scrollViewOffset: CGSize = .zero
-
-    /// Height of scrollView content that will be displayed on the screen
-    @State private var scrollViewContentHeight = 0.0
-
-    /// Track ScrollView's frame to check if it's ready
-    @State private var scrollViewRect: CGRect = .zero
 
     // MARK: - Convenience getters
 
@@ -109,10 +65,10 @@ struct PopupBody<PopupContent: View>: View {
 
     // MARK: - Position calculations
 
-    var presenterRect: CGRect {
+    private var presenterRect: CGRect {
         params.displayMode == .overlay ? presenterContentRect : ScreenUtils.bounds
     }
-    
+
     /// The offset when the popup is displayed
     private var displayedOffsetY: CGFloat {
         if position.isTop {
@@ -258,27 +214,18 @@ struct PopupBody<PopupContent: View>: View {
             .offset(x: actualCurrentOffset.x, y: actualCurrentOffset.y)
 
             .onChange(of: shouldShowContent) {
-                if actualCurrentOffset == CGPoint.pointFarAwayFromScreen { // don't animate initial positioning outside the screen
-                    DispatchQueue.main.async {
-                        actualCurrentOffset = hiddenOffset
-                        actualScale = hiddenScale
-                    }
+                // perform initial off screen positioning without animation
+                if actualCurrentOffset == CGPoint.pointFarAwayFromScreen {
+                    actualCurrentOffset = hiddenOffset
+                    actualScale = hiddenScale
                 }
 
-                DispatchQueue.main.async {
-                    withAnimation(params.animation) {
-                        changeParamsWithAnimation(shouldShowContent)
-                    }
-                }
+                changeParamsWithAnimation(shouldShowContent)
             }
 
             .onChange(of: keyboardHeightHelper.keyboardHeight) {
                 if shouldShowContent {
-                    DispatchQueue.main.async {
-                        withAnimation(params.animation) {
-                            changeParamsWithAnimation(true)
-                        }
-                    }
+                    changeParamsWithAnimation(true)
                 }
             }
 
@@ -286,6 +233,17 @@ struct PopupBody<PopupContent: View>: View {
                 if shouldShowContent { // already displayed but the size has changed
                     actualCurrentOffset = targetCurrentOffset
                 }
+            }
+
+            .task {
+                dragToDismissManager.configure(
+                    sheetContentRect: $sheetContentRect,
+                    isDragging: $isDragging,
+                    timeToHide: $timeToHide,
+                    params: params,
+                    appearFrom: calculatedAppearFrom,
+                    shouldDismiss: { dismissCallback(.drag) }
+                )
             }
 
 #if os(iOS)
@@ -296,198 +254,35 @@ struct PopupBody<PopupContent: View>: View {
     }
 
     func changeParamsWithAnimation(_ isDisplayAnimation: Bool) {
-        self.actualCurrentOffset = isDisplayAnimation ? CGPointMake(displayedOffsetX, displayedOffsetY) : hiddenOffset
-        self.actualScale = isDisplayAnimation ? displayedScale : hiddenScale
+        withAnimation(params.animation) {
+            self.actualCurrentOffset = isDisplayAnimation ? CGPointMake(displayedOffsetX, displayedOffsetY) : hiddenOffset
+            self.actualScale = isDisplayAnimation ? displayedScale : hiddenScale
+        }
     }
 
     /// This is the builder for the sheet content
     @ViewBuilder
     func bodyWithGestures() -> some View {
         if showContent, presenterContentRect != .zero {
-            addDragIfNeeded {
-                addScrollIfNeeded {
-                    popupBodyBuilder()
+            popupBodyBuilder()
+                .applyIfNotNil(scrollParams) { view, params in
+                    view.modifier(ScrollPopupModifier(
+                        dragToDismissManager: dragToDismissManager,
+                        sheetContentRect: $sheetContentRect,
+                        scrollParams: params,
+                        shouldDismiss: { dismissCallback(.drag) }
+                    ))
                 }
-            }
-            .addTapIfNotTV(if: params.closeOnTap) {
-                if params.dismissEnabled.wrappedValue {
-                    dismissCallback(.tapInside)
+                // scroll popup will attach this gesture on its own
+                .applyIfNotTV(if: params.dragToDismiss && !isScrollPopup) { view in
+                    view.simultaneousGesture(dragToDismissManager.dragGesture)
+                        .offset(dragToDismissManager.dragTranslation)
                 }
-            }
-        }
-    }
-
-    var dragGesture: some Gesture {
-        DragGesture()
-            .updating($dragState) { drag, state, _ in
-                if !isDragging {
-                    DispatchQueue.main.async {
-                        isDragging = true
+                .addTapIfNotTV(if: params.closeOnTap) {
+                    if params.dismissEnabled.wrappedValue {
+                        dismissCallback(.tapInside)
                     }
                 }
-
-                state = .dragging(translation: drag.translation)
-            }
-            .onEnded(onDragEnded)
-    }
-
-    @ViewBuilder
-    func addScrollIfNeeded<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        if let scrollParams {
-            VStack(spacing: 0) {
-                AnyView(scrollParams.headerView())
-                    .fixedSize(horizontal: false, vertical: true)
-                    .offset(dragOffset())
-                    .simultaneousGesture(dragGesture)
-
-                ScrollView {
-                    content()
-                        .background(
-                            ScrollViewResolver { scrollView in
-                                configure(scrollView: scrollView)
-                            }
-                        )
-                }
-                .frame(maxHeight: max(0, scrollViewContentHeight - (params.useKeyboardSafeArea ? keyboardHeightHelper.keyboardHeight : 0)))
-                .frameGetter($scrollViewRect)
-                .offset(dragOffset())
-            }
-            .offset(CGSize(width: 0, height: scrollViewOffset.height))
-        } else {
-            content()
         }
     }
-
-    @ViewBuilder
-    func addDragIfNeeded<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-#if !os(tvOS)
-        content()
-            .applyIf(params.dragToDismiss && !isScrollPopup) { // Type 'any View' cannot conform to 'View'
-                $0
-                    .offset(dragOffset())
-                    .simultaneousGesture(dragGesture)
-            }
-#else
-        content()
-#endif
-    }
-
-#if !os(tvOS)
-    func dragOffset() -> CGSize {
-        if dragState.translation == .zero {
-            return lastDragPosition
-        }
-
-        switch calculatedAppearFrom {
-        case .topSlide:
-            if dragState.translation.height < 0 {
-                return CGSize(width: 0, height: dragState.translation.height)
-            }
-        case .bottomSlide:
-            if dragState.translation.height > 0 {
-                return CGSize(width: 0, height: dragState.translation.height)
-            }
-        case .leftSlide:
-            if dragState.translation.width < 0 {
-                return CGSize(width: dragState.translation.width, height: 0)
-            }
-        case .rightSlide:
-            if dragState.translation.width > 0 {
-                return CGSize(width: dragState.translation.width, height: 0)
-            }
-        case .centerScale, .none:
-            return .zero
-        }
-        return .zero
-    }
-
-    private func onDragEnded(drag: DragGesture.Value) {
-        isDragging = false
-
-        var referenceX = sheetContentRect.width / 3
-        var referenceY = sheetContentRect.height / 3
-
-        if let dragToDismissDistance = params.dragToDismissDistance {
-            referenceX = dragToDismissDistance
-            referenceY = dragToDismissDistance
-        }
-
-        var shouldDismiss = false
-        switch calculatedAppearFrom {
-        case .topSlide:
-            if drag.translation.height < 0 {
-                lastDragPosition = CGSize(width: 0, height: drag.translation.height)
-            }
-            if drag.translation.height < -referenceY {
-                shouldDismiss = true
-            }
-        case .bottomSlide:
-            if drag.translation.height > 0 {
-                lastDragPosition = CGSize(width: 0, height: drag.translation.height)
-            }
-            if drag.translation.height > referenceY {
-                shouldDismiss = true
-            }
-        case .leftSlide:
-            if drag.translation.width < 0 {
-                lastDragPosition = CGSize(width: drag.translation.width, height: 0)
-            }
-            if drag.translation.width < -referenceX {
-                shouldDismiss = true
-            }
-        case .rightSlide:
-            if drag.translation.width > 0 {
-                lastDragPosition = CGSize(width: drag.translation.width, height: 0)
-            }
-            if drag.translation.width > referenceX {
-                shouldDismiss = true
-            }
-        case .centerScale, .none:
-            break
-        }
-
-        if timeToHide { // autohide timer was finished while the user was dragging
-            timeToHide = false
-            shouldDismiss = true
-        }
-
-        if params.dismissEnabled.wrappedValue, shouldDismiss {
-            dismissCallback(.drag)
-        } else {
-            withAnimation {
-                lastDragPosition = .zero
-            }
-        }
-    }
-#endif
-
-#if os(iOS)
-    private func configure(scrollView: UIScrollView) {
-        scrollViewDelegate.scrollView = scrollView
-        scrollViewDelegate.addGestureIfNeeded()
-
-        DispatchQueue.main.async {
-            scrollViewContentHeight = scrollView.contentSize.height
-        }
-
-        scrollViewDelegate.didReachTop = { value in
-            scrollViewOffset = CGSize(width: 0, height: -value)
-        }
-
-        let referenceY = sheetContentRect.height / 3
-        scrollViewDelegate.scrollEnded = { value in
-            if params.dragToDismiss && -value >= referenceY {
-                DispatchQueue.main.async {
-                    dismissCallback(.drag)
-                }
-            } else {
-                withAnimation {
-                    scrollViewOffset = .zero
-                }
-            }
-        }
-    }
-
-#endif
 }
-

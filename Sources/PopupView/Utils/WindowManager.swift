@@ -119,7 +119,6 @@ class UIPassthroughWindow: UIWindow {
         vc.view.layoutIfNeeded() // otherwise the frame is as if the popup is still outside the screen
 
         for subview in vc.view.subviews {
-            //print("rrr \(classNameContains(subview, "PopupHitRegion") ? "PopupHitRegion" : "BGHitRegion") \(subview.frame.contains(point))")
             if classNameContains(subview, "PopupHitRegion"),
                subview.frame.contains(point) {
                 return vc.view // let UIKit pass this touch to wrapped SwiftUI view in regular manner

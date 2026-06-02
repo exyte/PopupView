@@ -48,10 +48,12 @@ public class Popup {
         }
     }
 
-    public enum DisplayMode {
-        case overlay // place the popup above the content in a ZStack
+    public enum DisplayMode: Identifiable {
+        case overlay // place the popup above the content in an .overlay
         case sheet // using .fullscreenSheet
         case window // using UIWindow
+
+        public var id: Self { self }
     }
 
     public enum Position {

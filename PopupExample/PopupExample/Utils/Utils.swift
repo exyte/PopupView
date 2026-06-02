@@ -22,7 +22,12 @@ extension Color {
 }
 
 extension View {
-    
+
+    func padding(_ horizontal: CGFloat, _ vertical: CGFloat) -> some View {
+        self.padding(.horizontal, horizontal)
+            .padding(.vertical, vertical)
+    }
+
     @ViewBuilder
     func applyIf<V: View>(_ condition: Bool, apply: (Self) -> V) -> some View {
         if condition {
@@ -64,6 +69,51 @@ extension View {
         clipShape(RoundedCorner(radius: radius, corners: corners))
     }
 #endif
+}
+
+@MainActor
+extension Button {
+    func blueStyle() -> some View {
+        self.padding(8, 4)
+            .foregroundStyle(.white)
+            .background {
+                RoundedRectangle(cornerRadius: 4)
+                    .foregroundStyle(Color(.skyBlue))
+            }
+    }
+}
+
+// MARK: - FrameGetter
+
+struct FrameGetter: ViewModifier {
+
+    @Binding var frame: CGRect
+    var id: String?
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                GeometryReader { proxy -> AnyView in
+                    DispatchQueue.main.async {
+                        let rect = proxy.frame(in: .global)
+                        // This avoids an infinite layout loop
+                        if rect.integral != self.frame.integral {
+                            if let id {
+                                print(id, self.frame, rect)
+                            }
+                            self.frame = rect
+                        }
+                    }
+                    return AnyView(EmptyView())
+                }
+            )
+    }
+}
+
+internal extension View {
+    func frameGetter(_ frame: Binding<CGRect>, id: String? = nil) -> some View {
+        modifier(FrameGetter(frame: frame, id: id))
+    }
 }
 
 private struct ExampleButtonStyle: ButtonStyle {

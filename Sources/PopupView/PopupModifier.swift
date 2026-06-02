@@ -146,7 +146,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
                                 isPresented = false
                                 item = nil
                             }) {
-                                popupViewBackground()
+                                popupWithBackground()
                             }
                         }
                         #endif
@@ -166,17 +166,19 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
         presenterContentWithPopup(presenterContent)
             .frameGetter($presenterContentRect)
             .onChange(of: sheetContentRect) {
+                // do not launch actual animation until off screen layouting is done
+                guard sheetContentRect.height != 0 else { return }
                 // once the closing has been started, don't allow position recalculation to trigger popup showing again
-                if !closingIsInProcess {
-                    DispatchQueue.main.async {
-                        shouldShowContent = true // this will cause currentOffset change thus triggering the sliding showing animation
-                        withAnimation(.linear(duration: 0.2)) {
-                            animatableOpacity = 1 // this will cause cross dissolving animation for background color/view
-                        }
+                guard !closingIsInProcess else { return }
+
+                DispatchQueue.main.async {
+                    shouldShowContent = true // this will cause currentOffset change thus triggering the sliding showing animation
+                    withAnimation(.linear(duration: 0.2)) {
+                        animatableOpacity = 1 // this will cause cross dissolving animation for background color/view
                     }
-                    setupAutohide()
-                    setupDismissibleIn()
                 }
+                setupAutohide()
+                setupDismissibleIn()
             }
     }
 
@@ -188,13 +190,13 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
             presenterContent
                 .overlay {
                     if showSheet {
-                        popupViewBackground()
+                        popupWithBackground()
                     }
                 }
 
         case .sheet:
             presenterContent.transparentNonAnimatingFullScreenCover(isPresented: $showSheet, dismissSource: dismissSource, userDismissCallback: params.dismissCallback) {
-                popupViewBackground()
+                popupWithBackground()
             }
 
         case .window:
@@ -210,7 +212,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
                                 isPresented = false
                                 item = nil
                             }) {
-                                popupViewBackground()
+                                popupWithBackground()
                             }
                     } else {
                         WindowManager.closeWindow(id: id)
@@ -243,7 +245,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
     }
 
     @ViewBuilder
-    func popupViewBackground() -> some View {
+    func popupWithBackground() -> some View {
         ZStack {
             popupBackground()
             if params.displayMode == .window {

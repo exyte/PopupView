@@ -43,6 +43,23 @@
 [![Cocoapods](https://img.shields.io/badge/Cocoapods-Deprecated%20after%204.0.0-yellow.svg)](https://cocoapods.org/pods/ExytePopupView)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](https://opensource.org/licenses/MIT)
 
+# Update to version 5
+
+- Moved all the popup types out of the main class with generic, to allow easier storing in variables, like this `Popup.DisplayMode` without `Popup<V>.DisplayMode`
+- DismissSource -> Popup.DismissSource
+- Scroll popup is not a part of PopupType enum anymore, it is created through a separate modifier, like this:
+```swift
+.scrollPopup(isPresented: $show) {
+    YourPopupBody()
+} header: {
+    scrollViewHeader()
+} customize: {
+    $0
+        .closeOnTap(false)
+        .dragToDismiss(dragToDismiss)
+}
+```
+
 # What's new in version 4
 You can show multiple popups on top of anything, and they can also let the taps pass through to lower views. 
 There are 3 ways to display a popup: as a simple overlay, using SwiftUI's fullscreenSheet, and using UIKit's UIWindow. There are pros and cons for all of these, here is a table.
@@ -91,7 +108,7 @@ There are 3 ways to display a popup: as a simple overlay, using SwiftUI's fullsc
 
 Basically UIWindow based popup is the best option for most situations, just remember - to get adequate UI updates, use ObservableObjects or @Bindings instead of @State. This won't work:
 ```swift
-struct ContentView : View {
+struct ContentView: View {
     @State var showPopup = false
     @State var a = false
 
@@ -117,7 +134,7 @@ struct ContentView : View {
 ```
 This will work:
 ```swift
-struct ContentView : View {
+struct ContentView: View {
     @State var showPopup = false
     @State var a = false
 

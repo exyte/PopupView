@@ -340,10 +340,3 @@ struct DarkText: View {
             .foregroundColor(Color("darkText"))
     }
 }
-
-extension View {
-    func padding(_ horizontal: CGFloat, _ vertical: CGFloat) -> some View {
-        self.padding(.horizontal, horizontal)
-            .padding(.vertical, vertical)
-    }
-}

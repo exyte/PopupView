@@ -9,30 +9,38 @@ import SwiftUI
 import PopupView
 
 struct BGTapsExamplesView: View {
+
+    private let values = [false, true]
+
     var body: some View {
-        ScrollView {
-            VStack(spacing: 12) {
-                BGTapsSectionView(mode: .window)
-                BGTapsSectionView(mode: .overlay)
-                BGTapsSectionView(mode: .sheet)
+        VStack {
+            Button("Tap me") {
+                print("I've been tapped")
             }
-        }
-        .background(Color(.lightGrey).ignoresSafeArea())
-    }
-}
+            .blueStyle()
+            .padding(.bottom, 80)
 
-struct BGTapsSectionView: View {
-    var mode: Popup.DisplayMode
-
-    var body: some View {
-        SectionHeader(name: String(describing: mode).capitalized)
-        ForEach([true, false], id: \.self) { close in
-            ForEach([true, false], id: \.self) { tap in
-                if mode != .sheet || !tap { // .sheet can't allow taps through
-                    BGTapsPopupShowingButton(mode: mode, closeOnTapOutside: close, allowTapThroughBG: tap)
+            ButtonsMatrix(leftAxisTitle: "closeOnTapOutside", leftAxisValues: values, topAxisTitle: "allowTapThroughBG", topAxisValues: values) { closeOnTapOutside, allowTapThroughBG in
+                VStack {
+                    ForEach([Popup.DisplayMode.window, .sheet, .overlay]) { mode in
+                        if mode == .overlay, allowTapThroughBG, closeOnTapOutside {
+                            // .overlay can't allow taps through while also detecting them for popup dismiss
+                            EmptyView()
+                        }
+                        else if mode == .sheet, allowTapThroughBG {
+                            // .sheet can't allow taps through
+                            EmptyView()
+                        }
+                        else {
+                            BGTapsPopupShowingButton(mode: mode, closeOnTapOutside: closeOnTapOutside, allowTapThroughBG: allowTapThroughBG)
+                        }
+                    }
                 }
             }
+
+            Spacer()
         }
+        .padding(30)
     }
 }
 
@@ -45,28 +53,32 @@ struct BGTapsPopupShowingButton: View {
 
     var body: some View {
         Button {
-            show.toggle()
+            show = true
         } label: {
-            ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(.white)
-
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("closeOnTapOutside: \(String(describing: closeOnTapOutside))")
-                    Text("allowTapThroughBG: \(String(describing: allowTapThroughBG))")
+            Text(String(describing: mode).capitalized)
+                .foregroundStyle(.black)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background {
+                    RoundedRectangle(cornerRadius: 6)
+                        .foregroundStyle(.white)
+                        .shadow(radius: 2, x: 1, y: 2)
                 }
-                .font(.system(size: 16))
-                .foregroundColor(.black)
-                .padding()
-            }
         }
-        .padding(.horizontal, 20)
         .popup(isPresented: $show) {
-            BGTapsExamplePopup(mode: mode, closeOnTapOutside: closeOnTapOutside, allowTapThroughBG: allowTapThroughBG)
+            if mode != .overlay {
+                BGTapsExamplePopup(mode: mode, closeOnTapOutside: closeOnTapOutside, allowTapThroughBG: allowTapThroughBG)
+            } else {
+                Rectangle()
+                    .foregroundStyle(Color(.skyBlue))
+                    .cornerRadius(3)
+                    .frame(width: 20, height: 20)
+            }
         } customize: {
             $0
                 .displayMode(mode)
-                .closeOnTap(false)
+                .appearFrom(.centerScale)
+                .closeOnTap(mode == .overlay)
                 .closeOnTapOutside(closeOnTapOutside)
                 .allowTapThroughBG(allowTapThroughBG)
         }
@@ -81,11 +93,6 @@ struct BGTapsExamplePopup: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            Image("winner")
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: 226, maxHeight: 226)
-
             VStack {
                 Text(String(describing: mode).capitalized)
                     .font(.system(size: 20))
@@ -112,7 +119,7 @@ struct BGTapsExamplePopup: View {
         }
         .padding(EdgeInsets(top: 37, leading: 24, bottom: 40, trailing: 24))
         .background(Color.white.cornerRadius(20))
+        .frame(width: UIScreen.main.bounds.width - 120)
         .shadowedStyle()
-        .padding(.horizontal, 70)
     }
 }

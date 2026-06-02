@@ -24,6 +24,10 @@ struct PopupExampleApp: App {
                             PositionExamplesView()
                         }
 
+                        NavigationLink("Scroll examples") {
+                            ScrollExamplesView()
+                        }
+
                         NavigationLink("BG taps examples") {
                             BGTapsExamplesView()
                         }
