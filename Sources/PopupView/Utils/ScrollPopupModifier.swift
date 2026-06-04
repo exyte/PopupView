@@ -26,8 +26,25 @@ struct ScrollPopupModifier: ViewModifier {
     /// NOTE: This is a separate drag to dismiss gesture and offset from dragToDismissManager
     @State private var dragToDismissOffset: CGFloat = 0
 
+    private var contentPadding: EdgeInsets {
+        guard scrollViewContentHeight != 0 else { return .init() }
+
+        switch scrollParams.position {
+        case .bottom(let topPadding):
+            return .init(top: topPadding, leading: 0, bottom: 0, trailing: 0)
+
+        case .center(let verticalPadding):
+            return .init(
+                top: verticalPadding,
+                leading: 0,
+                bottom: verticalPadding,
+                trailing: 0
+            )
+        }
+    }
+
     public func body(content: Content) -> some View {
-        VStack(spacing: 0) {
+        VStack(spacing: -0.5) {
             if scrollViewContentHeight != 0 {
                 AnyView(scrollParams.headerView())
                     .fixedSize(horizontal: false, vertical: true)
@@ -51,7 +68,7 @@ struct ScrollPopupModifier: ViewModifier {
             }
             .frame(maxHeight: scrollViewContentHeight)
         }
-        .padding(.top, scrollViewContentHeight == 0 ? 0 : 70)
+        .padding(contentPadding)
         .offset(y: dragToDismissOffset)
         .offset(dragToDismissManager.dragTranslation)
     }

@@ -55,7 +55,7 @@ struct PopupBody<PopupContent: View>: View {
     }
 
     var position: Popup.Position {
-        if isScrollPopup { return .bottom }
+        if let scrollParams { return scrollParams.position.toPopupPosition() }
         return typeParams?.position ?? type.defaultPosition
     }
 

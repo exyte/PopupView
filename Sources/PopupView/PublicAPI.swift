@@ -112,6 +112,20 @@ public class Popup {
         case exitCommand // TV Remove/ESC on Mac
     }
 
+    public enum ScrollPopupPosition {
+        case bottom(_ topPadding: CGFloat)
+        case center(_ verticalPadding: CGFloat)
+
+        func toPopupPosition() -> Position {
+            switch self {
+            case .bottom:
+                return .bottom
+            case .center:
+                return .center
+            }
+        }
+    }
+
     public protocol PopupParameters {}
 
     public class BasePopupParameters: PopupParameters {
@@ -298,9 +312,15 @@ public class Popup {
 
     public class ScrollPopupParameters: BasePopupParameters {
         var headerView: () -> any View = { EmptyView() }
+        var position: ScrollPopupPosition = .bottom(70)
 
         public func headerView(_ headerView: @escaping () -> any View) -> Self {
             self.headerView = headerView
+            return self
+        }
+
+        public func position(_ position: ScrollPopupPosition) -> Self {
+            self.position = position
             return self
         }
     }

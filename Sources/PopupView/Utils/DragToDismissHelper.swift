@@ -29,8 +29,7 @@ class DragToDismissHelper: ObservableObject {
                 self.onDragEnded()
             }
         } onTranslationChanged: {
-            let tr = CGSize(width: Int($0.width + 0.5), height: Int($0.height + 0.5))
-            self.dragTranslation = self.limitToDismissDirection(tr)
+            self.dragTranslation = self.limitToDismissDirection($0)
         }
     }
 
