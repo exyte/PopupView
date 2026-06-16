@@ -20,7 +20,11 @@ struct ScreenUtils {
         ?? NSScreen.main?.frame
         ?? .zero
 #else
-        return UIScreen.main.bounds
+        let scene = UIApplication.shared.connectedScenes
+            .first { $0.activationState == .foregroundActive } as? UIWindowScene
+        return scene?.screen.bounds
+        ?? UIScreen.main.bounds
+        ?? .zero
 #endif
     }
 

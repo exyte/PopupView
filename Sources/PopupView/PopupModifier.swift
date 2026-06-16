@@ -227,7 +227,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
             presenterContent
                 .disabled(showContent)
 
-            popupViewBackground()
+            popupWithBackground()
         }
         .onExitCommand {
             dismissSource = .exitCommand
@@ -239,7 +239,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
             presenterContent
                 .disabled(showContent)
 
-            popupViewBackground()
+            popupWithBackground()
         }
 #endif
     }
