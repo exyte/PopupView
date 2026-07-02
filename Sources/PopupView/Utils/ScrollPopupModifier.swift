@@ -74,16 +74,12 @@ struct ScrollPopupModifier: ViewModifier {
     }
 
     private func configureScrollHeight(scrollView: UIScrollView) {
-        Task {
-            await MainActor.run {
-                scrollViewContentHeight = scrollView.contentSize.height
-            }
+        scrollViewContentHeight = scrollView.contentSize.height
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                needsScrollToFit = scrollView.bounds.height < scrollViewContentHeight
-                if scrollParams.dragToDismiss, needsScrollToFit {
-                    self.configureScrollDelegate(scrollView: scrollView)
-                }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            needsScrollToFit = scrollView.bounds.height < scrollViewContentHeight
+            if scrollParams.dragToDismiss, needsScrollToFit {
+                configureScrollDelegate(scrollView: scrollView)
             }
         }
     }
@@ -98,9 +94,7 @@ struct ScrollPopupModifier: ViewModifier {
         let referenceY = sheetContentRect.height / 3
         scrollViewDelegate.onDragEnded = { value in
             if scrollParams.dragToDismiss && value >= referenceY {
-                DispatchQueue.main.async {
-                    shouldDismiss()
-                }
+                shouldDismiss()
             } else {
                 withAnimation {
                     dragToDismissOffset = .zero
@@ -117,8 +111,6 @@ final class PopupScrollViewDelegate: ObservableObject {
     var onDragEnded: (Double) -> Void = {_ in }
 
     private var scrollView: UIScrollView?
-    private let keyboardHeightHelper = KeyboardHeightHelper()
-
     private var initialTranslation: CGPoint?
 
     func setScrollView(_ scrollView: UIScrollView) {

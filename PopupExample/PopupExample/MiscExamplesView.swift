@@ -31,18 +31,6 @@ struct MiscExamplesView: View {
         }
         .background(Color(.lightGrey).ignoresSafeArea())
     }
-
-    func scrollViewHeader() -> some View {
-        ZStack {
-            Color(.white).cornerRadius(40, corners: [.topLeft, .topRight])
-
-            Color.black
-                .opacity(0.2)
-                .frame(width: 30, height: 6)
-                .clipShape(Capsule())
-                .padding(.vertical, 20)
-        }
-    }
 }
 
 struct MiscPopupShowingButton<PopupContent: View>: View {

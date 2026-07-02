@@ -20,11 +20,9 @@ struct ScreenUtils {
         ?? NSScreen.main?.frame
         ?? .zero
 #else
-        let scene = UIApplication.shared.connectedScenes
-            .first { $0.activationState == .foregroundActive } as? UIWindowScene
-        return scene?.screen.bounds
-        ?? UIScreen.main.bounds
-        ?? .zero
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
+        return scene?.screen.bounds ?? .zero
 #endif
     }
 

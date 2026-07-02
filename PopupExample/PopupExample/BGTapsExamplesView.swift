@@ -91,6 +91,10 @@ struct BGTapsExamplePopup: View {
     var closeOnTapOutside: Bool
     var allowTapThroughBG: Bool
 
+    private var screenWidth: CGFloat {
+        (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen.bounds.width ?? 390
+    }
+
     var body: some View {
         VStack(spacing: 12) {
             VStack {
@@ -119,7 +123,7 @@ struct BGTapsExamplePopup: View {
         }
         .padding(EdgeInsets(top: 37, leading: 24, bottom: 40, trailing: 24))
         .background(Color.white.cornerRadius(20))
-        .frame(width: UIScreen.main.bounds.width - 120)
+        .frame(width: screenWidth - 120)
         .shadowedStyle()
     }
 }

@@ -182,27 +182,25 @@ class UITextFieldCheckingVC<Content: View>: UIHostingController<Content> {
         }
     }
 
-    // Helper function to determine if any touch is inside a subview
     private func checkForTextFields(_ touches: Set<UITouch>) {
-        guard let touch = touches.first else {
-            return
-        }
-
+        guard let touch = touches.first else { return }
         let touchLocation = touch.location(in: self.view)
-        isTouchInsideSubviews(self.view, touchLocation)
+        findAndFocusTextField(in: self.view, touchLocation: touchLocation)
     }
 
-    private func isTouchInsideSubviews(_ view: UIView, _ touchLocation: CGPoint) {
+    @discardableResult
+    private func findAndFocusTextField(in view: UIView, touchLocation: CGPoint) -> Bool {
         for subview in view.subviews {
             let localPoint = subview.convert(touchLocation, from: self.view)
             if subview.isUserInteractionEnabled, subview.frame.contains(localPoint), let textField = subview as? UITextField {
                 textField.becomeFirstResponder()
-                return
+                return true
             }
-            if !subview.subviews.isEmpty {
-                isTouchInsideSubviews(subview, touchLocation)
+            if !subview.subviews.isEmpty, findAndFocusTextField(in: subview, touchLocation: touchLocation) {
+                return true
             }
         }
+        return false
     }
 }
 #endif

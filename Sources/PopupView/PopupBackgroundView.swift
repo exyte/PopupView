@@ -43,7 +43,7 @@ struct PopupBackgroundView: View {
         .contentShape(Rectangle())
         .allowsHitTesting(!allowTapThroughBG)
         .opacity(animatableOpacity)
-        .edgesIgnoringSafeArea(.all)
+        .ignoresSafeArea()
         .animation(.linear(duration: 0.2), value: animatableOpacity)
     }
 }
