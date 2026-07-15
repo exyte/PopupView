@@ -248,9 +248,11 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
     func popupWithBackground() -> some View {
         ZStack {
             popupBackground()
+#if os(iOS)
             if params.displayMode == .window {
                 BGHitRegion()
             }
+#endif
             popupBody()
                 .frameGetter($sheetContentRect)
         }
@@ -293,7 +295,13 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
                 isPresented = false
                 item = nil
             },
-            isWindowMode: params.displayMode == .window,
+            isWindowMode: {
+                #if os(iOS)
+                params.displayMode == .window
+                #else
+                false
+                #endif
+            }(),
             backgroundColor: params.backgroundColor,
             backgroundView: params.backgroundView,
             closeOnTapOutside: params.closeOnTapOutside,

@@ -39,6 +39,7 @@ struct PopupBody<PopupContent: View>: View {
     /// Variables used to control what is animated and what is not
     @State private var actualCurrentOffset = CGPoint.pointFarAwayFromScreen
     @State private var actualScale = 1.0
+    @State private var hasBeenInitiallyPositioned = false
 #if os(iOS)
     @State private var isLandscape: Bool = UIDevice.current.orientation.isLandscape
 #endif
@@ -66,7 +67,12 @@ struct PopupBody<PopupContent: View>: View {
     // MARK: - Position calculations
 
     private var presenterRect: CGRect {
+#if os(iOS)
         params.displayMode == .overlay ? presenterContentRect : ScreenUtils.bounds
+#else
+        // on non-iOS platforms the popup is always rendered in a ZStack within the presenter
+        presenterContentRect
+#endif
     }
 
     /// The offset when the popup is displayed
@@ -206,18 +212,21 @@ struct PopupBody<PopupContent: View>: View {
     var body: some View {
         bodyWithGestures()
             .background {
+#if os(iOS)
                 if params.displayMode == .window {
                     PopupHitRegion() // apply here, because offset doesn't actually change popup's position, effectively breaking expected behaviour
                 }
+#endif
             }
             .scaleEffect(actualScale)
             .offset(x: actualCurrentOffset.x, y: actualCurrentOffset.y)
 
             .onChange(of: shouldShowContent) {
                 // perform initial off screen positioning without animation
-                if actualCurrentOffset == CGPoint.pointFarAwayFromScreen {
+                if !hasBeenInitiallyPositioned {
                     actualCurrentOffset = hiddenOffset
                     actualScale = hiddenScale
+                    hasBeenInitiallyPositioned = true
                 }
 
                 changeParamsWithAnimation(shouldShowContent)
@@ -230,7 +239,7 @@ struct PopupBody<PopupContent: View>: View {
             }
 
             .onChange(of: sheetContentRect.size) {
-                if shouldShowContent { // already displayed but the size has changed
+                if shouldShowContent, !sheetContentRect.isEmpty {
                     actualCurrentOffset = targetCurrentOffset
                 }
             }
@@ -265,6 +274,7 @@ struct PopupBody<PopupContent: View>: View {
     func bodyWithGestures() -> some View {
         if showContent, presenterContentRect != .zero {
             popupBodyBuilder()
+#if os(iOS)
                 .applyIfNotNil(scrollParams) { view, params in
                     view.modifier(ScrollPopupModifier(
                         dragToDismissManager: dragToDismissManager,
@@ -273,6 +283,7 @@ struct PopupBody<PopupContent: View>: View {
                         shouldDismiss: { dismissCallback(.drag) }
                     ))
                 }
+#endif
                 // scroll popup will attach this gesture on its own
                 .applyIfNotTV(if: params.dragToDismiss && !isScrollPopup) { view in
                     view.simultaneousGesture(dragToDismissManager.dragGesture)

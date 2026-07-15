@@ -13,6 +13,7 @@ struct PopupExampleApp: App {
 
     var body: some Scene {
         WindowGroup {
+#if os(iOS)
             NavigationView {
                 List {
                     Section {
@@ -24,24 +25,24 @@ struct PopupExampleApp: App {
                             PositionExamplesView()
                         }
 
+                        NavigationLink("BG taps examples") {
+                            BGTapsExamplesView()
+                        }
                         NavigationLink("Scroll examples") {
                             ScrollExamplesView()
                         }
 
-                        NavigationLink("BG taps examples") {
-                            BGTapsExamplesView()
-                        }
-
-#if os(iOS)
                         NavigationLink("Misc examples") {
                             MiscExamplesView()
                         }
-#endif
                     }
                 }
                 .navigationTitle("Popup examples")
                 .navigationBarTitleDisplayMode(.inline)
             }
+#else
+            GithubExampleView()
+#endif
         }
     }
 }

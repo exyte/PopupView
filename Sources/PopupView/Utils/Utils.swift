@@ -25,27 +25,29 @@ struct ScreenUtils {
         return scene?.screen.bounds ?? .zero
 #endif
     }
-
+    
     static var width: CGFloat {
         bounds.width
     }
-
+    
     static var height: CGFloat {
         bounds.height
     }
-
-    static var safeAreaInsets: UIEdgeInsets {
+    
 #if os(iOS) || os(tvOS)
+    static var safeAreaInsets: UIEdgeInsets {
         UIApplication.shared
             .connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .first?
             .keyWindow?
             .safeAreaInsets ?? .zero
-#else
-        return .zero
-#endif
     }
+#else
+    static var safeAreaInsets: NSEdgeInsets {
+        return NSEdgeInsets()
+    }
+#endif
 }
 
 extension CGPoint {

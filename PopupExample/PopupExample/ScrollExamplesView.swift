@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+#if os(iOS)
 struct ScrollExamplesView: View {
 
     private let values = [false, true]
@@ -98,3 +99,4 @@ struct ScrollExamplePopup: View {
         .background(.white)
     }
 }
+#endif

@@ -9,7 +9,7 @@
 import SwiftUI
 import PopupView
 
-struct ExampleButton : View {
+struct ExampleButton: View {
 
     @Binding var showing: Bool
     var title: String
@@ -27,7 +27,7 @@ struct ExampleButton : View {
     }
 }
 
-struct ContentView : View {
+struct ContentView: View {
 
     let bgColor = Color(hex: "e0fbfc")
     let popupColor = Color(hex: "3d5a80")

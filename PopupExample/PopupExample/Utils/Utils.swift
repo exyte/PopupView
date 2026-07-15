@@ -7,6 +7,31 @@
 
 import SwiftUI
 
+@MainActor
+struct ScreenUtils {
+    static var bounds: CGRect {
+#if os(watchOS)
+        return WKInterfaceDevice.current().screenBounds
+#elseif os(macOS)
+        return NSApplication.shared.keyWindow?.frame
+        ?? NSScreen.main?.frame
+        ?? .zero
+#else
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
+        return scene?.screen.bounds ?? .zero
+#endif
+    }
+
+    static var width: CGFloat {
+        bounds.width
+    }
+
+    static var height: CGFloat {
+        bounds.height
+    }
+}
+
 extension Color {
     init(hex: String) {
         let scanner = Scanner(string: hex)
