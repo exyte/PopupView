@@ -41,6 +41,7 @@ final class WindowManager {
         id: UUID,
         closeOnTapOutside: Bool,
         allowTapThroughBG: Bool,
+        becomesKeyWindow: Bool = true,
         dismissClosure: @escaping SendableClosure,
         content: @escaping () -> Content
     ) {
@@ -53,6 +54,7 @@ final class WindowManager {
             windowScene: scene,
             closeOnTapOutside: closeOnTapOutside,
             isPassthrough: allowTapThroughBG,
+            canBecomeKey: becomesKeyWindow,
             dismissClosure: dismissClosure
         )
 
@@ -70,7 +72,16 @@ final class WindowManager {
         controller.view.backgroundColor = .clear
         window.rootViewController = controller
         window.windowLevel = .alert + 1
-        window.makeKeyAndVisible()
+
+        // `makeKeyAndVisible()` transfers key window (and first responder / keyboard) status
+        // away from whatever window currently holds it. For transient, non-interactive popups
+        // (toasts) this steals the keyboard from a focused text field in the presenting window.
+        // Only become key when the popup actually needs it (e.g. it hosts its own text input).
+        if becomesKeyWindow {
+            window.makeKeyAndVisible()
+        } else {
+            window.isHidden = false
+        }
 
         // Store window and controller reference
         shared.entries[id] = Entry(window: window, controller: controller)
@@ -100,16 +111,25 @@ class UIPassthroughWindow: UIWindow {
     var closeOnTapOutside: Bool
     var isPassthrough: Bool
     var dismissClosure: SendableClosure?
-    
-    init(windowScene: UIWindowScene, closeOnTapOutside: Bool, isPassthrough: Bool, dismissClosure: SendableClosure?) {
+    /// When `false`, this window will never become the key window (see `makeKeyAndVisible`
+    /// usage in `WindowManager`), so it can't steal first responder / keyboard status from
+    /// whatever window currently has it.
+    private let allowsBecomingKey: Bool
+
+    init(windowScene: UIWindowScene, closeOnTapOutside: Bool, isPassthrough: Bool, canBecomeKey: Bool = true, dismissClosure: SendableClosure?) {
         self.closeOnTapOutside = closeOnTapOutside
         self.isPassthrough = isPassthrough
+        self.allowsBecomingKey = canBecomeKey
         self.dismissClosure = dismissClosure
         super.init(windowScene: windowScene)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override var canBecomeKey: Bool {
+        allowsBecomingKey
     }
 
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {

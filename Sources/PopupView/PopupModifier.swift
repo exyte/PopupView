@@ -207,6 +207,7 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
                             id: id,
                             closeOnTapOutside: params.closeOnTapOutside,
                             allowTapThroughBG: params.allowTapThroughBG,
+                            becomesKeyWindow: params.becomesKeyWindow,
                             dismissClosure: {
                                 dismissSource = .binding
                                 isPresented = false

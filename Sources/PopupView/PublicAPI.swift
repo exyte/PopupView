@@ -169,6 +169,14 @@ public class Popup {
         /// move up for keyboardHeight when it is displayed
         var useKeyboardSafeArea: Bool = false
 
+        /// Only relevant for `displayMode == .window`.
+        /// Whether the popup's own `UIWindow` should become the key window when shown.
+        /// Default is `true` (previous behavior, needed e.g. for popups hosting a focusable
+        /// text input). Set to `false` for transient, non-interactive popups (toasts/snackbars)
+        /// so presenting them doesn't steal key window / first responder status - and with it
+        /// the keyboard - from whatever window/text field was focused before the popup appeared.
+        var becomesKeyWindow: Bool = true
+
         /// called when when dismiss animation starts
         var willDismissCallback: (DismissSource) -> () = {_ in}
 
@@ -246,6 +254,12 @@ public class Popup {
 
         public func useKeyboardSafeArea(_ useKeyboardSafeArea: Bool) -> Self {
             self.useKeyboardSafeArea = useKeyboardSafeArea
+            return self
+        }
+
+        /// Only relevant for `displayMode == .window`. See `becomesKeyWindow` doc above.
+        public func becomesKeyWindow(_ becomesKeyWindow: Bool) -> Self {
+            self.becomesKeyWindow = becomesKeyWindow
             return self
         }
 
