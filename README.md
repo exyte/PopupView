@@ -275,38 +275,44 @@ struct ContentView: View {
 `view` - view you want to display on your popup  
 
 ### Available customizations - optional parameters
-use `customize` closure in popup modifier:
+use `customize` closure in `.popup` modifier:
 
 `type`:
 - `default` - usual popup in the center of screen
-- toast - fitted to screen i.e. without padding and ignoring safe area
-- floater - has padding and can choose to use or ignore safe area
-- scroll - adds a scroll to your content, if you scroll to top of this scroll - the gesture will continue into popup's drag dismiss.
+- `toast` - fitted to screen i.e. without padding and ignoring safe area
+- `floater` - has padding and can choose to use or ignore safe area
+  - `verticalPadding` - padding from the relative vertical edge, or added to safe area if `useSafeAreaInset` is true
+  - `horizontalPadding` - padding from the relative horizontal edge, or added to safe area if `useSafeAreaInset` is true
+  - `useSafeAreaInset` - whether to include safe area insets in floater padding
 
-floater parameters:     
-- `verticalPadding` - padding which will define padding from the relative vertical edge or will be added to safe area if `useSafeAreaInset` is true   
-- `horizontalPadding` - padding which will define padding from the relative horizontal edge or will be added to safe area if `useSafeAreaInset` is true      
-- `useSafeAreaInset` - whether to include safe area insets in floater padding      
-
-scroll parameters:   
-`headerView` - a view on top which won't be a part of the scroll (if you need one)
-
-`position` - topLeading, top, topTrailing, leading, center, trailing, bottomLeading, bottom, bottomTrailing 
-`appearFrom` - `topSlide, bottomSlide, leftSlide, rightSlide, centerScale, none`: determines the direction of appearing animation. If left empty it copies `position` parameter: so appears from .top edge, if `position` is set to .top. `.none` means no animation
-`disappearTo` - same as `appearFrom`, but for disappearing animation. If left empty it copies `appearFrom`.
+`position` - topLeading, top, topTrailing, leading, center, trailing, bottomLeading, bottom, bottomTrailing  
+`appearFrom` - `topSlide, bottomSlide, leftSlide, rightSlide, centerScale, none`: determines the direction of appearing animation. If left empty it copies `position` parameter: appears from `.top` edge if `position` is set to `.top`. `.none` means no animation  
+`disappearTo` - same as `appearFrom`, but for disappearing animation. If left empty it copies `appearFrom`  
+`displayMode` - how the popup is rendered: `.overlay` (placed above content), `.sheet` (using fullScreenCover), `.window` (using UIWindow, default)  
 `animation` - custom animation for popup sliding onto screen  
-`autohideIn` - time after which popup should disappear    
-`dismissibleIn(Double?, Binding<Bool>?)` - only allow dismiss after this time passes (forbids closeOnTap, closeOnTapOutside, and drag). Pass a boolean binding if you'd like to track current status     
-`dragToDismiss` - true by default: enable/disable drag to dismiss (upwards for .top popup types, downwards for .bottom and default type)    
-`closeOnTap` - true by default: enable/disable closing on tap on popup. 
-NOTE: any gesture or control element you add to popup's body will override tap to close. in this case please close the popup manually if you need it to     
-`closeOnTapOutside` - false by default: enable/disable closing on tap on outside of popup     
-`allowTapThroughBG` - Should allow taps to pass "through" the popup's background down to views "below" it. `.sheet` popup is always allowTapThroughBG = false. False by default    
-`backgroundColor` - Color.clear by default: change background color of outside area     
-`backgroundView` - custom background builder for outside area (if this one is set `backgroundColor` is ignored)    
-`isOpaque` - false by default: if true taps do not pass through popup's background and the popup is displayed on top of navbar. For more see section "Show over navbar"     
-`useKeyboardSafeArea` - false by default: if true popup goes up for keyboardHeight when keyboard is displayed
-`dismissCallback` - custom callback to call once the popup is dismissed      
+`autohideIn` - time after which popup should disappear  
+`dismissibleIn(Double?, Binding<Bool>?)` - only allow dismiss after this time passes (forbids closeOnTap, closeOnTapOutside, and drag). Pass a boolean binding if you'd like to track current status  
+`dragToDismiss` - true by default: enable/disable drag to dismiss (upwards for .top popup types, downwards for .bottom and default type)  
+`dragToDismissDistance` - minimum distance to drag to trigger dismiss  
+`closeOnTap` - true by default: enable/disable closing on tap on popup.  
+NOTE: any gesture or control element you add to popup's body will override tap to close. in this case please close the popup manually if you need it to  
+`closeOnTapOutside` - false by default: enable/disable closing on tap outside of popup  
+`allowTapThroughBG` - false by default: should allow taps to pass "through" the popup's background down to views "below" it. `.sheet` popup is always `allowTapThroughBG = false`  
+`backgroundColor` - Color.clear by default: change background color of outside area  
+`backgroundView` - custom background builder for outside area (if this one is set, `backgroundColor` is ignored)  
+`useKeyboardSafeArea` - false by default: if true popup goes up for keyboardHeight when keyboard is displayed  
+`becomesKeyWindow` - true by default: only relevant for `displayMode == .window`. Set to `false` for transient, non-interactive popups (toasts/snackbars) to avoid stealing key window / first responder status — and with it the keyboard — from the presenting screen  
+`willDismissCallback` - called when dismiss animation starts  
+`dismissCallback` - called when dismiss animation ends  
+
+### Scroll popup customizations
+use `customize` closure in `.scrollPopup` modifier. In addition to all base customizations listed above:
+
+`position`:
+- `.bottom(_ topPadding: CGFloat)` - default: positioned at the bottom with the specified top padding
+- `.center(_ verticalPadding: CGFloat)` - centered with the specified vertical padding
+
+`headerView` - a view pinned to the top that is not part of the scroll  
 
 ### Draggable card - sheet
 To implement a sheet (like in 4th gif) enable `dragToDismiss` on bottom toast (see example project for implementation of the card itself)
