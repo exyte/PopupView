@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+#if os(iOS)
 struct ScrollViewResolver: UIViewRepresentable {
     var onResolve: (UIScrollView) -> Void
 
@@ -35,3 +36,4 @@ extension UIView {
         return nil
     }
 }
+#endif
