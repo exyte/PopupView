@@ -60,6 +60,11 @@ class DragToDismissHelper: ObservableObject {
         self.shouldDismiss = shouldDismiss
     }
 
+    /// Clears the drag offset left by a completed drag dismissal.
+    func resetDragTranslation() {
+        dragTranslation = .zero
+    }
+
     func limitToDismissDirection(_ translation: CGSize) -> CGSize {
         switch appearFrom {
         case .topSlide:

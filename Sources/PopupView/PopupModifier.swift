@@ -115,6 +115,10 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
         if isBoolMode {
             main(content)
                 .onChange(of: isPresented) {
+                    // Mark the presentation transition synchronously before queuing
+                    // the animation work, preventing a drag dismissal from being
+                    // mistaken for a second presentation during layout updates.
+                    closingIsInProcess = !isPresented
                     eventsQueue.async { [eventsSemaphore] in
                         eventsSemaphore.wait()
                         DispatchQueue.main.async {
@@ -314,6 +318,10 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
     func appearAction(popupPresented: Bool) {
         if popupPresented {
             dismissSource = nil
+            // Popup content is reused on macOS. Clear the previous dismissal state
+            // so the next presentation measures and positions its content again.
+            closingIsInProcess = false
+            sheetContentRect = .zero
             showSheet = true // show transparent fullscreen sheet
             showContent = true // immediately load popup body
             // shouldShowContent is set after popup's frame is calculated, see .onChange(of: sheetContentRect)
