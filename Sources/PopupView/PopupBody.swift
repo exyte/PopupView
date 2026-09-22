@@ -232,6 +232,14 @@ struct PopupBody<PopupContent: View>: View {
                 changeParamsWithAnimation(shouldShowContent)
             }
 
+            .onChange(of: showContent) {
+                // Keep the drag offset during the closing animation to avoid a
+                // visible bounce, then clear it after the popup is unloaded.
+                if !showContent {
+                    dragToDismissManager.resetDragTranslation()
+                }
+            }
+
             .onChange(of: keyboardHeightHelper.keyboardHeight) {
                 if shouldShowContent {
                     changeParamsWithAnimation(true)
