@@ -15,7 +15,7 @@ struct ScrollPopupModifier: ViewModifier {
     @ObservedObject var dragToDismissManager: DragToDismissHelper
     @Binding var sheetContentRect: CGRect
     var scrollParams: Popup.ScrollPopupParameters
-    var shouldDismiss: ()->()
+    var shouldDismiss: (CGFloat)->()
 
     @StateObject private var scrollViewDelegate = PopupScrollViewDelegate()
 
@@ -94,7 +94,10 @@ struct ScrollPopupModifier: ViewModifier {
         let referenceY = sheetContentRect.height / 3
         scrollViewDelegate.onDragEnded = { value in
             if scrollParams.dragToDismiss && value >= referenceY {
-                shouldDismiss()
+                // consolidate the live drag offset into the shared hide animation so it only
+                // covers the remaining distance, instead of stacking on top of a full-length one
+                dragToDismissOffset = 0
+                shouldDismiss(value)
             } else {
                 withAnimation {
                     dragToDismissOffset = .zero

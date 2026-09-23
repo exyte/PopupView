@@ -330,8 +330,10 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
             params.willDismissCallback(dismissSource ?? .binding)
             autohidingWorkHolder.work?.cancel()
             dismissibleInWorkHolder.work?.cancel()
-            shouldShowContent = false // this will cause currentOffset change thus triggering the sliding hiding animation
-            animatableOpacity = 0
+            withAnimation {
+                shouldShowContent = false // this will cause currentOffset change thus triggering the sliding hiding animation
+                animatableOpacity = 0
+            }
             // do the rest once the animation is finished (see onAnimationCompleted())
         }
 

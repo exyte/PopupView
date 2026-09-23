@@ -259,7 +259,11 @@ struct PopupBody<PopupContent: View>: View {
                     timeToHide: $timeToHide,
                     params: params,
                     appearFrom: calculatedAppearFrom,
-                    shouldDismiss: { dismissCallback(.drag) }
+                    shouldDismiss: {
+                        consolidateDragOffset(dragToDismissManager.dragTranslation)
+                        dragToDismissManager.resetDragTranslation()
+                        dismissCallback(.drag)
+                    }
                 )
             }
 
@@ -277,6 +281,14 @@ struct PopupBody<PopupContent: View>: View {
         }
     }
 
+    /// Bakes a live drag offset into `actualCurrentOffset` so a subsequent hide animation
+    /// covers only the remaining distance instead of restarting from the displayed position
+    /// on top of the still-applied drag offset.
+    private func consolidateDragOffset(_ translation: CGSize) {
+        actualCurrentOffset.x += translation.width
+        actualCurrentOffset.y += translation.height
+    }
+
     /// This is the builder for the sheet content
     @ViewBuilder
     func bodyWithGestures() -> some View {
@@ -288,7 +300,10 @@ struct PopupBody<PopupContent: View>: View {
                         dragToDismissManager: dragToDismissManager,
                         sheetContentRect: $sheetContentRect,
                         scrollParams: params,
-                        shouldDismiss: { dismissCallback(.drag) }
+                        shouldDismiss: { dragOffset in
+                            consolidateDragOffset(CGSize(width: 0, height: dragOffset))
+                            dismissCallback(.drag)
+                        }
                     ))
                 }
 #endif
