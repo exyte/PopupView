@@ -20,6 +20,20 @@ public extension EnvironmentValues {
     }
 }
 
+struct PopupSafeAreaInsetsKey: EnvironmentKey {
+    static let defaultValue = EdgeInsets()
+}
+
+public extension EnvironmentValues {
+    /// The device's current safe area, kept up to date across rotation and window/safe-area changes.
+    /// Types that always ignore the safe area (`.toast`) never inset themselves automatically so their
+    /// background can bleed to the screen edges — read this to inset your own content when needed.
+    var popupSafeAreaInsets: EdgeInsets {
+        get { self[PopupSafeAreaInsetsKey.self] }
+        set { self[PopupSafeAreaInsetsKey.self] = newValue }
+    }
+}
+
 @MainActor
 extension View {
     public func popup<PopupContent: View>(

@@ -40,6 +40,10 @@ struct PopupBody<PopupContent: View>: View {
     @State private var actualCurrentOffset = CGPoint.pointFarAwayFromScreen
     @State private var actualScale = 1.0
     @State private var hasBeenInitiallyPositioned = false
+    /// Cached copy of the device's safe area, refreshed only from safe callback contexts
+    /// (task/orientation change) — never read live from UIKit during body construction,
+    /// which causes a SwiftUI AttributeGraph cycle (and the popup silently never rendering at all).
+    @State private var safeAreaInsets = EdgeInsets()
 #if os(iOS)
     @State private var isLandscape: Bool = UIDevice.current.orientation.isLandscape
 #endif
@@ -253,6 +257,7 @@ struct PopupBody<PopupContent: View>: View {
             }
 
             .task {
+                refreshSafeAreaInsets()
                 dragToDismissManager.configure(
                     sheetContentRect: $sheetContentRect,
                     isDragging: $isDragging,
@@ -269,9 +274,15 @@ struct PopupBody<PopupContent: View>: View {
 
 #if os(iOS)
             .onOrientationChange(isLandscape: $isLandscape) {
+                refreshSafeAreaInsets()
                 actualCurrentOffset = targetCurrentOffset
             }
 #endif
+    }
+
+    private func refreshSafeAreaInsets() {
+        let insets = ScreenUtils.safeAreaInsets
+        safeAreaInsets = EdgeInsets(top: insets.top, leading: insets.left, bottom: insets.bottom, trailing: insets.right)
     }
 
     func changeParamsWithAnimation(_ isDisplayAnimation: Bool) {
@@ -294,6 +305,16 @@ struct PopupBody<PopupContent: View>: View {
     func bodyWithGestures() -> some View {
         if showContent, presenterContentRect != .zero {
             popupBodyBuilder()
+                .environment(\.popupSafeAreaInsets, safeAreaInsets)
+                // Padding both sides re-centers the content within the safe rect instead of the raw one.
+                .applyIf(useSafeAreaInset && position.isHorizontalCenter) { view in
+                    view.padding(.leading, safeAreaInsets.leading)
+                        .padding(.trailing, safeAreaInsets.trailing)
+                }
+                .applyIf(useSafeAreaInset && position.isVerticalCenter) { view in
+                    view.padding(.top, safeAreaInsets.top)
+                        .padding(.bottom, safeAreaInsets.bottom)
+                }
 #if os(iOS)
                 .applyIfNotNil(scrollParams) { view, params in
                     view.modifier(ScrollPopupModifier(

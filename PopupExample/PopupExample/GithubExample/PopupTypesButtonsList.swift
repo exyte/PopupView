@@ -164,7 +164,7 @@ struct PopupTypesButtonsList: View {
         }
         
         typeIconButton(
-            isShowing: $floatsSmall.showingTopFirst,
+            isShowing: $floatsSmall.showingBottomFirst,
             title: "Bottom version 1",
             details: "Bottom float with a picture"
         ) {
@@ -172,7 +172,7 @@ struct PopupTypesButtonsList: View {
         }
         
         typeIconButton(
-            isShowing: $floatsSmall.showingTopSecond,
+            isShowing: $floatsSmall.showingBottomSecond,
             title: "Bottom version 2",
             details: "Bottom float with a picture"
         ) {

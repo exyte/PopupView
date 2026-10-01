@@ -6,18 +6,28 @@
 //
 
 import SwiftUI
+import PopupView
 
 struct ToastTopFirst: View {
+    @Environment(\.popupSafeAreaInsets) var safeAreaInsets
+
     var body: some View {
         Text("Unable to add to cart as this item is currently unavailable.")
             .foregroundColor(.white)
-            .padding(EdgeInsets(top: 60, leading: 32, bottom: 16, trailing: 32))
-            .frame(maxWidth: .infinity)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(EdgeInsets(
+                top: 16 + safeAreaInsets.top,
+                leading: 32 + safeAreaInsets.leading,
+                bottom: 16,
+                trailing: 32 + safeAreaInsets.trailing
+            ))
             .background(Color(hex: "FE504E"))
     }
 }
 
 struct ToastTopSecond: View {
+    @Environment(\.popupSafeAreaInsets) var safeAreaInsets
+
     var body: some View {
         HStack {
             Image("avatar3")
@@ -41,15 +51,21 @@ struct ToastTopSecond: View {
             }
         }
         .foregroundColor(.white)
-        .padding(EdgeInsets(top: 56, leading: 16, bottom: 16, trailing: 16))
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(EdgeInsets(
+            top: 16 + safeAreaInsets.top,
+            leading: 16 + safeAreaInsets.leading,
+            bottom: 16,
+            trailing: 16 + safeAreaInsets.trailing
+        ))
         .background(Color(hex: "87B9FF"))
     }
 }
 
 struct ToastBottomFirst: View {
+    @Environment(\.popupSafeAreaInsets) var safeAreaInsets
     @Binding var isShowing: Bool
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
             Image("fitness")
@@ -86,19 +102,28 @@ struct ToastBottomFirst: View {
             }
         }
         .foregroundColor(.black)
-        .padding(EdgeInsets(top: 24, leading: 16, bottom: 42, trailing: 16))
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(EdgeInsets(
+            top: 24,
+            leading: 16 + safeAreaInsets.leading,
+            bottom: safeAreaInsets.bottom,
+            // a smaller manual margin instead of the full safe area — this toast's buttons
+            // don't need to clear an edge cutout as aggressively as content pinned to it would
+            trailing: 16
+        ))
         .background(Color.white)
     }
 }
 
 struct ToastBottomSecond: View {
+    @Environment(\.popupSafeAreaInsets) var safeAreaInsets
+
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
             Image("checkmark")
                 .frame(width: 48, height: 48)
                 .cornerRadius(24)
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text("Subscription completed!")
                     .font(.system(size: 16, weight: .bold))
@@ -106,12 +131,19 @@ struct ToastBottomSecond: View {
                     .font(.system(size: 16, weight: .light))
                     .opacity(0.8)
             }
-            
+
             Spacer()
         }
         .foregroundColor(.black)
-        .padding(EdgeInsets(top: 24, leading: 16, bottom: 42, trailing: 16))
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(EdgeInsets(
+            top: 24,
+            leading: 16 + safeAreaInsets.leading,
+            bottom: safeAreaInsets.bottom,
+            // a smaller manual margin instead of the full safe area — this toast's content
+            // doesn't need to clear an edge cutout as aggressively as content pinned to it would
+            trailing: 16
+        ))
         .background(Color.white)
         .shadow(color: .black.opacity(0.1), radius: 40, x: 0, y: -4)
     }

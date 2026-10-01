@@ -63,11 +63,7 @@ final class WindowManager {
         let rootView = content()
             .environment(\.popupDismiss, dismissClosure)
 
-        let controller = if #available(iOS 18, *) {
-            UIHostingController(rootView: rootView)
-        } else {
-            UITextFieldCheckingVC(rootView: rootView)
-        }
+        let controller = UITextFieldCheckingVC(rootView: rootView)
 
         controller.view.backgroundColor = .clear
         window.rootViewController = controller
@@ -195,11 +191,9 @@ class UITextFieldCheckingVC<Content: View>: UIHostingController<Content> {
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
-        guard #available(iOS 18, *) else {
-            // manually force open the keyboard for text fields, this is an ios17 bug
-            checkForTextFields(touches)
-            return
-        }
+        // manually force open the keyboard for text fields — a secondary window's UIHostingController
+        // doesn't always pick up the tap on its own; this is a harmless no-op when it already did
+        checkForTextFields(touches)
     }
 
     private func checkForTextFields(_ touches: Set<UITouch>) {

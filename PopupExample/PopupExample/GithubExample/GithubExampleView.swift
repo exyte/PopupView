@@ -209,7 +209,7 @@ struct GithubExampleView: View {
                 PopupBottomFirst(isPresented: $popups.showingBottomFirst)
             } customize: {
                 $0
-                    .type(.floater())
+                    .type(.default)
                     .disappearTo(.centerScale)
                     .position(.bottom)
                     .closeOnTap(false)

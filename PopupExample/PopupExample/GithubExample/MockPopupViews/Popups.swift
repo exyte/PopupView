@@ -88,6 +88,7 @@ struct PopupBottomFirst: View {
         .background(Color.white.cornerRadius(20))
         .shadowedStyle()
         .padding(.horizontal, 16)
+        .padding(.bottom, 16)
     }
 }
 

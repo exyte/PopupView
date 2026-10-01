@@ -10,8 +10,15 @@ import SwiftUI
 public class Popup {
 
     public enum PopupType {
+        /// Always centered on the screen, ignoring the safe area — a classic modal/alert dialog.
         case `default`
+        /// Pinned to an edge (`.bottom` unless repositioned) and always ignores the safe area, so its
+        /// background can bleed to the screen edges. Read `popupSafeAreaInsets` from the environment
+        /// to inset your own content (e.g. text) away from notches/home indicators/dual-screen cutouts.
         case toast
+        /// A freely positioned card. When `useSafeAreaInset` is true (the default) it's kept fully
+        /// inside the safe area — including centered positions, which then center within the safe
+        /// rect rather than the raw screen, so they won't look screen-centered under asymmetric insets.
         case floater(verticalPadding: CGFloat = 10, horizontalPadding: CGFloat = 10, useSafeAreaInset: Bool = true)
 
         public var isToast: Bool {
