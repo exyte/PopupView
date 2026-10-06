@@ -43,9 +43,13 @@ struct ScreenUtils {
             .keyWindow?
             .safeAreaInsets ?? .zero
     }
-#else
+#elseif os(macOS)
     static var safeAreaInsets: NSEdgeInsets {
         return NSEdgeInsets()
+    }
+#else
+    static var safeAreaInsets: UIEdgeInsets {
+        return .zero
     }
 #endif
 }
