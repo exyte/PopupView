@@ -344,7 +344,9 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
     }
 
     func onAnimationCompleted() {
-        if shouldShowContent { // return if this was called on showing animation, only proceed if called on hiding
+        // First presentation can still be waiting for layout when the fallback fires.
+        // Only a requested dismissal may unload content; visibility is not dismissal intent.
+        if !closingIsInProcess {
             eventsSemaphore.signal()
             return
         }
