@@ -21,6 +21,7 @@ let package = Package(
             swiftSettings: [
               .enableExperimentalFeature("StrictConcurrency")
             ]
-        )
+        ),
+        .testTarget(name: "PopupViewTests", dependencies: ["PopupView"])
     ]
 )
