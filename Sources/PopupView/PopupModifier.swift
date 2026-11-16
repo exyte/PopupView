@@ -266,30 +266,36 @@ public struct PopupModifier<Item: Equatable, PopupContent: View>: ViewModifier {
 
     @ViewBuilder
     private func popupBody() -> some View {
-        var viewForItem: (() -> PopupContent)? {
-            if let item = item {
-                return { itemView(item) }
-            } else if let tempItemView {
-                return { tempItemView }
-            }
-            return nil
+        // An item-based popup has no content to show while it has neither an item nor the copy it keeps to finish
+        // hiding, such as before its first item or once its hiding animation completes.
+        if let popupBodyBuilder {
+            PopupBody(
+                shouldShowContent: $shouldShowContent,
+                showContent: $showContent,
+                presenterContentRect: $presenterContentRect,
+                sheetContentRect: $sheetContentRect,
+                isDragging: $isDragging,
+                timeToHide: $timeToHide,
+                params: params,
+                popupBodyBuilder: popupBodyBuilder,
+                dismissCallback: { source in
+                    dismissSource = source
+                    isPresented = false
+                    item = nil
+                }
+            )
         }
+    }
 
-        PopupBody(
-            shouldShowContent: $shouldShowContent,
-            showContent: $showContent,
-            presenterContentRect: $presenterContentRect,
-            sheetContentRect: $sheetContentRect,
-            isDragging: $isDragging,
-            timeToHide: $timeToHide,
-            params: params,
-            popupBodyBuilder: viewForItem != nil ? viewForItem! : view,
-            dismissCallback: { source in
-                dismissSource = source
-                isPresented = false
-                item = nil
-            }
-        )
+    private var popupBodyBuilder: (() -> PopupContent)? {
+        if isBoolMode {
+            return view
+        } else if let item {
+            return { itemView(item) }
+        } else if let tempItemView {
+            return { tempItemView }
+        }
+        return nil
     }
 
     private func popupBackground() -> some View {
